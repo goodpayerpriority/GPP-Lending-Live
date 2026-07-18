@@ -1,0 +1,1 @@
+Open index.html. Admin PIN: 1234. This GitHub Pages demo cannot securely upload/store real IDs, signatures, or videos; use a secure backend before collecting real documents.
