@@ -321,18 +321,43 @@
           </label>
 
 
-          <label>
+          <!-- BORROWER SIGNATURE -->
+          <div class="signature-section">
 
-            Picture of Your Signature
+            <h2>Borrower Signature</h2>
 
-            <input
-              id="signature"
-              type="file"
-              accept="image/*"
-              required
+            <p>
+              Please sign inside the box below using your finger, mouse, or touchscreen.
+            </p>
+
+            <div class="signature-pad-wrapper">
+
+              <canvas
+                id="signaturePad"
+                class="signature-pad"
+              ></canvas>
+
+            </div>
+
+            <div class="signature-actions">
+
+              <button
+                type="button"
+                id="clearSignature"
+              >
+                Clear Signature
+              </button>
+
+            </div>
+
+            <p
+              id="signatureError"
+              class="signature-error hidden"
             >
+              Please provide your signature before submitting your application.
+            </p>
 
-          </label>
+          </div>
 
 
           <label>
