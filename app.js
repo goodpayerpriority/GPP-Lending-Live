@@ -8,6 +8,11 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
 
+
+/* =========================
+   PAGE NAVIGATION
+========================= */
+
 function show(id) {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
@@ -40,10 +45,10 @@ function term(amount) {
 
 
 /* =========================
-   DATE FORMAT
+   FORMAT DATE FOR CALENDAR
 ========================= */
 
-function formatDate(date) {
+function formatDateForInput(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -53,20 +58,26 @@ function formatDate(date) {
 
 
 /* =========================
-   UPDATE LOAN DETAILS
+   AUTOMATIC LOAN DETAILS
 ========================= */
 
 function updateLoanDetails() {
-  const amount = Number($("amount").value);
+  const amountInput = $("amount");
+  const startDateInput = $("loanStartDate");
+  const endDateInput = $("loanEndDate");
+  const totalAmountInput = $("totalAmount");
+  const termsBox = $("terms");
+
+  const amount = Number(amountInput.value);
   const loanTerm = term(amount);
 
   if (!loanTerm) {
-    $("terms").textContent =
-      "Enter a valid amount from ₱100 to ₱2,000.";
+    startDateInput.value = "";
+    endDateInput.value = "";
+    totalAmountInput.value = "";
 
-    $("loanStartDate").value = "";
-    $("loanEndDate").value = "";
-    $("totalAmount").value = "";
+    termsBox.textContent =
+      "Enter ₱100–₱2,000 to calculate terms.";
 
     return;
   }
@@ -75,48 +86,52 @@ function updateLoanDetails() {
   const durationDays = loanTerm[1];
 
   const totalPayment =
-    amount + amount * (interestRate / 100);
+    amount + (amount * interestRate / 100);
 
   const startDate = new Date();
 
   const endDate = new Date(startDate);
-  endDate.setDate(
-    endDate.getDate() + durationDays
-  );
+  endDate.setDate(endDate.getDate() + durationDays);
 
-  $("loanStartDate").value =
-    formatDate(startDate);
+  startDateInput.value =
+    formatDateForInput(startDate);
 
-  $("loanEndDate").value =
-    formatDate(endDate);
+  endDateInput.value =
+    formatDateForInput(endDate);
 
-  $("totalAmount").value =
+  totalAmountInput.value =
     `₱${totalPayment.toFixed(2)}`;
 
-  $("terms").innerHTML = `
-    <b>Your loan terms:</b><br>
-    ${interestRate}% interest for ${durationDays} days.<br>
-    Loan Start Date: <b>${formatDate(startDate)}</b><br>
-    Loan End Date: <b>${formatDate(endDate)}</b><br>
-    Total Amount to Pay:
+  termsBox.innerHTML = `
+    <b>Your loan terms:</b>
+    ${interestRate}% interest for ${durationDays} days.
+    Total payment:
     <b>₱${totalPayment.toFixed(2)}</b>
   `;
 }
 
+
+/* Run calculation whenever amount changes */
 
 $("amount").addEventListener(
   "input",
   updateLoanDetails
 );
 
+$("amount").addEventListener(
+  "change",
+  updateLoanDetails
+);
+
 
 /* =========================
-   STUDENT SCHOOL LINK
+   STUDENT SCHOOL FIELD
 ========================= */
 
 $("employment").addEventListener(
   "change",
-  () => {
+  function () {
+
     const isStudent =
       $("employment").value === "Student";
 
@@ -137,7 +152,8 @@ $("employment").addEventListener(
 
 $("video").addEventListener(
   "change",
-  () => {
+  function () {
+
     const file =
       $("video").files[0];
 
@@ -149,6 +165,7 @@ $("video").addEventListener(
       50 * 1024 * 1024;
 
     if (file.size > maxSize) {
+
       alert(
         "Verification video must be under 50 MB. Please select a smaller video."
       );
@@ -163,231 +180,310 @@ $("video").addEventListener(
    SUBMIT APPLICATION
 ========================= */
 
-$("form").onsubmit = async event => {
-  event.preventDefault();
+$("form").addEventListener(
+  "submit",
+  async function (event) {
 
-  const button =
-    event.submitter;
+    event.preventDefault();
 
-  const video =
-    $("video").files[0];
+    const button =
+      event.submitter;
 
-  if (
-    video &&
-    video.size >
-      50 * 1024 * 1024
-  ) {
-    alert(
-      "Verification video must be under 50 MB."
-    );
+    const amount =
+      Number($("amount").value);
 
-    return;
-  }
+    const loanTerm =
+      term(amount);
 
-  const amount =
-    Number($("amount").value);
+    if (!loanTerm) {
 
-  const loanTerm =
-    term(amount);
-
-  if (!loanTerm) {
-    alert(
-      "Loan amount must be between ₱100 and ₱2,000."
-    );
-
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent =
-    "Submitting...";
-
-  const formData =
-    new FormData();
-
-  formData.append(
-    "full_name",
-    $("name").value
-  );
-
-  formData.append(
-    "email",
-    $("email").value
-  );
-
-  formData.append(
-    "mobile_number",
-    $("phone").value
-  );
-
-  formData.append(
-    "date_of_birth",
-    $("dob").value
-  );
-
-  formData.append(
-    "full_address",
-    $("address").value
-  );
-
-  formData.append(
-    "brgy_captain",
-    $("brgyCaptain").value
-  );
-
-  formData.append(
-    "relative_fb_1",
-    $("relativeFb1").value
-  );
-
-  formData.append(
-    "relative_fb_2",
-    $("relativeFb2").value
-  );
-
-  formData.append(
-    "employment_type",
-    $("employment").value
-  );
-
-  formData.append(
-    "school_facebook_url",
-    $("school").value
-  );
-
-  formData.append(
-    "monthly_income",
-    $("income").value
-  );
-
-  formData.append(
-    "requested_amount",
-    $("amount").value
-  );
-
-  formData.append(
-    "loan_purpose",
-    $("purpose").value
-  );
-
-  formData.append(
-    "id_front",
-    $("idFront").files[0]
-  );
-
-  formData.append(
-    "id_back",
-    $("idBack").files[0]
-  );
-
-  formData.append(
-    "signature",
-    $("signature").files[0]
-  );
-
-  formData.append(
-    "verification_video",
-    $("video").files[0]
-  );
-
-  try {
-    const response =
-      await fetch(
-        SUBMIT_URL,
-        {
-          method: "POST",
-
-          headers: {
-            apikey:
-              SUPABASE_KEY
-          },
-
-          body:
-            formData
-        }
+      alert(
+        "Please enter a loan amount from ₱100 to ₱2,000."
       );
 
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.error ||
-        data.message ||
-        "Unable to submit the application."
-      );
+      return;
     }
 
-    $("decision").className =
-      "result";
+    const video =
+      $("video").files[0];
 
-    $("decision").innerHTML = `
-      <h3>Application Submitted Successfully</h3>
+    if (
+      video &&
+      video.size > 50 * 1024 * 1024
+    ) {
 
-      <p>
-        Your application has been received and is pending review.
-      </p>
+      alert(
+        "Verification video must be under 50 MB."
+      );
 
-      <p>
-        Save your Application ID:
-      </p>
+      return;
+    }
 
-      <p>
-        <b>${escapeHtml(data.application_id)}</b>
-      </p>
-
-      <p>
-        <b>Loan Start Date:</b>
-        ${escapeHtml(data.loan.loan_start_date)}
-      </p>
-
-      <p>
-        <b>Loan End Date:</b>
-        ${escapeHtml(data.loan.loan_end_date)}
-      </p>
-
-      <p>
-        <b>Total Amount to Pay:</b>
-        ₱${Number(
-          data.loan.total_payment
-        ).toFixed(2)}
-      </p>
-    `;
-
-    event.target.reset();
-
-    $("schoolBox")
-      .classList.add("hidden");
-
-    $("loanStartDate").value =
-      "";
-
-    $("loanEndDate").value =
-      "";
-
-    $("totalAmount").value =
-      "";
-
-    $("terms").textContent =
-      "Enter ₱100–₱2,000 to calculate terms.";
-
-  } catch (error) {
-    console.error(
-      "Submission error:",
-      error
-    );
-
-    alert(
-      error.message
-    );
-
-  } finally {
-    button.disabled = false;
-
+    button.disabled = true;
     button.textContent =
-      "Submit Application";
+      "Submitting...";
+
+    const formData =
+      new FormData();
+
+
+    /* PERSONAL INFORMATION */
+
+    formData.append(
+      "full_name",
+      $("name").value
+    );
+
+    formData.append(
+      "email",
+      $("email").value
+    );
+
+    formData.append(
+      "mobile_number",
+      $("phone").value
+    );
+
+    formData.append(
+      "date_of_birth",
+      $("dob").value
+    );
+
+    formData.append(
+      "full_address",
+      $("address").value
+    );
+
+    formData.append(
+      "brgy_captain",
+      $("brgyCaptain").value
+    );
+
+
+    /* RELATIVES */
+
+    formData.append(
+      "relative_fb_1",
+      $("relativeFb1").value
+    );
+
+    formData.append(
+      "relative_fb_2",
+      $("relativeFb2").value
+    );
+
+
+    /* EMPLOYMENT */
+
+    formData.append(
+      "employment_type",
+      $("employment").value
+    );
+
+    formData.append(
+      "school_facebook_url",
+      $("school").value || ""
+    );
+
+    formData.append(
+      "monthly_income",
+      $("income").value
+    );
+
+
+    /* LOAN INFORMATION */
+
+    formData.append(
+      "requested_amount",
+      $("amount").value
+    );
+
+    formData.append(
+      "loan_purpose",
+      $("purpose").value
+    );
+
+    formData.append(
+      "loan_start_date",
+      $("loanStartDate").value
+    );
+
+    formData.append(
+      "loan_end_date",
+      $("loanEndDate").value
+    );
+
+    formData.append(
+      "total_amount_to_pay",
+      $("totalAmount").value.replace(
+        "₱",
+        ""
+      )
+    );
+
+
+    /* DOCUMENTS */
+
+    formData.append(
+      "id_front",
+      $("idFront").files[0]
+    );
+
+    formData.append(
+      "id_back",
+      $("idBack").files[0]
+    );
+
+    formData.append(
+      "signature",
+      $("signature").files[0]
+    );
+
+    formData.append(
+      "verification_video",
+      $("video").files[0]
+    );
+
+
+    try {
+
+      const response =
+        await fetch(
+          SUBMIT_URL,
+          {
+            method: "POST",
+
+            headers: {
+              apikey:
+                SUPABASE_KEY
+            },
+
+            body:
+              formData
+          }
+        );
+
+
+      let data;
+
+      try {
+        data =
+          await response.json();
+      } catch {
+        throw new Error(
+          "The server returned an invalid response."
+        );
+      }
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          data.message ||
+          "Unable to submit the application."
+        );
+      }
+
+
+      const applicationId =
+        data.application_id ||
+        "Application submitted";
+
+
+      $("decision").className =
+        "result";
+
+
+      $("decision").innerHTML = `
+        <h3>
+          Application Submitted
+        </h3>
+
+        <p>
+          Save your Application ID:
+        </p>
+
+        <p>
+          <b>
+            ${escapeHtml(applicationId)}
+          </b>
+        </p>
+
+        <p>
+          <b>Loan Start Date:</b><br>
+          ${escapeHtml(
+            $("loanStartDate").value
+          )}
+        </p>
+
+        <p>
+          <b>Loan End Date:</b><br>
+          ${escapeHtml(
+            $("loanEndDate").value
+          )}
+        </p>
+
+        <p>
+          <b>Total Amount to Pay:</b><br>
+          ${escapeHtml(
+            $("totalAmount").value
+          )}
+        </p>
+      `;
+
+
+      event.target.reset();
+
+      $("schoolBox")
+        .classList
+        .add("hidden");
+
+      $("school").required =
+        false;
+
+      $("loanStartDate").value =
+        "";
+
+      $("loanEndDate").value =
+        "";
+
+      $("totalAmount").value =
+        "";
+
+      $("terms").textContent =
+        "Enter ₱100–₱2,000 to calculate terms.";
+
+
+      $("decision").scrollIntoView({
+        behavior: "smooth"
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "Submission error:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Unable to submit the application. Please try again."
+      );
+
+
+    } finally {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "Submit Application";
+    }
+
   }
-};
+);
 
 
 /* =========================
@@ -395,18 +491,25 @@ $("form").onsubmit = async event => {
 ========================= */
 
 async function track() {
+
   const applicationId =
-    $("trackId").value.trim();
+    $("trackId")
+      .value
+      .trim();
 
   const result =
     $("trackResult");
 
+
   if (!applicationId) {
+
     result.className =
       "result";
 
     result.innerHTML = `
-      <h3>Please enter your Application ID</h3>
+      <h3>
+        Please Enter Your Application ID
+      </h3>
 
       <p>
         Enter the Application ID you received after submitting your application.
@@ -416,15 +519,24 @@ async function track() {
     return;
   }
 
+
   result.className =
     "result";
 
+
   result.innerHTML = `
-    <h3>Checking Application...</h3>
-    <p>Please wait.</p>
+    <h3>
+      Checking Application...
+    </h3>
+
+    <p>
+      Please wait.
+    </p>
   `;
 
+
   try {
+
     const response =
       await fetch(
         TRACK_URL,
@@ -433,6 +545,7 @@ async function track() {
             "POST",
 
           headers: {
+
             "Content-Type":
               "application/json",
 
@@ -442,27 +555,37 @@ async function track() {
 
           body:
             JSON.stringify({
+
               application_id:
                 applicationId
+
             })
         }
       );
 
+
     const data =
       await response.json();
 
+
     if (!response.ok) {
+
       throw new Error(
         data.error ||
         "Unable to track application."
       );
     }
 
+
     const application =
-      data.application;
+      data.application ||
+      data;
+
 
     result.innerHTML = `
-      <h3>Application Status</h3>
+      <h3>
+        Application Status
+      </h3>
 
       <p>
         <b>Application ID:</b><br>
@@ -487,21 +610,25 @@ async function track() {
 
       <p>
         <b>Loan Terms:</b><br>
-        ${application.interest_rate}%
-        interest for
-        ${application.duration_days}
-        days
+        ${escapeHtml(
+          application.interest_rate
+        )}% interest for
+        ${escapeHtml(
+          application.duration_days
+        )} days
       </p>
 
       <p>
         <b>Total Payment:</b><br>
         ₱${Number(
-          application.total_payment
+          application.total_payment ||
+          application.total_amount_to_pay
         ).toFixed(2)}
       </p>
 
       <p>
         <b>Status:</b><br>
+
         <strong>
           ${escapeHtml(
             application.status
@@ -510,13 +637,24 @@ async function track() {
       </p>
     `;
 
+
   } catch (error) {
+
+    console.error(
+      "Tracking error:",
+      error
+    );
+
+
     result.innerHTML = `
-      <h3>Unable to Track Application</h3>
+      <h3>
+        Unable to Track Application
+      </h3>
 
       <p>
         ${escapeHtml(
-          error.message
+          error.message ||
+          "Please try again."
         )}
       </p>
     `;
@@ -529,6 +667,7 @@ async function track() {
 ========================= */
 
 async function login() {
+
   const email =
     $("adminEmail")
       .value
@@ -538,17 +677,25 @@ async function login() {
     $("adminPassword")
       .value;
 
+
   $("loginError")
     .textContent = "";
 
-  const { error } =
+
+  const {
+    error
+  } =
     await sb.auth
       .signInWithPassword({
+
         email,
         password
+
       });
 
+
   if (error) {
+
     $("loginError")
       .textContent =
         error.message;
@@ -556,13 +703,16 @@ async function login() {
     return;
   }
 
+
   $("login")
     .classList
     .add("hidden");
 
+
   $("dashboard")
     .classList
     .remove("hidden");
+
 
   render();
 }
@@ -573,11 +723,14 @@ async function login() {
 ========================= */
 
 async function logout() {
+
   await sb.auth.signOut();
+
 
   $("dashboard")
     .classList
     .add("hidden");
+
 
   $("login")
     .classList
@@ -586,10 +739,11 @@ async function logout() {
 
 
 /* =========================
-   LOAD APPLICATIONS
+   LOAD ADMIN APPLICATIONS
 ========================= */
 
 async function render() {
+
   $("list").innerHTML = `
     <tr>
       <td colspan="6">
@@ -598,14 +752,13 @@ async function render() {
     </tr>
   `;
 
+
   const {
     data,
     error
   } =
     await sb
-      .from(
-        "applications"
-      )
+      .from("applications")
       .select("*")
       .order(
         "created_at",
@@ -615,23 +768,31 @@ async function render() {
         }
       );
 
+
   if (error) {
+
     $("list").innerHTML = `
       <tr>
+
         <td colspan="6">
+
           ${escapeHtml(
             error.message
           )}
+
         </td>
+
       </tr>
     `;
 
     return;
   }
 
+
   $("list").innerHTML =
     data.map(
       application => `
+
         <tr>
 
           <td>
@@ -653,19 +814,26 @@ async function render() {
           </td>
 
           <td>
-            ${application.interest_rate}%
+
+            ${escapeHtml(
+              application.interest_rate
+            )}%
+
             /
-            ${application.duration_days}
+
+            ${escapeHtml(
+              application.duration_days
+            )}
+
             days
+
           </td>
+
 
           <td>
 
             <select
-              onchange="setStatus(
-                '${application.id}',
-                this.value
-              )"
+              onchange="setStatus('${application.id}', this.value)"
             >
 
               ${[
@@ -676,6 +844,7 @@ async function render() {
 
               ].map(
                 status => `
+
                   <option
                     ${
                       status ===
@@ -684,8 +853,11 @@ async function render() {
                         : ""
                     }
                   >
+
                     ${status}
+
                   </option>
+
                 `
               ).join("")}
 
@@ -693,12 +865,11 @@ async function render() {
 
           </td>
 
+
           <td>
 
             <button
-              onclick="viewDocs(
-                '${application.id}'
-              )"
+              onclick="viewDocs('${application.id}')"
             >
               Documents
             </button>
@@ -706,41 +877,48 @@ async function render() {
           </td>
 
         </tr>
+
       `
     ).join("") ||
 
     `
       <tr>
+
         <td colspan="6">
           No applications yet.
         </td>
+
       </tr>
     `;
 }
 
 
 /* =========================
-   UPDATE STATUS
+   UPDATE APPLICATION STATUS
 ========================= */
 
 async function setStatus(
   id,
   status
 ) {
-  const { error } =
+
+  const {
+    error
+  } =
     await sb
-      .from(
-        "applications"
-      )
+      .from("applications")
       .update({
-        status
+        status:
+          status
       })
       .eq(
         "id",
         id
       );
 
+
   if (error) {
+
     alert(
       error.message
     );
@@ -753,14 +931,13 @@ async function setStatus(
 ========================= */
 
 async function viewDocs(id) {
+
   const {
     data: application,
     error
   } =
     await sb
-      .from(
-        "applications"
-      )
+      .from("applications")
       .select(
         "id_front_path,id_back_path,signature_path,verification_video_path"
       )
@@ -770,13 +947,19 @@ async function viewDocs(id) {
       )
       .single();
 
+
   if (error) {
-    return alert(
+
+    alert(
       error.message
     );
+
+    return;
   }
 
+
   const paths = [
+
     [
       "ID Front",
       application.id_front_path
@@ -796,9 +979,12 @@ async function viewDocs(id) {
       "Verification Video",
       application.verification_video_path
     ]
+
   ];
 
+
   const links = [];
+
 
   for (
     const [
@@ -807,6 +993,12 @@ async function viewDocs(id) {
     ]
     of paths
   ) {
+
+    if (!path) {
+      continue;
+    }
+
+
     const {
       data,
       error
@@ -820,7 +1012,12 @@ async function viewDocs(id) {
           300
         );
 
-    if (!error) {
+
+    if (
+      !error &&
+      data?.signedUrl
+    ) {
+
       links.push(
         `
           <a
@@ -828,14 +1025,16 @@ async function viewDocs(id) {
             target="_blank"
             rel="noopener"
           >
-            ${label}
+            ${escapeHtml(label)}
           </a>
         `
       );
     }
   }
 
+
   $("docLinks").innerHTML = `
+
     <h3>
       Private Documents
     </h3>
@@ -844,8 +1043,14 @@ async function viewDocs(id) {
       Links expire in 5 minutes.
     </p>
 
-    ${links.join("<br>")}
+    ${
+      links.length
+        ? links.join("<br>")
+        : "No documents available."
+    }
+
   `;
+
 
   $("docLinks")
     .classList
@@ -858,12 +1063,15 @@ async function viewDocs(id) {
 ========================= */
 
 function escapeHtml(value) {
+
   return String(
     value ?? ""
   ).replace(
+
     /[&<>'"]/g,
 
     character => ({
+
       "&":
         "&amp;",
 
@@ -880,12 +1088,13 @@ function escapeHtml(value) {
         "&quot;"
 
     }[character])
+
   );
 }
 
 
 /* =========================
-   CHECK ADMIN SESSION
+   CHECK EXISTING ADMIN SESSION
 ========================= */
 
 sb.auth
@@ -898,19 +1107,25 @@ sb.auth
       if (
         data.session
       ) {
+
         $("login")
           .classList
-          .add(
-            "hidden"
-          );
+          .add("hidden");
+
 
         $("dashboard")
           .classList
-          .remove(
-            "hidden"
-          );
+          .remove("hidden");
+
 
         render();
       }
     }
   );
+
+
+/* =========================
+   INITIAL CALCULATION
+========================= */
+
+updateLoanDetails();
