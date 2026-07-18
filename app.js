@@ -1,6 +1,9 @@
 const SUPABASE_URL = "https://fowgcdkwcmjchlinmywg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_BfNlckA6XfPk0rt_bv1kKQ_-RBQvl_L";
+
 const SUBMIT_URL = `${SUPABASE_URL}/functions/v1/submit-application`;
+const TRACK_URL = `${SUPABASE_URL}/functions/v1/track-application`;
+
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
@@ -69,54 +72,135 @@ $('form').onsubmit = async e => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(
-        data.error ||
-        data.message ||
-        'Unable to submit the application.'
-      );
+      throw new Error(data.error || 'Submission failed');
     }
 
     $('decision').className = 'result';
 
     $('decision').innerHTML = `
-      <h3>Application Submitted Successfully</h3>
-      <p>Your application has been received and is pending review.</p>
-      ${
-        data.application_id
-          ? `<p>Save your Application ID:</p>
-             <p><b>${data.application_id}</b></p>`
-          : ''
-      }
+      <h3>Application Submitted</h3>
+      <p>Save your Application ID:</p>
+      <p><b>${data.application_id}</b></p>
+      <p>
+        ${data.loan.interest_rate}% interest •
+        ${data.loan.duration_days} days •
+        Total ₱${Number(data.loan.total_payment).toFixed(2)}
+      </p>
     `;
 
     e.target.reset();
 
     $('schoolBox').classList.add('hidden');
-    $('terms').textContent =
-      'Enter ₱100–₱2,000 to calculate terms.';
+    $('terms').textContent = 'Enter ₱100–₱2,000 to calculate terms.';
 
   } catch (err) {
-    console.error('Submission error:', err);
     alert(err.message);
+
   } finally {
     button.disabled = false;
     button.textContent = 'Submit Application';
   }
 };
 
-function track() {
-  $('trackResult').className = 'result';
 
-  $('trackResult').innerHTML = `
-    <h3>Online tracking is being secured.</h3>
-    <p>
-      Please contact GPP Lending and provide your Application ID.
-      Your application is stored in the live database.
-    </p>
+/* =========================
+   TRACK APPLICATION
+========================= */
+
+async function track() {
+
+  const applicationId = $('trackId').value.trim();
+  const result = $('trackResult');
+
+  if (!applicationId) {
+    result.className = 'result';
+    result.innerHTML = `
+      <h3>Please enter your Application ID</h3>
+      <p>Enter the Application ID you received after submitting your application.</p>
+    `;
+    return;
+  }
+
+  result.className = 'result';
+
+  result.innerHTML = `
+    <h3>Checking Application...</h3>
+    <p>Please wait.</p>
   `;
+
+  try {
+
+    const res = await fetch(TRACK_URL, {
+      method: 'POST',
+
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY
+      },
+
+      body: JSON.stringify({
+        application_id: applicationId
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Unable to track application.');
+    }
+
+    const a = data.application;
+
+    result.innerHTML = `
+      <h3>Application Status</h3>
+
+      <p>
+        <b>Application ID:</b><br>
+        ${escapeHtml(a.application_id)}
+      </p>
+
+      <p>
+        <b>Name:</b><br>
+        ${escapeHtml(a.full_name)}
+      </p>
+
+      <p>
+        <b>Requested Amount:</b><br>
+        ₱${Number(a.requested_amount).toFixed(2)}
+      </p>
+
+      <p>
+        <b>Loan Terms:</b><br>
+        ${a.interest_rate}% interest for ${a.duration_days} days
+      </p>
+
+      <p>
+        <b>Total Payment:</b><br>
+        ₱${Number(a.total_payment).toFixed(2)}
+      </p>
+
+      <p>
+        <b>Status:</b><br>
+        <strong>${escapeHtml(a.status)}</strong>
+      </p>
+    `;
+
+  } catch (err) {
+
+    result.innerHTML = `
+      <h3>Unable to Track Application</h3>
+      <p>${escapeHtml(err.message)}</p>
+    `;
+  }
 }
 
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
 async function login() {
+
   const email = $('adminEmail').value.trim();
   const password = $('adminPassword').value;
 
@@ -138,67 +222,106 @@ async function login() {
   render();
 }
 
+
 async function logout() {
+
   await sb.auth.signOut();
 
   $('dashboard').classList.add('hidden');
   $('login').classList.remove('hidden');
 }
 
+
+/* =========================
+   ADMIN APPLICATION LIST
+========================= */
+
 async function render() {
+
   $('list').innerHTML =
     '<tr><td colspan="6">Loading applications...</td></tr>';
 
   const { data, error } = await sb
     .from('applications')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', {
+      ascending: false
+    });
 
   if (error) {
+
     $('list').innerHTML =
       `<tr><td colspan="6">${escapeHtml(error.message)}</td></tr>`;
+
     return;
   }
 
-  $('list').innerHTML =
-    data.map(a => `
-      <tr>
-        <td>${escapeHtml(a.application_id)}</td>
-        <td>${escapeHtml(a.full_name)}</td>
-        <td>₱${Number(a.requested_amount).toFixed(2)}</td>
-        <td>${a.interest_rate}% / ${a.duration_days} days</td>
+  $('list').innerHTML = data.map(a => `
+    <tr>
 
-        <td>
-          <select onchange="setStatus('${a.id}', this.value)">
-            ${
-              [
-                'Pending Review',
-                'Approved',
-                'More Documents Required',
-                'Declined'
-              ]
-              .map(s =>
-                `<option ${s === a.status ? 'selected' : ''}>${s}</option>`
-              )
-              .join('')
-            }
-          </select>
-        </td>
+      <td>
+        ${escapeHtml(a.application_id)}
+      </td>
 
-        <td>
-          <button onclick="viewDocs('${a.id}')">
-            Documents
-          </button>
-        </td>
-      </tr>
-    `).join('') ||
-    '<tr><td colspan="6">No applications yet.</td></tr>';
+      <td>
+        ${escapeHtml(a.full_name)}
+      </td>
+
+      <td>
+        ₱${Number(a.requested_amount).toFixed(2)}
+      </td>
+
+      <td>
+        ${a.interest_rate}% / ${a.duration_days} days
+      </td>
+
+      <td>
+
+        <select onchange="setStatus('${a.id}', this.value)">
+
+          ${[
+            'Pending Review',
+            'Approved',
+            'More Documents Required',
+            'Declined'
+
+          ].map(s => `
+
+            <option ${s === a.status ? 'selected' : ''}>
+              ${s}
+            </option>
+
+          `).join('')}
+
+        </select>
+
+      </td>
+
+      <td>
+        <button onclick="viewDocs('${a.id}')">
+          Documents
+        </button>
+      </td>
+
+    </tr>
+
+  `).join('') ||
+
+  '<tr><td colspan="6">No applications yet.</td></tr>';
 }
 
+
+/* =========================
+   UPDATE APPLICATION STATUS
+========================= */
+
 async function setStatus(id, status) {
+
   const { error } = await sb
     .from('applications')
-    .update({ status })
+    .update({
+      status
+    })
     .eq('id', id);
 
   if (error) {
@@ -206,7 +329,13 @@ async function setStatus(id, status) {
   }
 }
 
+
+/* =========================
+   VIEW PRIVATE DOCUMENTS
+========================= */
+
 async function viewDocs(id) {
+
   const { data: a, error } = await sb
     .from('applications')
     .select(
@@ -220,51 +349,92 @@ async function viewDocs(id) {
   }
 
   const paths = [
+
     ['ID Front', a.id_front_path],
+
     ['ID Back', a.id_back_path],
+
     ['Signature', a.signature_path],
+
     ['Verification Video', a.verification_video_path]
+
   ];
 
   const links = [];
 
   for (const [label, path] of paths) {
-    const { data, error } = await sb.storage
+
+    const { data, error } = await sb
+      .storage
       .from('application-documents')
       .createSignedUrl(path, 300);
 
     if (!error) {
+
       links.push(
-        `<a href="${data.signedUrl}" target="_blank" rel="noopener">${label}</a>`
+        `<a href="${data.signedUrl}"
+        target="_blank"
+        rel="noopener">
+        ${label}
+        </a>`
       );
     }
   }
 
-  $('docLinks').innerHTML =
-    '<h3>Private documents</h3>' +
-    '<p>Links expire in 5 minutes.</p>' +
-    links.join('<br>');
+  $('docLinks').innerHTML = `
+
+    <h3>Private documents</h3>
+
+    <p>
+      Links expire in 5 minutes.
+    </p>
+
+    ${links.join('<br>')}
+  `;
 
   $('docLinks').classList.remove('hidden');
 }
 
+
+/* =========================
+   SECURITY
+========================= */
+
 function escapeHtml(v) {
+
   return String(v ?? '').replace(
+
     /[&<>'"]/g,
+
     c => ({
+
       '&': '&amp;',
+
       '<': '&lt;',
+
       '>': '&gt;',
+
       "'": '&#39;',
+
       '"': '&quot;'
+
     }[c])
   );
 }
 
+
+/* =========================
+   CHECK ADMIN SESSION
+========================= */
+
 sb.auth.getSession().then(({ data }) => {
+
   if (data.session) {
+
     $('login').classList.add('hidden');
+
     $('dashboard').classList.remove('hidden');
+
     render();
   }
 });
