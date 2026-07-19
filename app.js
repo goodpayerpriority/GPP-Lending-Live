@@ -1,21 +1,32 @@
 const SUPABASE_URL = "https://fowgcdkwcmjchlinmywg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_BfNlckA6XfPk0rt_bv1kKQ_-RBQvl_L";
 
-const SUBMIT_URL = `${SUPABASE_URL}/functions/v1/submit-application`;
-const TRACK_URL = `${SUPABASE_URL}/functions/v1/track-application`;
+const SUBMIT_URL =
+  `${SUPABASE_URL}/functions/v1/submit-application`;
 
-const sb = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const TRACK_URL =
+  `${SUPABASE_URL}/functions/v1/track-application`;
 
-const $ = id =>
-  document.getElementById(id);
+const sb =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+const $ =
+  id => document.getElementById(id);
+
+let allApplications = [];
+
+let signatureCanvas = null;
+let signatureContext = null;
+let isSigning = false;
+let hasSignature = false;
 
 
-/* =========================
+/* =========================================
    PAGE NAVIGATION
-========================= */
+========================================= */
 
 function show(id) {
 
@@ -25,23 +36,32 @@ function show(id) {
       page.classList.remove("active");
     });
 
-  $(id).classList.add("active");
+  const page = $(id);
+
+  if (page) {
+    page.classList.add("active");
+  }
 
   window.scrollTo(0, 0);
 
-  if (id === "apply") {
 
-    setTimeout(() => {
-      resizeSignaturePad();
-    }, 50);
+  if (
+    id === "apply"
+  ) {
+
+    setTimeout(
+      resizeSignaturePad,
+      100
+    );
 
   }
+
 }
 
 
-/* =========================
+/* =========================================
    LOAN TERMS
-========================= */
+========================================= */
 
 function term(amount) {
 
@@ -52,12 +72,14 @@ function term(amount) {
     return [20, 3];
   }
 
+
   if (
     amount >= 501 &&
     amount <= 1000
   ) {
     return [25, 5];
   }
+
 
   if (
     amount >= 1001 &&
@@ -66,13 +88,15 @@ function term(amount) {
     return [30, 7];
   }
 
+
   return null;
+
 }
 
 
-/* =========================
-   FORMAT DATE
-========================= */
+/* =========================================
+   FORMAT DATE FOR INPUT
+========================================= */
 
 function formatDateForInput(date) {
 
@@ -82,40 +106,112 @@ function formatDateForInput(date) {
   const month =
     String(
       date.getMonth() + 1
-    ).padStart(2, "0");
+    ).padStart(
+      2,
+      "0"
+    );
 
   const day =
     String(
       date.getDate()
-    ).padStart(2, "0");
+    ).padStart(
+      2,
+      "0"
+    );
 
-  return `${year}-${month}-${day}`;
+
+  return (
+    `${year}-${month}-${day}`
+  );
+
 }
 
 
-/* =========================
+/* =========================================
+   FORMAT DISPLAY DATE
+========================================= */
+
+function formatDisplayDate(value) {
+
+  if (!value) {
+    return "Not available";
+  }
+
+
+  const date =
+    new Date(
+      `${value}T00:00:00`
+    );
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return value;
+  }
+
+
+  return date.toLocaleDateString(
+    "en-PH",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    }
+  );
+
+}
+
+
+/* =========================================
+   MONEY FORMAT
+========================================= */
+
+function money(value) {
+
+  const number =
+    Number(value);
+
+
+  if (
+    !Number.isFinite(number)
+  ) {
+    return "0.00";
+  }
+
+
+  return number.toLocaleString(
+    "en-PH",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  );
+
+}
+
+
+/* =========================================
    AUTOMATIC LOAN DETAILS
-========================= */
+========================================= */
 
 function updateLoanDetails() {
 
   const amountInput =
     $("amount");
 
-  const startDateInput =
-    $("loanStartDate");
+  if (!amountInput) {
+    return;
+  }
 
-  const endDateInput =
-    $("loanEndDate");
-
-  const totalAmountInput =
-    $("totalAmount");
-
-  const termsBox =
-    $("terms");
 
   const amount =
-    Number(amountInput.value);
+    Number(
+      amountInput.value
+    );
+
 
   const loanTerm =
     term(amount);
@@ -123,14 +219,20 @@ function updateLoanDetails() {
 
   if (!loanTerm) {
 
-    startDateInput.value = "";
-    endDateInput.value = "";
-    totalAmountInput.value = "";
+    $("loanStartDate").value =
+      "";
 
-    termsBox.textContent =
+    $("loanEndDate").value =
+      "";
+
+    $("totalAmount").value =
+      "";
+
+    $("terms").textContent =
       "Enter ₱100–₱2,000 to calculate terms.";
 
     return;
+
   }
 
 
@@ -140,8 +242,11 @@ function updateLoanDetails() {
   const durationDays =
     loanTerm[1];
 
+
   const totalPayment =
+
     amount +
+
     (
       amount *
       interestRate /
@@ -152,179 +257,232 @@ function updateLoanDetails() {
   const startDate =
     new Date();
 
+
   const endDate =
-    new Date(startDate);
+    new Date(
+      startDate
+    );
+
 
   endDate.setDate(
+
     endDate.getDate() +
+
     durationDays
+
   );
 
 
-  startDateInput.value =
-    formatDateForInput(startDate);
-
-  endDateInput.value =
-    formatDateForInput(endDate);
-
-  totalAmountInput.value =
-    `₱${totalPayment.toFixed(2)}`;
+  $("loanStartDate").value =
+    formatDateForInput(
+      startDate
+    );
 
 
-  termsBox.innerHTML = `
+  $("loanEndDate").value =
+    formatDateForInput(
+      endDate
+    );
+
+
+  $("totalAmount").value =
+    `₱${money(totalPayment)}`;
+
+
+  $("terms").innerHTML = `
+
     <b>Your loan terms:</b>
-    ${interestRate}% interest for
-    ${durationDays} days.
+
+    ${interestRate}% interest
+    for ${durationDays} days.
+
     Total payment:
-    <b>₱${totalPayment.toFixed(2)}</b>
+
+    <b>
+      ₱${money(totalPayment)}
+    </b>
+
   `;
+
 }
 
 
-$("amount").addEventListener(
-  "input",
-  updateLoanDetails
-);
+/* =========================================
+   STUDENT FIELD
+========================================= */
 
-$("amount").addEventListener(
-  "change",
-  updateLoanDetails
-);
+function setupStudentField() {
+
+  const employment =
+    $("employment");
 
 
-/* =========================
-   STUDENT SCHOOL FIELD
-========================= */
-
-$("employment").addEventListener(
-  "change",
-  function () {
-
-    const isStudent =
-      $("employment").value ===
-      "Student";
-
-    $("schoolBox")
-      .classList
-      .toggle(
-        "hidden",
-        !isStudent
-      );
-
-    $("school").required =
-      isStudent;
+  if (!employment) {
+    return;
   }
-);
 
 
-/* =========================
-   VIDEO SIZE CHECK
-========================= */
+  employment.addEventListener(
+    "change",
+    function () {
 
-$("video").addEventListener(
-  "change",
-  function () {
+      const isStudent =
 
-    const file =
-      $("video").files[0];
+        employment.value ===
+        "Student";
 
-    if (!file) {
-      return;
+
+      $("schoolBox")
+        .classList
+        .toggle(
+          "hidden",
+          !isStudent
+        );
+
+
+      $("school").required =
+        isStudent;
+
     }
-
-    const maxSize =
-      50 * 1024 * 1024;
-
-    if (
-      file.size >
-      maxSize
-    ) {
-
-      alert(
-        "Verification video must be under 50 MB. Please select a smaller video."
-      );
-
-      $("video").value = "";
-    }
-  }
-);
-
-
-/* =========================
-   DIGITAL SIGNATURE PAD
-========================= */
-
-const signatureCanvas =
-  $("signaturePad");
-
-const signatureContext =
-  signatureCanvas.getContext(
-    "2d"
   );
 
-let isSigning =
-  false;
-
-let hasSignature =
-  false;
+}
 
 
-/*
-  Resize the canvas correctly for
-  desktop, mobile and high-resolution
-  screens.
-*/
+/* =========================================
+   SIGNATURE PAD
+========================================= */
 
-function resizeSignaturePad() {
+function setupSignaturePad() {
+
+  signatureCanvas =
+    $("signaturePad");
+
 
   if (!signatureCanvas) {
     return;
   }
 
-  const rect =
-    signatureCanvas
-      .getBoundingClientRect();
+
+  signatureContext =
+    signatureCanvas.getContext(
+      "2d"
+    );
+
+
+  resizeSignaturePad();
+
+
+  signatureCanvas.addEventListener(
+    "pointerdown",
+    startSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointermove",
+    drawSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointerup",
+    stopSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointercancel",
+    stopSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointerleave",
+    stopSignature
+  );
+
+
+  window.addEventListener(
+    "resize",
+    resizeSignaturePad
+  );
+
+
+  const clearButton =
+    $("clearSignature");
+
+
+  if (clearButton) {
+
+    clearButton.addEventListener(
+      "click",
+      clearSignature
+    );
+
+  }
+
+}
+
+
+function resizeSignaturePad() {
 
   if (
-    rect.width === 0 ||
-    rect.height === 0
+    !signatureCanvas ||
+    !signatureContext
   ) {
     return;
   }
 
-  /*
-    Save existing signature before
-    resizing so it is not accidentally
-    erased when the screen changes.
-  */
 
-  let existingSignature =
-    null;
+  const rect =
+    signatureCanvas
+      .getBoundingClientRect();
 
-  if (hasSignature) {
 
-    existingSignature =
-      signatureCanvas.toDataURL(
-        "image/png"
-      );
+  if (
+    rect.width <= 0 ||
+    rect.height <= 0
+  ) {
+    return;
   }
+
+
+  const oldImage =
+
+    hasSignature
+
+      ? signatureCanvas
+          .toDataURL()
+
+      : null;
 
 
   const ratio =
     Math.max(
-      window.devicePixelRatio || 1,
+      window.devicePixelRatio ||
+      1,
       1
     );
 
 
   signatureCanvas.width =
     Math.round(
-      rect.width * ratio
+      rect.width *
+      ratio
     );
+
 
   signatureCanvas.height =
     Math.round(
-      rect.height * ratio
+      rect.height *
+      ratio
+    );
+
+
+  signatureContext =
+    signatureCanvas.getContext(
+      "2d"
     );
 
 
@@ -339,7 +497,7 @@ function resizeSignaturePad() {
 
 
   signatureContext.lineWidth =
-    2.5;
+    2.2;
 
   signatureContext.lineCap =
     "round";
@@ -348,35 +506,44 @@ function resizeSignaturePad() {
     "round";
 
   signatureContext.strokeStyle =
-    "#063d91";
+    "#10213d";
 
 
-  if (existingSignature) {
+  if (
+    oldImage
+  ) {
 
     const image =
       new Image();
+
 
     image.onload =
       function () {
 
         signatureContext.drawImage(
+
           image,
+
           0,
+
           0,
+
           rect.width,
+
           rect.height
+
         );
+
       };
 
+
     image.src =
-      existingSignature;
+      oldImage;
+
   }
+
 }
 
-
-/*
-  Get mouse or touch position.
-*/
 
 function getSignaturePosition(
   event
@@ -387,234 +554,183 @@ function getSignaturePosition(
       .getBoundingClientRect();
 
 
-  let clientX;
-  let clientY;
-
-
-  if (
-    event.touches &&
-    event.touches.length
-  ) {
-
-    clientX =
-      event.touches[0]
-        .clientX;
-
-    clientY =
-      event.touches[0]
-        .clientY;
-
-  } else if (
-    event.changedTouches &&
-    event.changedTouches.length
-  ) {
-
-    clientX =
-      event.changedTouches[0]
-        .clientX;
-
-    clientY =
-      event.changedTouches[0]
-        .clientY;
-
-  } else {
-
-    clientX =
-      event.clientX;
-
-    clientY =
-      event.clientY;
-  }
-
-
   return {
 
     x:
-      clientX -
+      event.clientX -
       rect.left,
 
     y:
-      clientY -
+      event.clientY -
       rect.top
 
   };
+
 }
 
-
-/*
-  Start signing.
-*/
 
 function startSignature(
   event
 ) {
 
+  if (
+    !signatureContext
+  ) {
+    return;
+  }
+
+
   event.preventDefault();
+
 
   isSigning =
     true;
+
 
   hasSignature =
     true;
 
 
-  $("signatureError")
-    .classList
-    .add("hidden");
+  signatureCanvas
+    .setPointerCapture?.(
+      event.pointerId
+    );
 
 
-  const position =
+  const point =
     getSignaturePosition(
       event
     );
 
 
-  signatureContext
-    .beginPath();
+  signatureContext.beginPath();
 
-  signatureContext
-    .moveTo(
-      position.x,
-      position.y
-    );
+
+  signatureContext.moveTo(
+
+    point.x,
+
+    point.y
+
+  );
+
 }
 
-
-/*
-  Draw signature.
-*/
 
 function drawSignature(
   event
 ) {
 
-  if (!isSigning) {
+  if (
+    !isSigning ||
+    !signatureContext
+  ) {
     return;
   }
+
 
   event.preventDefault();
 
 
-  const position =
+  const point =
     getSignaturePosition(
       event
     );
 
 
-  signatureContext
-    .lineTo(
-      position.x,
-      position.y
-    );
+  signatureContext.lineTo(
 
-  signatureContext
-    .stroke();
+    point.x,
+
+    point.y
+
+  );
+
+
+  signatureContext.stroke();
+
 }
 
-
-/*
-  Stop signing.
-*/
 
 function stopSignature(
   event
 ) {
 
-  if (!isSigning) {
+  if (
+    !isSigning
+  ) {
     return;
   }
 
-  if (event) {
-    event.preventDefault();
-  }
 
   isSigning =
     false;
 
+
   signatureContext
-    .beginPath();
+    ?.closePath();
+
+
+  if (
+    event?.pointerId !==
+    undefined
+  ) {
+
+    try {
+
+      signatureCanvas
+        ?.releasePointerCapture?.(
+          event.pointerId
+        );
+
+    } catch {
+
+      /* Ignore */
+
+    }
+
+  }
+
 }
 
 
-/* Mouse events */
+function clearSignature() {
 
-signatureCanvas.addEventListener(
-  "mousedown",
-  startSignature
-);
-
-signatureCanvas.addEventListener(
-  "mousemove",
-  drawSignature
-);
-
-signatureCanvas.addEventListener(
-  "mouseup",
-  stopSignature
-);
-
-signatureCanvas.addEventListener(
-  "mouseleave",
-  stopSignature
-);
-
-
-/* Touch events */
-
-signatureCanvas.addEventListener(
-  "touchstart",
-  startSignature,
-  {
-    passive: false
+  if (
+    !signatureCanvas ||
+    !signatureContext
+  ) {
+    return;
   }
-);
-
-signatureCanvas.addEventListener(
-  "touchmove",
-  drawSignature,
-  {
-    passive: false
-  }
-);
-
-signatureCanvas.addEventListener(
-  "touchend",
-  stopSignature,
-  {
-    passive: false
-  }
-);
 
 
-/* Clear signature */
+  const rect =
+    signatureCanvas
+      .getBoundingClientRect();
 
-$("clearSignature")
-  .addEventListener(
-    "click",
-    function () {
 
-      signatureContext
-        .clearRect(
-          0,
-          0,
-          signatureCanvas.width,
-          signatureCanvas.height
-        );
+  signatureContext.clearRect(
 
-      hasSignature =
-        false;
+    0,
 
-      $("signatureError")
-        .classList
-        .add("hidden");
-    }
+    0,
+
+    rect.width,
+
+    rect.height
+
   );
 
 
-/*
-  Convert canvas signature
-  into a PNG File.
-*/
+  hasSignature =
+    false;
+
+}
+
+
+/* =========================================
+   CONVERT SIGNATURE TO FILE
+========================================= */
 
 function signatureToFile() {
 
@@ -624,494 +740,584 @@ function signatureToFile() {
       reject
     ) => {
 
+      if (
+        !signatureCanvas ||
+        !hasSignature
+      ) {
+
+        reject(
+
+          new Error(
+            "Please sign inside the signature box."
+          )
+
+        );
+
+        return;
+
+      }
+
+
       signatureCanvas.toBlob(
+
         blob => {
 
           if (!blob) {
 
             reject(
+
               new Error(
-                "Unable to save your signature."
+                "Unable to save signature."
               )
+
             );
 
             return;
+
           }
 
 
           const file =
             new File(
+
               [blob],
+
               "signature.png",
+
               {
                 type:
                   "image/png"
               }
+
             );
 
 
           resolve(file);
+
         },
 
         "image/png"
-      );
-    }
-  );
 
+      );
+
+    }
+
+  );
 
 }
 
 
-/*
-  Resize when browser size changes.
-*/
+/* =========================================
+   VIDEO CHECK
+========================================= */
 
-window.addEventListener(
-  "resize",
-  function () {
+function setupVideoCheck() {
 
-    if (
-      $("apply")
-        .classList
-        .contains("active")
-    ) {
+  const videoInput =
+    $("video");
 
-      resizeSignaturePad();
-    }
+
+  if (!videoInput) {
+    return;
   }
-);
 
 
-/* =========================
-   SUBMIT APPLICATION
-========================= */
+  videoInput.addEventListener(
+    "change",
+    function () {
 
-$("form").addEventListener(
-  "submit",
-  async function (event) {
+      const file =
+        videoInput.files[0];
 
-    event.preventDefault();
 
+      if (!file) {
+        return;
+      }
 
-    const button =
-      event.submitter;
 
+      const maxSize =
+        50 *
+        1024 *
+        1024;
 
-    const amount =
-      Number(
-        $("amount").value
-      );
 
+      if (
+        file.size >
+        maxSize
+      ) {
 
-    const loanTerm =
-      term(amount);
+        alert(
 
+          "Verification video must be under 50 MB."
 
-    if (!loanTerm) {
-
-      alert(
-        "Please enter a loan amount from ₱100 to ₱2,000."
-      );
-
-      return;
-    }
-
-
-    /*
-      Require digital signature.
-    */
-
-    if (!hasSignature) {
-
-      $("signatureError")
-        .classList
-        .remove("hidden");
-
-      $("signaturePad")
-        .scrollIntoView({
-          behavior:
-            "smooth",
-
-          block:
-            "center"
-        });
-
-      return;
-    }
-
-
-    const video =
-      $("video").files[0];
-
-
-    if (
-      video &&
-      video.size >
-      50 * 1024 * 1024
-    ) {
-
-      alert(
-        "Verification video must be under 50 MB."
-      );
-
-      return;
-    }
-
-
-    button.disabled =
-      true;
-
-    button.textContent =
-      "Submitting...";
-
-
-    try {
-
-      /*
-        Convert the drawn signature
-        to a PNG file.
-      */
-
-      const signatureFile =
-        await signatureToFile();
-
-
-      const formData =
-        new FormData();
-
-
-      /* PERSONAL INFORMATION */
-
-      formData.append(
-        "full_name",
-        $("name").value
-      );
-
-      formData.append(
-        "email",
-        $("email").value
-      );
-
-      formData.append(
-        "mobile_number",
-        $("phone").value
-      );
-
-      formData.append(
-        "date_of_birth",
-        $("dob").value
-      );
-
-      formData.append(
-        "full_address",
-        $("address").value
-      );
-
-      formData.append(
-        "brgy_captain",
-        $("brgyCaptain").value
-      );
-
-
-      /* RELATIVES */
-
-      formData.append(
-        "relative_fb_1",
-        $("relativeFb1").value
-      );
-
-      formData.append(
-        "relative_fb_2",
-        $("relativeFb2").value
-      );
-
-
-      /* EMPLOYMENT */
-
-      formData.append(
-        "employment_type",
-        $("employment").value
-      );
-
-      formData.append(
-        "school_facebook_url",
-        $("school").value || ""
-      );
-
-      formData.append(
-        "monthly_income",
-        $("income").value
-      );
-
-
-      /* LOAN INFORMATION */
-
-      formData.append(
-        "requested_amount",
-        $("amount").value
-      );
-
-      formData.append(
-        "loan_purpose",
-        $("purpose").value
-      );
-
-      formData.append(
-        "loan_start_date",
-        $("loanStartDate").value
-      );
-
-      formData.append(
-        "loan_end_date",
-        $("loanEndDate").value
-      );
-
-      formData.append(
-        "total_amount_to_pay",
-        $("totalAmount")
-          .value
-          .replace(
-            "₱",
-            ""
-          )
-      );
-
-
-      /* DOCUMENTS */
-
-      formData.append(
-        "id_front",
-        $("idFront").files[0]
-      );
-
-      formData.append(
-        "id_back",
-        $("idBack").files[0]
-      );
-
-
-      /*
-        NEW:
-        Send the signature drawing
-        using the same "signature"
-        field your existing backend
-        already expects.
-      */
-
-      formData.append(
-        "signature",
-        signatureFile
-      );
-
-
-      formData.append(
-        "verification_video",
-        $("video").files[0]
-      );
-
-
-      const response =
-        await fetch(
-          SUBMIT_URL,
-          {
-
-            method:
-              "POST",
-
-            headers: {
-
-              apikey:
-                SUPABASE_KEY
-
-            },
-
-            body:
-              formData
-
-          }
         );
 
 
-      let data;
+        videoInput.value =
+          "";
+
+      }
+
+    }
+
+  );
+
+}
+
+
+/* =========================================
+   SUBMIT APPLICATION
+========================================= */
+
+function setupApplicationForm() {
+
+  const form =
+    $("form");
+
+
+  if (!form) {
+    return;
+  }
+
+
+  form.addEventListener(
+
+    "submit",
+
+    async function (
+      event
+    ) {
+
+      event.preventDefault();
+
+
+      const button =
+        event.submitter;
+
+
+      const amount =
+        Number(
+          $("amount").value
+        );
+
+
+      const loanTerm =
+        term(amount);
+
+
+      if (!loanTerm) {
+
+        alert(
+
+          "Please enter a loan amount from ₱100 to ₱2,000."
+
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !hasSignature
+      ) {
+
+        alert(
+
+          "Please sign inside the Borrower Signature box."
+
+        );
+
+        return;
+
+      }
+
+
+      const video =
+        $("video").files[0];
+
+
+      if (
+        video &&
+        video.size >
+        50 *
+        1024 *
+        1024
+      ) {
+
+        alert(
+
+          "Verification video must be under 50 MB."
+
+        );
+
+        return;
+
+      }
+
+
+      button.disabled =
+        true;
+
+
+      button.textContent =
+        "Submitting...";
 
 
       try {
 
-        data =
-          await response.json();
 
-      } catch {
-
-        throw new Error(
-          "The server returned an invalid response."
-        );
-      }
+        const signatureFile =
+          await signatureToFile();
 
 
-      if (!response.ok) {
-
-        throw new Error(
-          data.error ||
-          data.message ||
-          "Unable to submit the application."
-        );
-      }
+        const formData =
+          new FormData();
 
 
-      const applicationId =
-        data.application_id ||
-        "Application submitted";
+        /* PERSONAL INFORMATION */
 
 
-      $("decision").className =
-        "result";
-
-
-      $("decision").innerHTML = `
-
-        <h3>
-          Application Submitted
-        </h3>
-
-        <p>
-          Save your Application ID:
-        </p>
-
-        <p>
-          <b>
-            ${escapeHtml(
-              applicationId
-            )}
-          </b>
-        </p>
-
-        <p>
-          <b>
-            Loan Start Date:
-          </b>
-          <br>
-
-          ${escapeHtml(
-            $("loanStartDate").value
-          )}
-        </p>
-
-        <p>
-          <b>
-            Loan End Date:
-          </b>
-          <br>
-
-          ${escapeHtml(
-            $("loanEndDate").value
-          )}
-        </p>
-
-        <p>
-          <b>
-            Total Amount to Pay:
-          </b>
-          <br>
-
-          ${escapeHtml(
-            $("totalAmount").value
-          )}
-        </p>
-
-      `;
-
-
-      /*
-        Reset form.
-      */
-
-      event.target.reset();
-
-
-      $("schoolBox")
-        .classList
-        .add("hidden");
-
-      $("school").required =
-        false;
-
-      $("loanStartDate").value =
-        "";
-
-      $("loanEndDate").value =
-        "";
-
-      $("totalAmount").value =
-        "";
-
-      $("terms").textContent =
-        "Enter ₱100–₱2,000 to calculate terms.";
-
-
-      /*
-        Clear signature after
-        successful submission.
-      */
-
-      signatureContext
-        .clearRect(
-          0,
-          0,
-          signatureCanvas.width,
-          signatureCanvas.height
+        formData.append(
+          "full_name",
+          $("name").value
         );
 
-      hasSignature =
-        false;
+
+        formData.append(
+          "email",
+          $("email").value
+        );
 
 
-      $("signatureError")
-        .classList
-        .add("hidden");
+        formData.append(
+          "mobile_number",
+          $("phone").value
+        );
 
 
-      $("decision")
-        .scrollIntoView({
-          behavior:
-            "smooth"
-        });
+        formData.append(
+          "date_of_birth",
+          $("dob").value
+        );
 
 
-    } catch (error) {
+        formData.append(
+          "full_address",
+          $("address").value
+        );
 
-      console.error(
-        "Submission error:",
+
+        formData.append(
+          "brgy_captain",
+          $("brgyCaptain").value
+        );
+
+
+        /* REFERENCES */
+
+
+        formData.append(
+          "relative_fb_1",
+          $("relativeFb1").value
+        );
+
+
+        formData.append(
+          "relative_fb_2",
+          $("relativeFb2").value
+        );
+
+
+        /* EMPLOYMENT */
+
+
+        formData.append(
+          "employment_type",
+          $("employment").value
+        );
+
+
+        formData.append(
+          "school_facebook_url",
+          $("school").value ||
+          ""
+        );
+
+
+        formData.append(
+          "monthly_income",
+          $("income").value
+        );
+
+
+        /* LOAN */
+
+
+        formData.append(
+          "requested_amount",
+          $("amount").value
+        );
+
+
+        formData.append(
+          "loan_purpose",
+          $("purpose").value
+        );
+
+
+        formData.append(
+          "loan_start_date",
+          $("loanStartDate").value
+        );
+
+
+        formData.append(
+          "loan_end_date",
+          $("loanEndDate").value
+        );
+
+
+        formData.append(
+
+          "total_amount_to_pay",
+
+          $("totalAmount")
+            .value
+            .replace(
+              /[₱,]/g,
+              ""
+            )
+
+        );
+
+
+        /* DOCUMENTS */
+
+
+        formData.append(
+          "id_front",
+          $("idFront").files[0]
+        );
+
+
+        formData.append(
+          "id_back",
+          $("idBack").files[0]
+        );
+
+
+        formData.append(
+          "signature",
+          signatureFile
+        );
+
+
+        formData.append(
+          "verification_video",
+          $("video").files[0]
+        );
+
+
+        const response =
+          await fetch(
+
+            SUBMIT_URL,
+
+            {
+
+              method:
+                "POST",
+
+              headers: {
+
+                apikey:
+                  SUPABASE_KEY
+
+              },
+
+              body:
+                formData
+
+            }
+
+          );
+
+
+        let data;
+
+
+        try {
+
+          data =
+            await response.json();
+
+        } catch {
+
+          throw new Error(
+
+            "The server returned an invalid response."
+
+          );
+
+        }
+
+
+        if (
+          !response.ok
+        ) {
+
+          throw new Error(
+
+            data.error ||
+
+            data.message ||
+
+            "Unable to submit the application."
+
+          );
+
+        }
+
+
+        const applicationId =
+
+          data.application_id ||
+
+          "Application submitted";
+
+
+        $("decision").className =
+          "result";
+
+
+        $("decision").innerHTML = `
+
+          <h3>
+            Application Submitted
+          </h3>
+
+          <p>
+            Your application is now
+            <strong>
+              Pending Review
+            </strong>.
+          </p>
+
+          <p>
+            Save your Application ID:
+          </p>
+
+          <p>
+            <b>
+              ${escapeHtml(
+                applicationId
+              )}
+            </b>
+          </p>
+
+          <p>
+            You can use this ID in the
+            Track section to check your
+            application status.
+          </p>
+
+        `;
+
+
+        form.reset();
+
+
+        $("schoolBox")
+          .classList
+          .add(
+            "hidden"
+          );
+
+
+        $("school").required =
+          false;
+
+
+        $("loanStartDate").value =
+          "";
+
+
+        $("loanEndDate").value =
+          "";
+
+
+        $("totalAmount").value =
+          "";
+
+
+        $("terms").textContent =
+
+          "Enter ₱100–₱2,000 to calculate terms.";
+
+
+        clearSignature();
+
+
+        $("decision")
+          .scrollIntoView({
+
+            behavior:
+              "smooth"
+
+          });
+
+
+      } catch (
         error
-      );
+      ) {
 
 
-      alert(
-        error.message ||
-        "Unable to submit the application. Please try again."
-      );
+        console.error(
+
+          "Submission error:",
+
+          error
+
+        );
 
 
-    } finally {
+        alert(
 
-      button.disabled =
-        false;
+          error.message ||
 
-      button.textContent =
-        "Submit Application";
+          "Unable to submit the application."
+
+        );
+
+
+      } finally {
+
+
+        button.disabled =
+          false;
+
+
+        button.textContent =
+          "Submit Application";
+
+      }
 
     }
 
-  }
-);
+  );
+
+}
 
 
-/* =========================
+/* =========================================
    TRACK APPLICATION
-========================= */
+========================================= */
 
 async function track() {
 
   const applicationId =
+
     $("trackId")
       .value
       .trim();
@@ -1121,7 +1327,9 @@ async function track() {
     $("trackResult");
 
 
-  if (!applicationId) {
+  if (
+    !applicationId
+  ) {
 
     result.className =
       "result";
@@ -1134,12 +1342,15 @@ async function track() {
       </h3>
 
       <p>
-        Enter the Application ID you received after submitting your application.
+        Enter the Application ID you received
+        after submitting your application.
       </p>
 
     `;
 
+
     return;
+
   }
 
 
@@ -1162,9 +1373,12 @@ async function track() {
 
   try {
 
+
     const response =
       await fetch(
+
         TRACK_URL,
+
         {
 
           method:
@@ -1189,6 +1403,7 @@ async function track() {
             })
 
         }
+
       );
 
 
@@ -1196,18 +1411,143 @@ async function track() {
       await response.json();
 
 
-    if (!response.ok) {
+    if (
+      !response.ok
+    ) {
 
       throw new Error(
+
         data.error ||
+
         "Unable to track application."
+
       );
+
     }
 
 
     const application =
+
       data.application ||
+
       data;
+
+
+    const applicationStatus =
+
+      application.status ||
+
+      "Pending Review";
+
+
+    const isActive =
+
+      application.loan_status ===
+      "Active";
+
+
+    const isPaid =
+
+      application.payment_status ===
+      "Paid" ||
+
+      application.loan_status ===
+      "Paid";
+
+
+    let extraLoanDetails =
+      "";
+
+
+    /*
+      Loan/payment/delay details are shown
+      only when the borrower becomes an
+      active or paid client.
+    */
+
+
+    if (
+      isActive ||
+      isPaid
+    ) {
+
+
+      const dueStatus =
+        getDueStatus(
+          application
+        );
+
+
+      const remainingBalance =
+        calculateRemainingBalance(
+          application
+        );
+
+
+      extraLoanDetails = `
+
+        <hr>
+
+        <p>
+          <b>Loan Status:</b>
+          <br>
+
+          ${statusBadge(
+            application.loan_status ||
+            "Active"
+          )}
+        </p>
+
+
+        <p>
+          <b>Payment Status:</b>
+          <br>
+
+          ${statusBadge(
+            application.payment_status ||
+            "Not Paid"
+          )}
+        </p>
+
+
+        <p>
+          <b>Due Status:</b>
+          <br>
+
+          ${statusBadge(
+            dueStatus
+          )}
+        </p>
+
+
+        <p>
+          <b>Due Date:</b>
+          <br>
+
+          ${escapeHtml(
+            formatDisplayDate(
+              application.loan_end_date
+            )
+          )}
+        </p>
+
+
+        <p>
+          <b>Amount Due:</b>
+          <br>
+
+          <span class="amount-due">
+
+            ₱${money(
+              remainingBalance
+            )}
+
+          </span>
+        </p>
+
+      `;
+
+    }
 
 
     result.innerHTML = `
@@ -1216,10 +1556,9 @@ async function track() {
         Application Status
       </h3>
 
+
       <p>
-        <b>
-          Application ID:
-        </b>
+        <b>Application ID:</b>
         <br>
 
         ${escapeHtml(
@@ -1229,9 +1568,7 @@ async function track() {
 
 
       <p>
-        <b>
-          Name:
-        </b>
+        <b>Name:</b>
         <br>
 
         ${escapeHtml(
@@ -1241,21 +1578,17 @@ async function track() {
 
 
       <p>
-        <b>
-          Requested Amount:
-        </b>
+        <b>Requested Amount:</b>
         <br>
 
-        ₱${Number(
+        ₱${money(
           application.requested_amount
-        ).toFixed(2)}
+        )}
       </p>
 
 
       <p>
-        <b>
-          Loan Terms:
-        </b>
+        <b>Loan Terms:</b>
         <br>
 
         ${escapeHtml(
@@ -1269,39 +1602,46 @@ async function track() {
 
 
       <p>
-        <b>
-          Total Payment:
-        </b>
+        <b>Total Payment:</b>
         <br>
 
-        ₱${Number(
+        ₱${money(
+
           application.total_payment ||
-          application.total_amount_to_pay
-        ).toFixed(2)}
+
+          application
+            .total_amount_to_pay
+
+        )}
       </p>
 
 
       <p>
-        <b>
-          Status:
-        </b>
+        <b>Application Status:</b>
         <br>
 
-        <strong>
-          ${escapeHtml(
-            application.status
-          )}
-        </strong>
+        ${statusBadge(
+          applicationStatus
+        )}
       </p>
+
+
+      ${extraLoanDetails}
 
     `;
 
 
-  } catch (error) {
+  } catch (
+    error
+  ) {
+
 
     console.error(
+
       "Tracking error:",
+
       error
+
     );
 
 
@@ -1314,97 +1654,185 @@ async function track() {
       <p>
 
         ${escapeHtml(
+
           error.message ||
+
           "Please try again."
+
         )}
 
       </p>
 
     `;
+
   }
+
 }
 
 
-/* =========================
+/* =========================================
    ADMIN LOGIN
-========================= */
+========================================= */
 
 async function login() {
 
   const email =
+
     $("adminEmail")
       .value
       .trim();
+
 
   const password =
     $("adminPassword")
       .value;
 
 
-  $("loginError")
-    .textContent =
-      "";
+  $("loginError").textContent =
+    "";
 
 
   const {
     error
   } =
+
     await sb.auth
       .signInWithPassword({
 
         email,
+
         password
 
       });
 
 
-  if (error) {
+  if (
+    error
+  ) {
 
-    $("loginError")
-      .textContent =
-        error.message;
+    $("loginError").textContent =
+      error.message;
 
     return;
+
   }
 
 
   $("login")
     .classList
-    .add("hidden");
+    .add(
+      "hidden"
+    );
 
 
   $("dashboard")
     .classList
-    .remove("hidden");
+    .remove(
+      "hidden"
+    );
 
 
-  render();
+  await render();
+
 }
 
 
-/* =========================
+/* =========================================
    ADMIN LOGOUT
-========================= */
+========================================= */
 
 async function logout() {
 
-  await sb.auth.signOut();
+  await sb.auth
+    .signOut();
 
 
   $("dashboard")
     .classList
-    .add("hidden");
+    .add(
+      "hidden"
+    );
 
 
   $("login")
     .classList
-    .remove("hidden");
+    .remove(
+      "hidden"
+    );
+
 }
 
 
-/* =========================
-   LOAD ADMIN APPLICATIONS
-========================= */
+/* =========================================
+   ADMIN TABS
+========================================= */
+
+function showAdminTab(
+  panelId
+) {
+
+  $("applicationsPanel")
+    .classList
+    .add(
+      "hidden"
+    );
+
+
+  $("clientsPanel")
+    .classList
+    .add(
+      "hidden"
+    );
+
+
+  $(panelId)
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  $("applicationsTabButton")
+    .classList
+    .remove(
+      "active-tab"
+    );
+
+
+  $("clientsTabButton")
+    .classList
+    .remove(
+      "active-tab"
+    );
+
+
+  if (
+    panelId ===
+    "applicationsPanel"
+  ) {
+
+    $("applicationsTabButton")
+      .classList
+      .add(
+        "active-tab"
+      );
+
+  } else {
+
+    $("clientsTabButton")
+      .classList
+      .add(
+        "active-tab"
+      );
+
+  }
+
+}
+
+
+/* =========================================
+   LOAD ADMIN DATA
+========================================= */
 
 async function render() {
 
@@ -1413,7 +1841,24 @@ async function render() {
     <tr>
 
       <td colspan="6">
+
         Loading applications...
+
+      </td>
+
+    </tr>
+
+  `;
+
+
+  $("clientList").innerHTML = `
+
+    <tr>
+
+      <td colspan="7">
+
+        Loading clients...
+
       </td>
 
     </tr>
@@ -1425,19 +1870,35 @@ async function render() {
     data,
     error
   } =
+
     await sb
-      .from("applications")
+
+      .from(
+        "applications"
+      )
+
       .select("*")
+
       .order(
+
         "created_at",
+
         {
           ascending:
             false
         }
+
       );
 
 
-  if (error) {
+  if (
+    error
+  ) {
+
+    console.error(
+      error
+    );
+
 
     $("list").innerHTML = `
 
@@ -1455,16 +1916,69 @@ async function render() {
 
     `;
 
+
+    $("clientList").innerHTML = `
+
+      <tr>
+
+        <td colspan="7">
+
+          ${escapeHtml(
+            error.message
+          )}
+
+        </td>
+
+      </tr>
+
+    `;
+
+
     return;
+
   }
+
+
+  allApplications =
+    data || [];
+
+
+  renderApplications();
+  renderClients();
+  updateDashboardCounters();
+
+}
+
+
+/* =========================================
+   APPLICATIONS TABLE
+========================================= */
+
+function renderApplications() {
+
+  const applications =
+
+    allApplications.filter(
+
+      application =>
+
+        application.loan_status !==
+        "Active" &&
+
+        application.loan_status !==
+        "Paid"
+
+    );
 
 
   $("list").innerHTML =
 
-    data.map(
+    applications.map(
+
       application => `
 
         <tr>
+
 
           <td>
 
@@ -1477,18 +1991,22 @@ async function render() {
 
           <td>
 
-            ${escapeHtml(
-              application.full_name
-            )}
+            <b>
+
+              ${escapeHtml(
+                application.full_name
+              )}
+
+            </b>
 
           </td>
 
 
           <td>
 
-            ₱${Number(
+            ₱${money(
               application.requested_amount
-            ).toFixed(2)}
+            )}
 
           </td>
 
@@ -1513,7 +2031,14 @@ async function render() {
           <td>
 
             <select
-              onchange="setStatus('${application.id}', this.value)"
+
+              onchange="
+                setStatus(
+                  '${application.id}',
+                  this.value
+                )
+              "
+
             >
 
               ${[
@@ -1532,10 +2057,14 @@ async function render() {
 
                   <option
 
+                    value="${status}"
+
                     ${
                       status ===
                       application.status
+
                         ? "selected"
+
                         : ""
                     }
 
@@ -1556,39 +2085,339 @@ async function render() {
 
           <td>
 
+
             <button
-              onclick="viewDocs('${application.id}')"
+
+              type="button"
+
+              onclick="
+                viewRecord(
+                  '${application.id}'
+                )
+              "
+
             >
 
-              Documents
+              View
 
             </button>
 
+
+            <button
+
+              type="button"
+
+              onclick="
+                viewDocs(
+                  '${application.id}'
+                )
+              "
+
+            >
+
+              Files
+
+            </button>
+
+
+            ${
+
+              application.status ===
+              "Approved"
+
+                ? `
+
+                  <button
+
+                    type="button"
+
+                    class="primary"
+
+                    onclick="
+                      activateLoan(
+                        '${application.id}'
+                      )
+                    "
+
+                  >
+
+                    Activate Loan
+
+                  </button>
+
+                `
+
+                : ""
+
+            }
+
+
           </td>
+
 
         </tr>
 
       `
 
-    ).join("") ||
-
-    `
+    ).join("") || `
 
       <tr>
 
         <td colspan="6">
-          No applications yet.
+
+          No applications to review.
+
         </td>
 
       </tr>
 
     `;
+
 }
 
 
-/* =========================
+/* =========================================
+   CLIENTS TABLE
+========================================= */
+
+function renderClients() {
+
+  const clients =
+
+    allApplications.filter(
+
+      application =>
+
+        application.loan_status ===
+        "Active" ||
+
+        application.loan_status ===
+        "Paid"
+
+    );
+
+
+  $("clientList").innerHTML =
+
+    clients.map(
+
+      application => {
+
+
+        const dueStatus =
+          getDueStatus(
+            application
+          );
+
+
+        const remaining =
+          calculateRemainingBalance(
+            application
+          );
+
+
+        return `
+
+          <tr>
+
+
+            <td>
+
+              <b>
+
+                ${escapeHtml(
+                  application.full_name
+                )}
+
+              </b>
+
+              <br>
+
+              <small>
+
+                ${escapeHtml(
+                  application.application_id
+                )}
+
+              </small>
+
+            </td>
+
+
+            <td>
+
+              ₱${money(
+                application.total_payment
+              )}
+
+              <br>
+
+              <small>
+
+                Remaining:
+
+                <span class="remaining-balance">
+
+                  ₱${money(
+                    remaining
+                  )}
+
+                </span>
+
+              </small>
+
+            </td>
+
+
+            <td>
+
+              ${escapeHtml(
+
+                formatDisplayDate(
+
+                  application
+                    .loan_end_date
+
+                )
+
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${statusBadge(
+
+                application.loan_status ||
+
+                "Active"
+
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${statusBadge(
+
+                application.payment_status ||
+
+                "Not Paid"
+
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${statusBadge(
+                dueStatus
+              )}
+
+            </td>
+
+
+            <td>
+
+
+              <button
+
+                type="button"
+
+                onclick="
+                  viewRecord(
+                    '${application.id}'
+                  )
+                "
+
+              >
+
+                View
+
+              </button>
+
+
+              <button
+
+                type="button"
+
+                onclick="
+                  viewDocs(
+                    '${application.id}'
+                  )
+                "
+
+              >
+
+                Files
+
+              </button>
+
+
+              ${
+
+                application.loan_status !==
+                "Paid"
+
+                  ? `
+
+                    <button
+
+                      type="button"
+
+                      class="primary"
+
+                      onclick="
+                        openPaymentPanel(
+                          '${application.id}'
+                        )
+                      "
+
+                    >
+
+                      Payment
+
+                    </button>
+
+                  `
+
+                  : ""
+
+              }
+
+
+            </td>
+
+
+          </tr>
+
+        `;
+
+      }
+
+    ).join("") || `
+
+      <tr>
+
+        <td colspan="7">
+
+          No active clients yet.
+
+        </td>
+
+      </tr>
+
+    `;
+
+}
+
+
+/* =========================================
    UPDATE APPLICATION STATUS
-========================= */
+========================================= */
 
 async function setStatus(
   id,
@@ -1598,58 +2427,869 @@ async function setStatus(
   const {
     error
   } =
+
     await sb
-      .from("applications")
+
+      .from(
+        "applications"
+      )
+
       .update({
 
-        status:
-          status
+        status,
+
+        updated_at:
+          new Date()
+            .toISOString()
 
       })
+
       .eq(
         "id",
         id
       );
 
 
-  if (error) {
-
-    alert(
-      error.message
-    );
-  }
-}
-
-
-/* =========================
-   VIEW PRIVATE DOCUMENTS
-========================= */
-
-async function viewDocs(id) {
-
-  const {
-    data: application,
+  if (
     error
-  } =
-    await sb
-      .from("applications")
-      .select(
-        "id_front_path,id_back_path,signature_path,verification_video_path"
-      )
-      .eq(
-        "id",
-        id
-      )
-      .single();
-
-
-  if (error) {
+  ) {
 
     alert(
       error.message
     );
 
     return;
+
+  }
+
+
+  await render();
+
+}
+
+
+/* =========================================
+   ACTIVATE LOAN
+========================================= */
+
+async function activateLoan(
+  id
+) {
+
+  const application =
+
+    allApplications.find(
+
+      item =>
+        String(item.id) ===
+        String(id)
+
+    );
+
+
+  if (
+    !application
+  ) {
+
+    alert(
+      "Application not found."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    application.status !==
+    "Approved"
+  ) {
+
+    alert(
+
+      "The application must be Approved before activating the loan."
+
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+
+      `Activate the loan for ${application.full_name}?`
+
+    );
+
+
+  if (
+    !confirmed
+  ) {
+    return;
+  }
+
+
+  /*
+    The due-date countdown starts when
+    the admin activates the loan.
+  */
+
+
+  const startDate =
+    new Date();
+
+
+  const endDate =
+    new Date(
+      startDate
+    );
+
+
+  endDate.setDate(
+
+    endDate.getDate() +
+
+    Number(
+      application.duration_days ||
+      0
+    )
+
+  );
+
+
+  const totalPayment =
+    Number(
+
+      application.total_payment ||
+
+      0
+
+    );
+
+
+  const {
+    error
+  } =
+
+    await sb
+
+      .from(
+        "applications"
+      )
+
+      .update({
+
+        loan_status:
+          "Active",
+
+        payment_status:
+          "Not Paid",
+
+        amount_paid:
+          0,
+
+        remaining_balance:
+          totalPayment,
+
+        loan_start_date:
+          formatDateForInput(
+            startDate
+          ),
+
+        loan_end_date:
+          formatDateForInput(
+            endDate
+          ),
+
+        activated_at:
+          new Date()
+            .toISOString(),
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (
+    error
+  ) {
+
+    alert(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+
+    "Loan activated successfully. The borrower is now in Clients."
+
+  );
+
+
+  await render();
+
+
+  showAdminTab(
+    "clientsPanel"
+  );
+
+}
+
+
+/* =========================================
+   DUE STATUS
+========================================= */
+
+function getDueStatus(
+  application
+) {
+
+  if (
+    application.payment_status ===
+    "Paid" ||
+
+    application.loan_status ===
+    "Paid"
+  ) {
+
+    return "Paid";
+
+  }
+
+
+  if (
+    application.loan_status !==
+    "Active"
+  ) {
+
+    return "Not Active";
+
+  }
+
+
+  if (
+    !application.loan_end_date
+  ) {
+
+    return "Not Delayed";
+
+  }
+
+
+  const today =
+    startOfLocalDay(
+      new Date()
+    );
+
+
+  const dueDate =
+    startOfLocalDay(
+
+      new Date(
+
+        `${application.loan_end_date}T00:00:00`
+
+      )
+
+    );
+
+
+  const difference =
+
+    Math.round(
+
+      (
+        dueDate.getTime() -
+        today.getTime()
+      )
+
+      /
+
+      86400000
+
+    );
+
+
+  if (
+    difference ===
+    1
+  ) {
+
+    return "Due Tomorrow";
+
+  }
+
+
+  if (
+    difference ===
+    0
+  ) {
+
+    return "Due Today";
+
+  }
+
+
+  if (
+    difference <
+    0
+  ) {
+
+    const delayedDays =
+      Math.abs(
+        difference
+      );
+
+
+    return (
+
+      delayedDays === 1
+
+        ? "Delayed - 1 Day"
+
+        : `Delayed - ${delayedDays} Days`
+
+    );
+
+  }
+
+
+  return "Not Delayed";
+
+}
+
+
+/* =========================================
+   START OF LOCAL DAY
+========================================= */
+
+function startOfLocalDay(
+  date
+) {
+
+  return new Date(
+
+    date.getFullYear(),
+
+    date.getMonth(),
+
+    date.getDate()
+
+  );
+
+}
+
+
+/* =========================================
+   REMAINING BALANCE
+========================================= */
+
+function calculateRemainingBalance(
+  application
+) {
+
+  if (
+    application.payment_status ===
+    "Paid"
+  ) {
+    return 0;
+  }
+
+
+  const total =
+    Number(
+
+      application.total_payment ||
+
+      0
+
+    );
+
+
+  const paid =
+    Number(
+
+      application.amount_paid ||
+
+      0
+
+    );
+
+
+  return Math.max(
+
+    0,
+
+    total - paid
+
+  );
+
+}
+
+
+/* =========================================
+   DASHBOARD COUNTERS
+========================================= */
+
+function updateDashboardCounters() {
+
+  let pending =
+    0;
+
+  let active =
+    0;
+
+  let dueToday =
+    0;
+
+  let delayed =
+    0;
+
+  let paid =
+    0;
+
+
+  allApplications.forEach(
+
+    application => {
+
+
+      if (
+        application.status ===
+        "Pending Review"
+      ) {
+
+        pending++;
+
+      }
+
+
+      if (
+        application.loan_status ===
+        "Active"
+      ) {
+
+        active++;
+
+      }
+
+
+      if (
+        application.loan_status ===
+        "Paid" ||
+
+        application.payment_status ===
+        "Paid"
+      ) {
+
+        paid++;
+
+      }
+
+
+      const dueStatus =
+        getDueStatus(
+          application
+        );
+
+
+      if (
+        dueStatus ===
+        "Due Today"
+      ) {
+
+        dueToday++;
+
+      }
+
+
+      if (
+        dueStatus.startsWith(
+          "Delayed"
+        )
+      ) {
+
+        delayed++;
+
+      }
+
+    }
+
+  );
+
+
+  $("pendingCount").textContent =
+    pending;
+
+
+  $("activeCount").textContent =
+    active;
+
+
+  $("dueTodayCount").textContent =
+    dueToday;
+
+
+  $("delayedCount").textContent =
+    delayed;
+
+
+  $("paidCount").textContent =
+    paid;
+
+}
+
+
+/* =========================================
+   VIEW BORROWER RECORD
+========================================= */
+
+function viewRecord(
+  id
+) {
+
+  const application =
+
+    allApplications.find(
+
+      item =>
+        String(item.id) ===
+        String(id)
+
+    );
+
+
+  if (
+    !application
+  ) {
+
+    alert(
+      "Borrower record not found."
+    );
+
+    return;
+
+  }
+
+
+  const dueStatus =
+    getDueStatus(
+      application
+    );
+
+
+  const remaining =
+    calculateRemainingBalance(
+      application
+    );
+
+
+  $("recordDetailsContent")
+    .innerHTML = `
+
+
+      <div class="record-grid">
+
+
+        ${recordItem(
+          "Application ID",
+          application.application_id
+        )}
+
+
+        ${recordItem(
+          "Full Name",
+          application.full_name
+        )}
+
+
+        ${recordItem(
+          "Email",
+          application.email
+        )}
+
+
+        ${recordItem(
+          "Mobile Number",
+          application.mobile_number
+        )}
+
+
+        ${recordItem(
+          "Date of Birth",
+          formatDisplayDate(
+            application.date_of_birth
+          )
+        )}
+
+
+        ${recordItem(
+          "Full Address",
+          application.full_address
+        )}
+
+
+        ${recordItem(
+          "Barangay Captain",
+          application.brgy_captain
+        )}
+
+
+        ${recordItem(
+          "Employment",
+          application.employment_type
+        )}
+
+
+        ${recordItem(
+          "Monthly Income",
+          `₱${money(
+            application.monthly_income
+          )}`
+        )}
+
+
+        ${recordItem(
+          "Relative Facebook 1",
+          application.relative_fb_1
+        )}
+
+
+        ${recordItem(
+          "Relative Facebook 2",
+          application.relative_fb_2
+        )}
+
+
+        ${recordItem(
+          "School Facebook",
+          application.school_facebook_url ||
+          "N/A"
+        )}
+
+
+        ${recordItem(
+          "Requested Amount",
+          `₱${money(
+            application.requested_amount
+          )}`
+        )}
+
+
+        ${recordItem(
+          "Loan Purpose",
+          application.loan_purpose
+        )}
+
+
+        ${recordItem(
+          "Interest Rate",
+          `${application.interest_rate}%`
+        )}
+
+
+        ${recordItem(
+          "Duration",
+          `${application.duration_days} days`
+        )}
+
+
+        ${recordItem(
+          "Total Payment",
+          `₱${money(
+            application.total_payment
+          )}`
+        )}
+
+
+        ${recordItem(
+          "Amount Paid",
+          `₱${money(
+            application.amount_paid
+          )}`
+        )}
+
+
+        ${recordItem(
+          "Remaining Balance",
+          `₱${money(
+            remaining
+          )}`
+        )}
+
+
+        ${recordItem(
+          "Loan Start Date",
+          formatDisplayDate(
+            application.loan_start_date
+          )
+        )}
+
+
+        ${recordItem(
+          "Due Date",
+          formatDisplayDate(
+            application.loan_end_date
+          )
+        )}
+
+
+        ${recordItem(
+          "Application Status",
+          application.status
+        )}
+
+
+        ${recordItem(
+          "Loan Status",
+          application.loan_status ||
+          "Not Active"
+        )}
+
+
+        ${recordItem(
+          "Payment Status",
+          application.payment_status ||
+          "Not Paid"
+        )}
+
+
+        ${recordItem(
+          "Due Status",
+          dueStatus
+        )}
+
+
+        ${recordItem(
+          "Payment Method",
+          application.payment_method ||
+          "N/A"
+        )}
+
+
+        ${recordItem(
+          "Payment Reference",
+          application.payment_reference ||
+          "N/A"
+        )}
+
+
+      </div>
+
+    `;
+
+
+  $("recordDetails")
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  $("recordDetails")
+    .scrollIntoView({
+
+      behavior:
+        "smooth"
+
+    });
+
+}
+
+
+/* =========================================
+   RECORD ITEM
+========================================= */
+
+function recordItem(
+  label,
+  value
+) {
+
+  return `
+
+    <div class="record-item">
+
+      <span>
+
+        ${escapeHtml(
+          label
+        )}
+
+      </span>
+
+      <strong>
+
+        ${escapeHtml(
+          value ?? ""
+        )}
+
+      </strong>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================
+   CLOSE RECORD
+========================================= */
+
+function closeRecordDetails() {
+
+  $("recordDetails")
+    .classList
+    .add(
+      "hidden"
+    );
+
+}
+
+
+/* =========================================
+   VIEW PRIVATE DOCUMENTS
+========================================= */
+
+async function viewDocs(
+  id
+) {
+
+  const application =
+
+    allApplications.find(
+
+      item =>
+        String(item.id) ===
+        String(id)
+
+    );
+
+
+  if (
+    !application
+  ) {
+
+    alert(
+      "Application not found."
+    );
+
+    return;
+
   }
 
 
@@ -1672,7 +3312,14 @@ async function viewDocs(id) {
 
     [
       "Verification Video",
-      application.verification_video_path
+      application
+        .verification_video_path
+    ],
+
+    [
+      "Payment Proof",
+      application
+        .payment_proof_path
     ]
 
   ];
@@ -1690,7 +3337,10 @@ async function viewDocs(id) {
     of paths
   ) {
 
-    if (!path) {
+
+    if (
+      !path
+    ) {
       continue;
     }
 
@@ -1699,13 +3349,19 @@ async function viewDocs(id) {
       data,
       error
     } =
+
       await sb.storage
+
         .from(
           "application-documents"
         )
+
         .createSignedUrl(
+
           path,
+
           300
+
         );
 
 
@@ -1714,61 +3370,774 @@ async function viewDocs(id) {
       data?.signedUrl
     ) {
 
-      links.push(
-        `
 
-          <a
-            href="${data.signedUrl}"
-            target="_blank"
-            rel="noopener"
-          >
+      links.push(`
 
-            ${escapeHtml(
-              label
-            )}
+        <a
 
-          </a>
+          href="${data.signedUrl}"
 
-        `
-      );
+          target="_blank"
+
+          rel="noopener"
+
+        >
+
+          ${escapeHtml(
+            label
+          )}
+
+        </a>
+
+      `);
+
     }
+
   }
 
 
-  $("docLinks")
-    .innerHTML = `
+  $("docLinks").innerHTML = `
 
-      <h3>
-        Private Documents
-      </h3>
+    <div class="panel-heading">
 
-      <p>
-        Links expire in 5 minutes.
-      </p>
+      <div>
+
+        <h3>
+          Borrower Files
+        </h3>
+
+        <p>
+          ${escapeHtml(
+            application.full_name
+          )}
+        </p>
+
+      </div>
+
+
+      <button
+
+        type="button"
+
+        onclick="
+          closeDocuments()
+        "
+
+      >
+
+        Close
+
+      </button>
+
+    </div>
+
+
+    <p>
+      Private file links expire in
+      5 minutes.
+    </p>
+
+
+    <div>
 
       ${
+
         links.length
-          ? links.join("<br>")
-          : "No documents available."
+
+          ? links.join("")
+
+          : "No files available."
+
       }
 
-    `;
+    </div>
+
+  `;
 
 
   $("docLinks")
     .classList
-    .remove("hidden");
+    .remove(
+      "hidden"
+    );
+
+
+  $("docLinks")
+    .scrollIntoView({
+
+      behavior:
+        "smooth"
+
+    });
+
 }
 
 
-/* =========================
-   ESCAPE HTML
-========================= */
+/* =========================================
+   CLOSE DOCUMENTS
+========================================= */
 
-function escapeHtml(value) {
+function closeDocuments() {
+
+  $("docLinks")
+    .classList
+    .add(
+      "hidden"
+    );
+
+}
+
+
+/* =========================================
+   OPEN PAYMENT PANEL
+========================================= */
+
+function openPaymentPanel(
+  id
+) {
+
+  const application =
+
+    allApplications.find(
+
+      item =>
+        String(item.id) ===
+        String(id)
+
+    );
+
+
+  if (
+    !application
+  ) {
+
+    alert(
+      "Client not found."
+    );
+
+    return;
+
+  }
+
+
+  $("paymentApplicationId").value =
+    application.id;
+
+
+  $("paymentClientName").textContent =
+
+    `${application.full_name} — Remaining balance: ₱${money(
+
+      calculateRemainingBalance(
+        application
+      )
+
+    )}`;
+
+
+  $("paymentAmount").value =
+    "";
+
+
+  $("paymentDate").value =
+    formatDateForInput(
+      new Date()
+    );
+
+
+  $("paymentMethod").value =
+    "";
+
+
+  $("paymentReference").value =
+    "";
+
+
+  $("paymentProof").value =
+    "";
+
+
+  $("paymentPanel")
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  $("paymentPanel")
+    .scrollIntoView({
+
+      behavior:
+        "smooth"
+
+    });
+
+}
+
+
+/* =========================================
+   CLOSE PAYMENT PANEL
+========================================= */
+
+function closePaymentPanel() {
+
+  $("paymentPanel")
+    .classList
+    .add(
+      "hidden"
+    );
+
+}
+
+
+/* =========================================
+   SAVE PAYMENT
+========================================= */
+
+async function savePayment() {
+
+  const id =
+    $("paymentApplicationId")
+      .value;
+
+
+  const application =
+
+    allApplications.find(
+
+      item =>
+        String(item.id) ===
+        String(id)
+
+    );
+
+
+  if (
+    !application
+  ) {
+
+    alert(
+      "Client not found."
+    );
+
+    return;
+
+  }
+
+
+  const amount =
+    Number(
+      $("paymentAmount").value
+    );
+
+
+  const paymentDate =
+    $("paymentDate").value;
+
+
+  const paymentMethod =
+    $("paymentMethod").value;
+
+
+  const reference =
+    $("paymentReference")
+      .value
+      .trim();
+
+
+  const proof =
+    $("paymentProof")
+      .files[0];
+
+
+  if (
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ) {
+
+    alert(
+
+      "Please enter a valid payment amount."
+
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !paymentDate
+  ) {
+
+    alert(
+
+      "Please select the payment date."
+
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !paymentMethod
+  ) {
+
+    alert(
+
+      "Please select the payment method."
+
+    );
+
+    return;
+
+  }
+
+
+  const currentPaid =
+    Number(
+
+      application.amount_paid ||
+
+      0
+
+    );
+
+
+  const totalPayment =
+    Number(
+
+      application.total_payment ||
+
+      0
+
+    );
+
+
+  const newAmountPaid =
+    currentPaid +
+    amount;
+
+
+  const remainingBalance =
+    Math.max(
+
+      0,
+
+      totalPayment -
+      newAmountPaid
+
+    );
+
+
+  let proofPath =
+    null;
+
+
+  try {
+
+
+    if (
+      proof
+    ) {
+
+
+      const extension =
+
+        proof.name
+          .split(".")
+          .pop()
+          ?.replace(
+            /[^a-zA-Z0-9]/g,
+            ""
+          ) ||
+
+        "jpg";
+
+
+      proofPath =
+
+        `${application.application_id}/payment-proofs/${Date.now()}.${extension}`;
+
+
+      const {
+        error:
+          uploadError
+      } =
+
+        await sb.storage
+
+          .from(
+            "application-documents"
+          )
+
+          .upload(
+
+            proofPath,
+
+            proof,
+
+            {
+
+              contentType:
+
+                proof.type ||
+
+                "application/octet-stream"
+
+            }
+
+          );
+
+
+      if (
+        uploadError
+      ) {
+
+        throw uploadError;
+
+      }
+
+    }
+
+
+    const {
+      error:
+        paymentInsertError
+    } =
+
+      await sb
+
+        .from(
+          "loan_payments"
+        )
+
+        .insert({
+
+          application_id:
+            application.application_id,
+
+          amount,
+
+          payment_method:
+            paymentMethod,
+
+          reference_number:
+            reference ||
+            null,
+
+          proof_path:
+            proofPath,
+
+          payment_date:
+
+            `${paymentDate}T00:00:00`
+
+        });
+
+
+    if (
+      paymentInsertError
+    ) {
+
+      throw paymentInsertError;
+
+    }
+
+
+    const isFullyPaid =
+
+      remainingBalance <=
+      0;
+
+
+    const {
+      error:
+        updateError
+    } =
+
+      await sb
+
+        .from(
+          "applications"
+        )
+
+        .update({
+
+          amount_paid:
+            Math.min(
+              newAmountPaid,
+              totalPayment
+            ),
+
+          remaining_balance:
+            remainingBalance,
+
+          payment_status:
+
+            isFullyPaid
+
+              ? "Paid"
+
+              : "Partially Paid",
+
+          loan_status:
+
+            isFullyPaid
+
+              ? "Paid"
+
+              : "Active",
+
+          payment_date:
+
+            `${paymentDate}T00:00:00`,
+
+          payment_method:
+            paymentMethod,
+
+          payment_reference:
+            reference ||
+            null,
+
+          payment_proof_path:
+
+            proofPath ||
+
+            application
+              .payment_proof_path ||
+
+            null,
+
+          paid_at:
+
+            isFullyPaid
+
+              ? new Date()
+                  .toISOString()
+
+              : null,
+
+          updated_at:
+
+            new Date()
+              .toISOString()
+
+        })
+
+        .eq(
+          "id",
+          application.id
+        );
+
+
+    if (
+      updateError
+    ) {
+
+      throw updateError;
+
+    }
+
+
+    alert(
+
+      isFullyPaid
+
+        ? "Payment saved. The loan is now fully paid."
+
+        : `Payment saved. Remaining balance: ₱${money(
+            remainingBalance
+          )}`
+
+    );
+
+
+    closePaymentPanel();
+
+
+    await render();
+
+
+    showAdminTab(
+      "clientsPanel"
+    );
+
+
+  } catch (
+    error
+  ) {
+
+
+    console.error(
+
+      "Payment error:",
+
+      error
+
+    );
+
+
+    alert(
+
+      error.message ||
+
+      "Unable to save payment."
+
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   STATUS BADGE
+========================================= */
+
+function statusBadge(
+  status
+) {
+
+  const value =
+
+    String(
+
+      status ||
+
+      ""
+
+    );
+
+
+  const lower =
+    value.toLowerCase();
+
+
+  let className =
+    "status-approved";
+
+
+  if (
+    lower.includes(
+      "pending"
+    )
+  ) {
+
+    className =
+      "status-pending";
+
+
+  } else if (
+    lower.includes(
+      "delayed"
+    ) &&
+    !lower.includes(
+      "not delayed"
+    )
+  ) {
+
+    className =
+      "status-delayed";
+
+
+  } else if (
+    lower.includes(
+      "due"
+    )
+  ) {
+
+    className =
+      "status-due";
+
+
+  } else if (
+    lower ===
+    "paid"
+  ) {
+
+    className =
+      "status-paid";
+
+
+  } else if (
+    lower.includes(
+      "not delayed"
+    )
+  ) {
+
+    className =
+      "status-not-delayed";
+
+
+  } else if (
+    lower.includes(
+      "active"
+    ) &&
+    !lower.includes(
+      "not active"
+    )
+  ) {
+
+    className =
+      "status-active";
+
+
+  } else if (
+    lower.includes(
+      "declined"
+    )
+  ) {
+
+    className =
+      "status-declined";
+
+
+  } else if (
+    lower.includes(
+      "document"
+    )
+  ) {
+
+    className =
+      "status-documents";
+
+  }
+
+
+  return `
+
+    <span
+      class="status-badge ${className}"
+    >
+
+      ${escapeHtml(
+        value
+      )}
+
+    </span>
+
+  `;
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(
+  value
+) {
 
   return String(
-    value ?? ""
+
+    value ??
+
+    ""
+
   ).replace(
 
     /[&<>'"]/g,
@@ -1793,42 +4162,107 @@ function escapeHtml(value) {
     }[character])
 
   );
+
 }
 
 
-/* =========================
-   CHECK EXISTING ADMIN SESSION
-========================= */
+/* =========================================
+   EXISTING ADMIN SESSION
+========================================= */
 
-sb.auth
-  .getSession()
-  .then(
-    ({
-      data
-    }) => {
+async function checkAdminSession() {
 
-      if (
-        data.session
-      ) {
+  const {
+    data
+  } =
 
-        $("login")
-          .classList
-          .add("hidden");
+    await sb.auth
+      .getSession();
 
 
-        $("dashboard")
-          .classList
-          .remove("hidden");
+  if (
+    data.session
+  ) {
 
 
-        render();
-      }
+    $("login")
+      .classList
+      .add(
+        "hidden"
+      );
+
+
+    $("dashboard")
+      .classList
+      .remove(
+        "hidden"
+      );
+
+
+    await render();
+
+  }
+
+}
+
+
+/* =========================================
+   INITIALIZE WEBSITE
+========================================= */
+
+document.addEventListener(
+
+  "DOMContentLoaded",
+
+  function () {
+
+
+    setupStudentField();
+
+
+    setupSignaturePad();
+
+
+    setupVideoCheck();
+
+
+    setupApplicationForm();
+
+
+    const amount =
+      $("amount");
+
+
+    if (
+      amount
+    ) {
+
+
+      amount.addEventListener(
+
+        "input",
+
+        updateLoanDetails
+
+      );
+
+
+      amount.addEventListener(
+
+        "change",
+
+        updateLoanDetails
+
+      );
+
     }
-  );
 
 
-/* =========================
-   INITIAL SETUP
-========================= */
+    updateLoanDetails();
 
-updateLoanDetails();
+
+    checkAdminSession();
+
+  }
+
+);
