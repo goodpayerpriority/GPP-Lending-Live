@@ -13,15 +13,8 @@ const sb =
     SUPABASE_KEY
   );
 
-const $ =
-  id => document.getElementById(id);
-
-let allApplications = [];
-
-let signatureCanvas = null;
-let signatureContext = null;
-let isSigning = false;
-let hasSignature = false;
+const $ = id =>
+  document.getElementById(id);
 
 
 /* =========================================
@@ -33,16 +26,31 @@ function show(id) {
   document
     .querySelectorAll(".page")
     .forEach(page => {
-      page.classList.remove("active");
+
+      page.classList.remove(
+        "active"
+      );
+
     });
 
-  const page = $(id);
 
-  if (page) {
-    page.classList.add("active");
+  const selectedPage =
+    $(id);
+
+
+  if (selectedPage) {
+
+    selectedPage.classList.add(
+      "active"
+    );
+
   }
 
-  window.scrollTo(0, 0);
+
+  window.scrollTo(
+    0,
+    0
+  );
 
 
   if (
@@ -50,7 +58,7 @@ function show(id) {
   ) {
 
     setTimeout(
-      resizeSignaturePad,
+      resizeSignatureCanvas,
       100
     );
 
@@ -65,27 +73,46 @@ function show(id) {
 
 function term(amount) {
 
+  const value =
+    Number(amount);
+
+
   if (
-    amount >= 100 &&
-    amount <= 500
+    value >= 100 &&
+    value <= 500
   ) {
-    return [20, 3];
+
+    return [
+      20,
+      3
+    ];
+
   }
 
 
   if (
-    amount >= 501 &&
-    amount <= 1000
+    value >= 501 &&
+    value <= 1000
   ) {
-    return [25, 5];
+
+    return [
+      25,
+      5
+    ];
+
   }
 
 
   if (
-    amount >= 1001 &&
-    amount <= 2000
+    value >= 1001 &&
+    value <= 2000
   ) {
-    return [30, 7];
+
+    return [
+      30,
+      7
+    ];
+
   }
 
 
@@ -95,13 +122,14 @@ function term(amount) {
 
 
 /* =========================================
-   FORMAT DATE FOR INPUT
+   DATE HELPERS
 ========================================= */
 
 function formatDateForInput(date) {
 
   const year =
     date.getFullYear();
+
 
   const month =
     String(
@@ -110,6 +138,7 @@ function formatDateForInput(date) {
       2,
       "0"
     );
+
 
   const day =
     String(
@@ -127,38 +156,119 @@ function formatDateForInput(date) {
 }
 
 
-/* =========================================
-   FORMAT DISPLAY DATE
-========================================= */
-
-function formatDisplayDate(value) {
+function parseDate(value) {
 
   if (!value) {
-    return "Not available";
+    return null;
   }
 
 
-  const date =
-    new Date(
-      `${value}T00:00:00`
-    );
+  const parts =
+    String(value)
+      .split("-")
+      .map(Number);
 
 
   if (
-    Number.isNaN(
-      date.getTime()
+    parts.length !== 3 ||
+    parts.some(
+      part =>
+        !Number.isFinite(part)
     )
   ) {
-    return value;
+
+    return null;
+
+  }
+
+
+  return new Date(
+    parts[0],
+    parts[1] - 1,
+    parts[2]
+  );
+
+}
+
+
+function startOfDay(date) {
+
+  const result =
+    new Date(date);
+
+
+  result.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+
+  return result;
+
+}
+
+
+function differenceInDays(
+  laterDate,
+  earlierDate
+) {
+
+  const millisecondsPerDay =
+    24 *
+    60 *
+    60 *
+    1000;
+
+
+  return Math.floor(
+
+    (
+      startOfDay(
+        laterDate
+      ) -
+
+      startOfDay(
+        earlierDate
+      )
+
+    ) /
+
+    millisecondsPerDay
+
+  );
+
+}
+
+
+function formatDisplayDate(value) {
+
+  const date =
+    parseDate(value);
+
+
+  if (!date) {
+
+    return (
+      value ||
+      "Not available"
+    );
+
   }
 
 
   return date.toLocaleDateString(
     "en-PH",
     {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
+      year:
+        "numeric",
+
+      month:
+        "long",
+
+      day:
+        "numeric"
     }
   );
 
@@ -169,32 +279,41 @@ function formatDisplayDate(value) {
    MONEY FORMAT
 ========================================= */
 
-function money(value) {
+function formatMoney(value) {
 
   const number =
     Number(value);
 
 
   if (
-    !Number.isFinite(number)
+    !Number.isFinite(
+      number
+    )
   ) {
-    return "0.00";
+
+    return "₱0.00";
+
   }
 
 
-  return number.toLocaleString(
+  return new Intl.NumberFormat(
     "en-PH",
     {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      style:
+        "currency",
+
+      currency:
+        "PHP"
     }
+  ).format(
+    number
   );
 
 }
 
 
 /* =========================================
-   AUTOMATIC LOAN DETAILS
+   AUTOMATIC LOAN PREVIEW
 ========================================= */
 
 function updateLoanDetails() {
@@ -202,8 +321,33 @@ function updateLoanDetails() {
   const amountInput =
     $("amount");
 
-  if (!amountInput) {
+
+  const startDateInput =
+    $("loanStartDate");
+
+
+  const endDateInput =
+    $("loanEndDate");
+
+
+  const totalAmountInput =
+    $("totalAmount");
+
+
+  const termsBox =
+    $("terms");
+
+
+  if (
+    !amountInput ||
+    !startDateInput ||
+    !endDateInput ||
+    !totalAmountInput ||
+    !termsBox
+  ) {
+
     return;
+
   }
 
 
@@ -214,33 +358,40 @@ function updateLoanDetails() {
 
 
   const loanTerm =
-    term(amount);
+    term(
+      amount
+    );
 
 
   if (!loanTerm) {
 
-    $("loanStartDate").value =
+    startDateInput.value =
       "";
 
-    $("loanEndDate").value =
+
+    endDateInput.value =
       "";
 
-    $("totalAmount").value =
+
+    totalAmountInput.value =
       "";
 
-    $("terms").textContent =
+
+    termsBox.textContent =
+
       "Enter ₱100–₱2,000 to calculate terms.";
+
 
     return;
 
   }
 
 
-  const interestRate =
-    loanTerm[0];
-
-  const durationDays =
-    loanTerm[1];
+  const [
+    interestRate,
+    durationDays
+  ] =
+    loanTerm;
 
 
   const totalPayment =
@@ -273,33 +424,68 @@ function updateLoanDetails() {
   );
 
 
-  $("loanStartDate").value =
+  startDateInput.value =
+
     formatDateForInput(
       startDate
     );
 
 
-  $("loanEndDate").value =
+  endDateInput.value =
+
     formatDateForInput(
       endDate
     );
 
 
-  $("totalAmount").value =
-    `₱${money(totalPayment)}`;
+  totalAmountInput.value =
+
+    formatMoney(
+      totalPayment
+    );
 
 
-  $("terms").innerHTML = `
+  termsBox.innerHTML = `
 
-    <b>Your loan terms:</b>
+    <b>Your Loan Terms</b>
+
+    <br>
 
     ${interestRate}% interest
     for ${durationDays} days.
 
-    Total payment:
+    <br>
+
+    Expected Start Date:
+    <b>
+      ${escapeHtml(
+        formatDisplayDate(
+          startDateInput.value
+        )
+      )}
+    </b>
+
+    <br>
+
+    Expected Due Date:
+    <b>
+      ${escapeHtml(
+        formatDisplayDate(
+          endDateInput.value
+        )
+      )}
+    </b>
+
+    <br>
+
+    Total Amount to Pay:
 
     <b>
-      ₱${money(totalPayment)}
+      ${escapeHtml(
+        formatMoney(
+          totalPayment
+        )
+      )}
     </b>
 
   `;
@@ -308,42 +494,70 @@ function updateLoanDetails() {
 
 
 /* =========================================
-   STUDENT FIELD
+   LOAN AMOUNT EVENTS
 ========================================= */
 
-function setupStudentField() {
+if (
+  $("amount")
+) {
 
-  const employment =
-    $("employment");
+  $("amount").addEventListener(
+    "input",
+    updateLoanDetails
+  );
 
 
-  if (!employment) {
-    return;
-  }
-
-
-  employment.addEventListener(
+  $("amount").addEventListener(
     "change",
+    updateLoanDetails
+  );
+
+}
+
+
+/* =========================================
+   STUDENT SCHOOL FIELD
+========================================= */
+
+if (
+  $("employment")
+) {
+
+  $("employment").addEventListener(
+
+    "change",
+
     function () {
+
 
       const isStudent =
 
-        employment.value ===
+        $("employment").value ===
         "Student";
 
 
       $("schoolBox")
-        .classList
+        ?.classList
         .toggle(
+
           "hidden",
+
           !isStudent
+
         );
 
 
-      $("school").required =
-        isStudent;
+      if (
+        $("school")
+      ) {
+
+        $("school").required =
+          isStudent;
+
+      }
 
     }
+
   );
 
 }
@@ -353,89 +567,49 @@ function setupStudentField() {
    SIGNATURE PAD
 ========================================= */
 
-function setupSignaturePad() {
-
-  signatureCanvas =
-    $("signaturePad");
+const signatureCanvas =
+  $("signatureCanvas");
 
 
-  if (!signatureCanvas) {
-    return;
-  }
+let signatureContext =
+  null;
 
+
+let isDrawing =
+  false;
+
+
+let hasSignature =
+  false;
+
+
+if (
+  signatureCanvas
+) {
 
   signatureContext =
+
     signatureCanvas.getContext(
       "2d"
     );
 
-
-  resizeSignaturePad();
-
-
-  signatureCanvas.addEventListener(
-    "pointerdown",
-    startSignature
-  );
-
-
-  signatureCanvas.addEventListener(
-    "pointermove",
-    drawSignature
-  );
-
-
-  signatureCanvas.addEventListener(
-    "pointerup",
-    stopSignature
-  );
-
-
-  signatureCanvas.addEventListener(
-    "pointercancel",
-    stopSignature
-  );
-
-
-  signatureCanvas.addEventListener(
-    "pointerleave",
-    stopSignature
-  );
-
-
-  window.addEventListener(
-    "resize",
-    resizeSignaturePad
-  );
-
-
-  const clearButton =
-    $("clearSignature");
-
-
-  if (clearButton) {
-
-    clearButton.addEventListener(
-      "click",
-      clearSignature
-    );
-
-  }
-
 }
 
 
-function resizeSignaturePad() {
+function resizeSignatureCanvas() {
 
   if (
     !signatureCanvas ||
     !signatureContext
   ) {
+
     return;
+
   }
 
 
   const rect =
+
     signatureCanvas
       .getBoundingClientRect();
 
@@ -444,29 +618,46 @@ function resizeSignaturePad() {
     rect.width <= 0 ||
     rect.height <= 0
   ) {
+
     return;
+
   }
 
 
-  const oldImage =
+  let savedImage =
+    null;
 
-    hasSignature
 
-      ? signatureCanvas
-          .toDataURL()
+  if (
+    hasSignature &&
+    signatureCanvas.width > 0 &&
+    signatureCanvas.height > 0
+  ) {
 
-      : null;
+    savedImage =
+
+      signatureCanvas
+        .toDataURL(
+          "image/png"
+        );
+
+  }
 
 
   const ratio =
+
     Math.max(
+
       window.devicePixelRatio ||
       1,
+
       1
+
     );
 
 
   signatureCanvas.width =
+
     Math.round(
       rect.width *
       ratio
@@ -474,6 +665,7 @@ function resizeSignaturePad() {
 
 
   signatureCanvas.height =
+
     Math.round(
       rect.height *
       ratio
@@ -481,36 +673,42 @@ function resizeSignaturePad() {
 
 
   signatureContext =
+
     signatureCanvas.getContext(
       "2d"
     );
 
 
   signatureContext.setTransform(
+
     ratio,
     0,
     0,
     ratio,
     0,
     0
+
   );
 
 
   signatureContext.lineWidth =
-    2.2;
+    2.5;
+
 
   signatureContext.lineCap =
     "round";
 
+
   signatureContext.lineJoin =
     "round";
+
 
   signatureContext.strokeStyle =
     "#10213d";
 
 
   if (
-    oldImage
+    savedImage
   ) {
 
     const image =
@@ -538,7 +736,7 @@ function resizeSignaturePad() {
 
 
     image.src =
-      oldImage;
+      savedImage;
 
   }
 
@@ -550,6 +748,7 @@ function getSignaturePosition(
 ) {
 
   const rect =
+
     signatureCanvas
       .getBoundingClientRect();
 
@@ -557,10 +756,12 @@ function getSignaturePosition(
   return {
 
     x:
+
       event.clientX -
       rect.left,
 
     y:
+
       event.clientY -
       rect.top
 
@@ -576,14 +777,16 @@ function startSignature(
   if (
     !signatureContext
   ) {
+
     return;
+
   }
 
 
   event.preventDefault();
 
 
-  isSigning =
+  isDrawing =
     true;
 
 
@@ -591,28 +794,25 @@ function startSignature(
     true;
 
 
-  signatureCanvas
-    .setPointerCapture?.(
-      event.pointerId
-    );
-
-
   const point =
+
     getSignaturePosition(
       event
     );
 
 
-  signatureContext.beginPath();
+  signatureContext
+    .beginPath();
 
 
-  signatureContext.moveTo(
+  signatureContext
+    .moveTo(
 
-    point.x,
+      point.x,
 
-    point.y
+      point.y
 
-  );
+    );
 
 }
 
@@ -622,10 +822,12 @@ function drawSignature(
 ) {
 
   if (
-    !isSigning ||
+    !isDrawing ||
     !signatureContext
   ) {
+
     return;
+
   }
 
 
@@ -633,61 +835,49 @@ function drawSignature(
 
 
   const point =
+
     getSignaturePosition(
       event
     );
 
 
-  signatureContext.lineTo(
+  signatureContext
+    .lineTo(
 
-    point.x,
+      point.x,
 
-    point.y
+      point.y
 
-  );
+    );
 
 
-  signatureContext.stroke();
+  signatureContext
+    .stroke();
 
 }
 
 
-function stopSignature(
-  event
-) {
+function stopSignature() {
 
   if (
-    !isSigning
+    !isDrawing
   ) {
+
     return;
+
   }
 
 
-  isSigning =
+  isDrawing =
     false;
 
 
-  signatureContext
-    ?.closePath();
-
-
   if (
-    event?.pointerId !==
-    undefined
+    signatureContext
   ) {
 
-    try {
-
-      signatureCanvas
-        ?.releasePointerCapture?.(
-          event.pointerId
-        );
-
-    } catch {
-
-      /* Ignore */
-
-    }
+    signatureContext
+      .closePath();
 
   }
 
@@ -700,11 +890,14 @@ function clearSignature() {
     !signatureCanvas ||
     !signatureContext
   ) {
+
     return;
+
   }
 
 
   const rect =
+
     signatureCanvas
       .getBoundingClientRect();
 
@@ -728,48 +921,84 @@ function clearSignature() {
 }
 
 
+if (
+  signatureCanvas
+) {
+
+  signatureCanvas.addEventListener(
+    "pointerdown",
+    startSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointermove",
+    drawSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointerup",
+    stopSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointerleave",
+    stopSignature
+  );
+
+
+  signatureCanvas.addEventListener(
+    "pointercancel",
+    stopSignature
+  );
+
+
+  window.addEventListener(
+    "resize",
+    resizeSignatureCanvas
+  );
+
+
+  setTimeout(
+    resizeSignatureCanvas,
+    100
+  );
+
+}
+
+
 /* =========================================
    CONVERT SIGNATURE TO FILE
 ========================================= */
 
-function signatureToFile() {
+async function signatureToFile() {
+
+  if (
+    !signatureCanvas ||
+    !hasSignature
+  ) {
+
+    return null;
+
+  }
+
 
   return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
 
-      if (
-        !signatureCanvas ||
-        !hasSignature
-      ) {
-
-        reject(
-
-          new Error(
-            "Please sign inside the signature box."
-          )
-
-        );
-
-        return;
-
-      }
+    resolve => {
 
 
       signatureCanvas.toBlob(
 
         blob => {
 
+
           if (!blob) {
 
-            reject(
-
-              new Error(
-                "Unable to save signature."
-              )
-
+            resolve(
+              null
             );
 
             return;
@@ -778,9 +1007,12 @@ function signatureToFile() {
 
 
           const file =
+
             new File(
 
-              [blob],
+              [
+                blob
+              ],
 
               "signature.png",
 
@@ -792,7 +1024,9 @@ function signatureToFile() {
             );
 
 
-          resolve(file);
+          resolve(
+            file
+          );
 
         },
 
@@ -808,34 +1042,35 @@ function signatureToFile() {
 
 
 /* =========================================
-   VIDEO CHECK
+   VIDEO SIZE CHECK
 ========================================= */
 
-function setupVideoCheck() {
+if (
+  $("video")
+) {
 
-  const videoInput =
-    $("video");
+  $("video").addEventListener(
 
-
-  if (!videoInput) {
-    return;
-  }
-
-
-  videoInput.addEventListener(
     "change",
+
     function () {
 
+
       const file =
-        videoInput.files[0];
+
+        $("video")
+          .files[0];
 
 
       if (!file) {
+
         return;
+
       }
 
 
       const maxSize =
+
         50 *
         1024 *
         1024;
@@ -848,12 +1083,12 @@ function setupVideoCheck() {
 
         alert(
 
-          "Verification video must be under 50 MB."
+          "Verification video must be under 50 MB. Please select a smaller video."
 
         );
 
 
-        videoInput.value =
+        $("video").value =
           "";
 
       }
@@ -869,18 +1104,11 @@ function setupVideoCheck() {
    SUBMIT APPLICATION
 ========================================= */
 
-function setupApplicationForm() {
+if (
+  $("form")
+) {
 
-  const form =
-    $("form");
-
-
-  if (!form) {
-    return;
-  }
-
-
-  form.addEventListener(
+  $("form").addEventListener(
 
     "submit",
 
@@ -888,24 +1116,37 @@ function setupApplicationForm() {
       event
     ) {
 
+
       event.preventDefault();
 
 
       const button =
-        event.submitter;
+
+        event.submitter ||
+
+        event.target
+          .querySelector(
+            'button[type="submit"]'
+          );
 
 
       const amount =
+
         Number(
           $("amount").value
         );
 
 
       const loanTerm =
-        term(amount);
+
+        term(
+          amount
+        );
 
 
-      if (!loanTerm) {
+      if (
+        !loanTerm
+      ) {
 
         alert(
 
@@ -924,7 +1165,27 @@ function setupApplicationForm() {
 
         alert(
 
-          "Please sign inside the Borrower Signature box."
+          "Please sign inside the Borrower Signature box before submitting your application."
+
+        );
+
+        return;
+
+      }
+
+
+      const signatureFile =
+
+        await signatureToFile();
+
+
+      if (
+        !signatureFile
+      ) {
+
+        alert(
+
+          "Unable to save your signature. Please clear the signature box and sign again."
 
         );
 
@@ -934,7 +1195,9 @@ function setupApplicationForm() {
 
 
       const video =
-        $("video").files[0];
+
+        $("video")
+          .files[0];
 
 
       if (
@@ -956,170 +1219,236 @@ function setupApplicationForm() {
       }
 
 
-      button.disabled =
-        true;
+      if (
+        button
+      ) {
+
+        button.disabled =
+          true;
 
 
-      button.textContent =
-        "Submitting...";
+        button.textContent =
+          "Submitting...";
+
+      }
+
+
+      const formData =
+
+        new FormData();
+
+
+      /* PERSONAL INFORMATION */
+
+
+      formData.append(
+
+        "full_name",
+
+        $("name").value
+
+      );
+
+
+      formData.append(
+
+        "email",
+
+        $("email").value
+
+      );
+
+
+      formData.append(
+
+        "mobile_number",
+
+        $("phone").value
+
+      );
+
+
+      formData.append(
+
+        "date_of_birth",
+
+        $("dob").value
+
+      );
+
+
+      formData.append(
+
+        "full_address",
+
+        $("address").value
+
+      );
+
+
+      formData.append(
+
+        "brgy_captain",
+
+        $("brgyCaptain").value
+
+      );
+
+
+      /* REFERENCES */
+
+
+      formData.append(
+
+        "relative_fb_1",
+
+        $("relativeFb1").value
+
+      );
+
+
+      formData.append(
+
+        "relative_fb_2",
+
+        $("relativeFb2").value
+
+      );
+
+
+      /* EMPLOYMENT */
+
+
+      formData.append(
+
+        "employment_type",
+
+        $("employment").value
+
+      );
+
+
+      formData.append(
+
+        "school_facebook_url",
+
+        $("school").value ||
+        ""
+
+      );
+
+
+      formData.append(
+
+        "monthly_income",
+
+        $("income").value
+
+      );
+
+
+      /* LOAN */
+
+
+      formData.append(
+
+        "requested_amount",
+
+        $("amount").value
+
+      );
+
+
+      formData.append(
+
+        "loan_purpose",
+
+        $("purpose").value
+
+      );
+
+
+      formData.append(
+
+        "loan_start_date",
+
+        $("loanStartDate").value
+
+      );
+
+
+      formData.append(
+
+        "loan_end_date",
+
+        $("loanEndDate").value
+
+      );
+
+
+      formData.append(
+
+        "total_amount_to_pay",
+
+        String(
+
+          amount +
+
+          (
+            amount *
+            loanTerm[0] /
+            100
+          )
+
+        )
+
+      );
+
+
+      /* DOCUMENTS */
+
+
+      formData.append(
+
+        "id_front",
+
+        $("idFront").files[0]
+
+      );
+
+
+      formData.append(
+
+        "id_back",
+
+        $("idBack").files[0]
+
+      );
+
+
+      formData.append(
+
+        "signature",
+
+        signatureFile
+
+      );
+
+
+      formData.append(
+
+        "verification_video",
+
+        video
+
+      );
 
 
       try {
 
 
-        const signatureFile =
-          await signatureToFile();
-
-
-        const formData =
-          new FormData();
-
-
-        /* PERSONAL INFORMATION */
-
-
-        formData.append(
-          "full_name",
-          $("name").value
-        );
-
-
-        formData.append(
-          "email",
-          $("email").value
-        );
-
-
-        formData.append(
-          "mobile_number",
-          $("phone").value
-        );
-
-
-        formData.append(
-          "date_of_birth",
-          $("dob").value
-        );
-
-
-        formData.append(
-          "full_address",
-          $("address").value
-        );
-
-
-        formData.append(
-          "brgy_captain",
-          $("brgyCaptain").value
-        );
-
-
-        /* REFERENCES */
-
-
-        formData.append(
-          "relative_fb_1",
-          $("relativeFb1").value
-        );
-
-
-        formData.append(
-          "relative_fb_2",
-          $("relativeFb2").value
-        );
-
-
-        /* EMPLOYMENT */
-
-
-        formData.append(
-          "employment_type",
-          $("employment").value
-        );
-
-
-        formData.append(
-          "school_facebook_url",
-          $("school").value ||
-          ""
-        );
-
-
-        formData.append(
-          "monthly_income",
-          $("income").value
-        );
-
-
-        /* LOAN */
-
-
-        formData.append(
-          "requested_amount",
-          $("amount").value
-        );
-
-
-        formData.append(
-          "loan_purpose",
-          $("purpose").value
-        );
-
-
-        formData.append(
-          "loan_start_date",
-          $("loanStartDate").value
-        );
-
-
-        formData.append(
-          "loan_end_date",
-          $("loanEndDate").value
-        );
-
-
-        formData.append(
-
-          "total_amount_to_pay",
-
-          $("totalAmount")
-            .value
-            .replace(
-              /[₱,]/g,
-              ""
-            )
-
-        );
-
-
-        /* DOCUMENTS */
-
-
-        formData.append(
-          "id_front",
-          $("idFront").files[0]
-        );
-
-
-        formData.append(
-          "id_back",
-          $("idBack").files[0]
-        );
-
-
-        formData.append(
-          "signature",
-          signatureFile
-        );
-
-
-        formData.append(
-          "verification_video",
-          $("video").files[0]
-        );
-
-
         const response =
+
           await fetch(
 
             SUBMIT_URL,
@@ -1187,6 +1516,12 @@ function setupApplicationForm() {
           "Application submitted";
 
 
+        const loanData =
+
+          data.loan ||
+          {};
+
+
         $("decision").className =
           "result";
 
@@ -1194,49 +1529,129 @@ function setupApplicationForm() {
         $("decision").innerHTML = `
 
           <h3>
-            Application Submitted
+            Application Submitted Successfully
           </h3>
 
           <p>
-            Your application is now
-            <strong>
-              Pending Review
-            </strong>.
-          </p>
-
-          <p>
-            Save your Application ID:
+            Please save your Application ID.
+            You will need it to track your application.
           </p>
 
           <p>
             <b>
+              Application ID
+            </b>
+
+            <br>
+
+            <strong>
               ${escapeHtml(
                 applicationId
               )}
-            </b>
+            </strong>
           </p>
 
           <p>
-            You can use this ID in the
-            Track section to check your
-            application status.
+            <b>
+              Application Status:
+            </b>
+
+            <br>
+
+            Pending Review
+          </p>
+
+          <p>
+            <b>
+              Requested Amount:
+            </b>
+
+            <br>
+
+            ${escapeHtml(
+              formatMoney(
+                loanData.amount ||
+                amount
+              )
+            )}
+          </p>
+
+          <p>
+            <b>
+              Expected Loan Start Date:
+            </b>
+
+            <br>
+
+            ${escapeHtml(
+              formatDisplayDate(
+                loanData.loan_start_date ||
+                $("loanStartDate").value
+              )
+            )}
+          </p>
+
+          <p>
+            <b>
+              Expected Loan End Date / Due Date:
+            </b>
+
+            <br>
+
+            ${escapeHtml(
+              formatDisplayDate(
+                loanData.loan_end_date ||
+                $("loanEndDate").value
+              )
+            )}
+          </p>
+
+          <p>
+            <b>
+              Total Amount to Pay:
+            </b>
+
+            <br>
+
+            <strong>
+              ${escapeHtml(
+                formatMoney(
+                  loanData.total_payment ||
+                  (
+                    amount +
+                    amount *
+                    loanTerm[0] /
+                    100
+                  )
+                )
+              )}
+            </strong>
           </p>
 
         `;
 
 
-        form.reset();
+        event.target.reset();
 
 
         $("schoolBox")
-          .classList
+          ?.classList
           .add(
             "hidden"
           );
 
 
-        $("school").required =
-          false;
+        if (
+          $("school")
+        ) {
+
+          $("school").required =
+            false;
+
+        }
+
+
+        clearSignature();
 
 
         $("loanStartDate").value =
@@ -1254,9 +1669,6 @@ function setupApplicationForm() {
         $("terms").textContent =
 
           "Enter ₱100–₱2,000 to calculate terms.";
-
-
-        clearSignature();
 
 
         $("decision")
@@ -1286,7 +1698,7 @@ function setupApplicationForm() {
 
           error.message ||
 
-          "Unable to submit the application."
+          "Unable to submit the application. Please try again."
 
         );
 
@@ -1294,12 +1706,18 @@ function setupApplicationForm() {
       } finally {
 
 
-        button.disabled =
-          false;
+        if (
+          button
+        ) {
+
+          button.disabled =
+            false;
 
 
-        button.textContent =
-          "Submit Application";
+          button.textContent =
+            "Submit Application";
+
+        }
 
       }
 
@@ -1324,6 +1742,7 @@ async function track() {
 
 
   const result =
+
     $("trackResult");
 
 
@@ -1342,8 +1761,7 @@ async function track() {
       </h3>
 
       <p>
-        Enter the Application ID you received
-        after submitting your application.
+        Enter the Application ID you received after submitting your application.
       </p>
 
     `;
@@ -1375,6 +1793,7 @@ async function track() {
 
 
     const response =
+
       await fetch(
 
         TRACK_URL,
@@ -1395,6 +1814,7 @@ async function track() {
           },
 
           body:
+
             JSON.stringify({
 
               application_id:
@@ -1408,6 +1828,7 @@ async function track() {
 
 
     const data =
+
       await response.json();
 
 
@@ -1442,28 +1863,49 @@ async function track() {
 
     const isActive =
 
+      applicationStatus ===
+        "Active" ||
+
       application.loan_status ===
-      "Active";
+        "Active" ||
+
+      application.is_active ===
+        true;
 
 
     const isPaid =
 
       application.payment_status ===
-      "Paid" ||
+        "Paid" ||
 
-      application.loan_status ===
-      "Paid";
-
-
-    let extraLoanDetails =
-      "";
+      applicationStatus ===
+        "Paid";
 
 
-    /*
-      Loan/payment/delay details are shown
-      only when the borrower becomes an
-      active or paid client.
-    */
+    const dueInfo =
+
+      getDueInformation(
+        application
+      );
+
+
+    let statusDetails = `
+
+      <p>
+        <b>
+          Application Status:
+        </b>
+
+        <br>
+
+        <strong>
+          ${escapeHtml(
+            applicationStatus
+          )}
+        </strong>
+      </p>
+
+    `;
 
 
     if (
@@ -1471,78 +1913,91 @@ async function track() {
       isPaid
     ) {
 
-
-      const dueStatus =
-        getDueStatus(
-          application
-        );
-
-
-      const remainingBalance =
-        calculateRemainingBalance(
-          application
-        );
-
-
-      extraLoanDetails = `
-
-        <hr>
+      statusDetails += `
 
         <p>
-          <b>Loan Status:</b>
+          <b>
+            Loan Status:
+          </b>
+
           <br>
 
-          ${statusBadge(
-            application.loan_status ||
-            "Active"
-          )}
+          <strong>
+            ${escapeHtml(
+              isPaid
+                ? "Paid"
+                : "Active"
+            )}
+          </strong>
         </p>
 
-
         <p>
-          <b>Payment Status:</b>
+          <b>
+            Payment Status:
+          </b>
+
           <br>
 
-          ${statusBadge(
-            application.payment_status ||
-            "Not Paid"
-          )}
+          <strong>
+            ${escapeHtml(
+              isPaid
+                ? "Paid"
+                : (
+                    application.payment_status ||
+                    "Not Paid"
+                  )
+            )}
+          </strong>
         </p>
 
-
         <p>
-          <b>Due Status:</b>
+          <b>
+            Due Status:
+          </b>
+
           <br>
 
-          ${statusBadge(
-            dueStatus
-          )}
+          <strong>
+            ${escapeHtml(
+              isPaid
+                ? "Paid"
+                : dueInfo.label
+            )}
+          </strong>
         </p>
 
-
         <p>
-          <b>Due Date:</b>
+          <b>
+            Due Date:
+          </b>
+
           <br>
 
           ${escapeHtml(
             formatDisplayDate(
-              application.loan_end_date
+              getLoanEndDate(
+                application
+              )
             )
           )}
         </p>
 
-
         <p>
-          <b>Amount Due:</b>
+          <b>
+            Current Amount Due:
+          </b>
+
           <br>
 
-          <span class="amount-due">
-
-            ₱${money(
-              remainingBalance
+          <strong>
+            ${escapeHtml(
+              formatMoney(
+                isPaid
+                  ? 0
+                  : dueInfo.amountDue
+              )
             )}
-
-          </span>
+          </strong>
         </p>
 
       `;
@@ -1556,9 +2011,11 @@ async function track() {
         Application Status
       </h3>
 
-
       <p>
-        <b>Application ID:</b>
+        <b>
+          Application ID:
+        </b>
+
         <br>
 
         ${escapeHtml(
@@ -1566,9 +2023,11 @@ async function track() {
         )}
       </p>
 
-
       <p>
-        <b>Name:</b>
+        <b>
+          Name:
+        </b>
+
         <br>
 
         ${escapeHtml(
@@ -1576,19 +2035,25 @@ async function track() {
         )}
       </p>
 
-
       <p>
-        <b>Requested Amount:</b>
+        <b>
+          Requested Amount:
+        </b>
+
         <br>
 
-        ₱${money(
-          application.requested_amount
+        ${escapeHtml(
+          formatMoney(
+            application.requested_amount
+          )
         )}
       </p>
 
-
       <p>
-        <b>Loan Terms:</b>
+        <b>
+          Loan Terms:
+        </b>
+
         <br>
 
         ${escapeHtml(
@@ -1600,33 +2065,23 @@ async function track() {
         )} days
       </p>
 
-
       <p>
-        <b>Total Payment:</b>
+        <b>
+          Total Payment:
+        </b>
+
         <br>
 
-        ₱${money(
-
-          application.total_payment ||
-
-          application
-            .total_amount_to_pay
-
+        ${escapeHtml(
+          formatMoney(
+            getBaseTotal(
+              application
+            )
+          )
         )}
       </p>
 
-
-      <p>
-        <b>Application Status:</b>
-        <br>
-
-        ${statusBadge(
-          applicationStatus
-        )}
-      </p>
-
-
-      ${extraLoanDetails}
+      ${statusDetails}
 
     `;
 
@@ -1652,15 +2107,10 @@ async function track() {
       </h3>
 
       <p>
-
         ${escapeHtml(
-
           error.message ||
-
           "Please try again."
-
         )}
-
       </p>
 
     `;
@@ -1684,6 +2134,7 @@ async function login() {
 
 
   const password =
+
     $("adminPassword")
       .value;
 
@@ -1711,12 +2162,25 @@ async function login() {
   ) {
 
     $("loginError").textContent =
+
       error.message;
+
 
     return;
 
   }
 
+
+  openDashboard();
+
+}
+
+
+/* =========================================
+   OPEN ADMIN DASHBOARD
+========================================= */
+
+async function openDashboard() {
 
   $("login")
     .classList
@@ -1771,59 +2235,80 @@ function showAdminTab(
   panelId
 ) {
 
-  $("applicationsPanel")
-    .classList
-    .add(
-      "hidden"
+  const applicationsPanel =
+
+    $("applicationsPanel");
+
+
+  const clientsPanel =
+
+    $("clientsPanel");
+
+
+  const applicationsButton =
+
+    $("applicationsTabButton");
+
+
+  const clientsButton =
+
+    $("clientsTabButton");
+
+
+  applicationsPanel
+    ?.classList
+    .toggle(
+
+      "hidden",
+
+      panelId !==
+      "applicationsPanel"
+
     );
 
 
-  $("clientsPanel")
-    .classList
-    .add(
-      "hidden"
+  clientsPanel
+    ?.classList
+    .toggle(
+
+      "hidden",
+
+      panelId !==
+      "clientsPanel"
+
     );
 
 
-  $(panelId)
-    .classList
-    .remove(
-      "hidden"
+  applicationsButton
+    ?.classList
+    .toggle(
+
+      "active-admin-tab",
+
+      panelId ===
+      "applicationsPanel"
+
     );
 
 
-  $("applicationsTabButton")
-    .classList
-    .remove(
-      "active-tab"
-    );
+  clientsButton
+    ?.classList
+    .toggle(
 
+      "active-admin-tab",
 
-  $("clientsTabButton")
-    .classList
-    .remove(
-      "active-tab"
+      panelId ===
+      "clientsPanel"
+
     );
 
 
   if (
     panelId ===
-    "applicationsPanel"
+    "clientsPanel"
   ) {
 
-    $("applicationsTabButton")
-      .classList
-      .add(
-        "active-tab"
-      );
-
-  } else {
-
-    $("clientsTabButton")
-      .classList
-      .add(
-        "active-tab"
-      );
+    renderClients();
 
   }
 
@@ -1831,34 +2316,26 @@ function showAdminTab(
 
 
 /* =========================================
-   LOAD ADMIN DATA
+   LOAD ADMIN APPLICATIONS
 ========================================= */
 
 async function render() {
+
+  if (
+    !$("list")
+  ) {
+
+    return;
+
+  }
+
 
   $("list").innerHTML = `
 
     <tr>
 
-      <td colspan="6">
-
-        Loading applications...
-
-      </td>
-
-    </tr>
-
-  `;
-
-
-  $("clientList").innerHTML = `
-
-    <tr>
-
       <td colspan="7">
-
-        Loading clients...
-
+        Loading applications...
       </td>
 
     </tr>
@@ -1895,29 +2372,7 @@ async function render() {
     error
   ) {
 
-    console.error(
-      error
-    );
-
-
     $("list").innerHTML = `
-
-      <tr>
-
-        <td colspan="6">
-
-          ${escapeHtml(
-            error.message
-          )}
-
-        </td>
-
-      </tr>
-
-    `;
-
-
-    $("clientList").innerHTML = `
 
       <tr>
 
@@ -1939,332 +2394,55 @@ async function render() {
   }
 
 
-  allApplications =
-    data || [];
-
-
-  renderApplications();
-  renderClients();
-  updateDashboardCounters();
-
-}
-
-
-/* =========================================
-   APPLICATIONS TABLE
-========================================= */
-
-function renderApplications() {
-
   const applications =
 
-    allApplications.filter(
+    data ||
+    [];
+
+
+  updateDashboardCounters(
+    applications
+  );
+
+
+  const pendingApplications =
+
+    applications.filter(
 
       application =>
 
-        application.loan_status !==
-        "Active" &&
-
-        application.loan_status !==
-        "Paid"
+        !isActiveLoan(
+          application
+        )
 
     );
 
 
   $("list").innerHTML =
 
-    applications.map(
+    pendingApplications
+      .map(
 
-      application => `
-
-        <tr>
-
-
-          <td>
-
-            ${escapeHtml(
-              application.application_id
-            )}
-
-          </td>
-
-
-          <td>
-
-            <b>
-
-              ${escapeHtml(
-                application.full_name
-              )}
-
-            </b>
-
-          </td>
-
-
-          <td>
-
-            ₱${money(
-              application.requested_amount
-            )}
-
-          </td>
-
-
-          <td>
-
-            ${escapeHtml(
-              application.interest_rate
-            )}%
-
-            /
-
-            ${escapeHtml(
-              application.duration_days
-            )}
-
-            days
-
-          </td>
-
-
-          <td>
-
-            <select
-
-              onchange="
-                setStatus(
-                  '${application.id}',
-                  this.value
-                )
-              "
-
-            >
-
-              ${[
-
-                "Pending Review",
-
-                "Approved",
-
-                "More Documents Required",
-
-                "Declined"
-
-              ].map(
-
-                status => `
-
-                  <option
-
-                    value="${status}"
-
-                    ${
-                      status ===
-                      application.status
-
-                        ? "selected"
-
-                        : ""
-                    }
-
-                  >
-
-                    ${status}
-
-                  </option>
-
-                `
-
-              ).join("")}
-
-            </select>
-
-          </td>
-
-
-          <td>
-
-
-            <button
-
-              type="button"
-
-              onclick="
-                viewRecord(
-                  '${application.id}'
-                )
-              "
-
-            >
-
-              View
-
-            </button>
-
-
-            <button
-
-              type="button"
-
-              onclick="
-                viewDocs(
-                  '${application.id}'
-                )
-              "
-
-            >
-
-              Files
-
-            </button>
-
-
-            ${
-
-              application.status ===
-              "Approved"
-
-                ? `
-
-                  <button
-
-                    type="button"
-
-                    class="primary"
-
-                    onclick="
-                      activateLoan(
-                        '${application.id}'
-                      )
-                    "
-
-                  >
-
-                    Activate Loan
-
-                  </button>
-
-                `
-
-                : ""
-
-            }
-
-
-          </td>
-
-
-        </tr>
-
-      `
-
-    ).join("") || `
-
-      <tr>
-
-        <td colspan="6">
-
-          No applications to review.
-
-        </td>
-
-      </tr>
-
-    `;
-
-}
-
-
-/* =========================================
-   CLIENTS TABLE
-========================================= */
-
-function renderClients() {
-
-  const clients =
-
-    allApplications.filter(
-
-      application =>
-
-        application.loan_status ===
-        "Active" ||
-
-        application.loan_status ===
-        "Paid"
-
-    );
-
-
-  $("clientList").innerHTML =
-
-    clients.map(
-
-      application => {
-
-
-        const dueStatus =
-          getDueStatus(
-            application
-          );
-
-
-        const remaining =
-          calculateRemainingBalance(
-            application
-          );
-
-
-        return `
+        application => `
 
           <tr>
+
+            <td>
+
+              ${escapeHtml(
+                application.application_id
+              )}
+
+            </td>
 
 
             <td>
 
               <b>
-
                 ${escapeHtml(
                   application.full_name
                 )}
-
               </b>
-
-              <br>
-
-              <small>
-
-                ${escapeHtml(
-                  application.application_id
-                )}
-
-              </small>
-
-            </td>
-
-
-            <td>
-
-              ₱${money(
-                application.total_payment
-              )}
-
-              <br>
-
-              <small>
-
-                Remaining:
-
-                <span class="remaining-balance">
-
-                  ₱${money(
-                    remaining
-                  )}
-
-                </span>
-
-              </small>
 
             </td>
 
@@ -2272,14 +2450,9 @@ function renderClients() {
             <td>
 
               ${escapeHtml(
-
-                formatDisplayDate(
-
-                  application
-                    .loan_end_date
-
+                formatMoney(
+                  application.requested_amount
                 )
-
               )}
 
             </td>
@@ -2287,80 +2460,74 @@ function renderClients() {
 
             <td>
 
-              ${statusBadge(
+              ${escapeHtml(
+                application.interest_rate
+              )}%
 
-                application.loan_status ||
+              /
 
-                "Active"
-
+              ${escapeHtml(
+                application.duration_days
               )}
+
+              days
 
             </td>
 
 
             <td>
 
-              ${statusBadge(
+              <select
 
-                application.payment_status ||
+                onchange="setStatus(
 
-                "Not Paid"
+                  '${escapeJsString(
+                    application.id
+                  )}',
 
-              )}
+                  this.value
+
+                )"
+
+              >
+
+                ${createStatusOptions(
+                  application.status
+                )}
+
+              </select>
 
             </td>
 
 
             <td>
-
-              ${statusBadge(
-                dueStatus
-              )}
-
-            </td>
-
-
-            <td>
-
 
               <button
 
                 type="button"
 
-                onclick="
-                  viewRecord(
-                    '${application.id}'
-                  )
-                "
+                onclick="viewDocs(
+
+                  '${escapeJsString(
+                    application.id
+                  )}'
+
+                )"
 
               >
 
-                View
+                Documents
 
               </button>
 
+            </td>
 
-              <button
 
-                type="button"
-
-                onclick="
-                  viewDocs(
-                    '${application.id}'
-                  )
-                "
-
-              >
-
-                Files
-
-              </button>
-
+            <td>
 
               ${
-
-                application.loan_status !==
-                "Paid"
+                application.status ===
+                "Approved"
 
                   ? `
 
@@ -2370,47 +2537,119 @@ function renderClients() {
 
                       class="primary"
 
-                      onclick="
-                        openPaymentPanel(
-                          '${application.id}'
-                        )
-                      "
+                      onclick="activateLoan(
+
+                        '${escapeJsString(
+                          application.id
+                        )}'
+
+                      )"
 
                     >
 
-                      Payment
+                      Activate Loan
 
                     </button>
 
                   `
 
-                  : ""
+                  : `
 
+                    <span>
+                      Approve first
+                    </span>
+
+                  `
               }
-
 
             </td>
 
-
           </tr>
 
-        `;
+        `
 
-      }
+      )
+      .join("") ||
 
-    ).join("") || `
+    `
 
       <tr>
 
         <td colspan="7">
 
-          No active clients yet.
+          No pending applications.
 
         </td>
 
       </tr>
 
     `;
+
+
+  await renderClients(
+
+    applications
+
+  );
+
+}
+
+
+/* =========================================
+   APPLICATION STATUS OPTIONS
+========================================= */
+
+function createStatusOptions(
+  currentStatus
+) {
+
+  const statuses = [
+
+    "Pending Review",
+
+    "Approved",
+
+    "More Documents Required",
+
+    "Declined"
+
+  ];
+
+
+  return statuses
+
+    .map(
+
+      status => `
+
+        <option
+
+          value="${escapeHtml(
+            status
+          )}"
+
+          ${
+            status ===
+            currentStatus
+
+              ? "selected"
+
+              : ""
+          }
+
+        >
+
+          ${escapeHtml(
+            status
+          )}
+
+        </option>
+
+      `
+
+    )
+
+    .join("");
 
 }
 
@@ -2436,11 +2675,8 @@ async function setStatus(
 
       .update({
 
-        status,
-
-        updated_at:
-          new Date()
-            .toISOString()
+        status:
+          status
 
       })
 
@@ -2457,6 +2693,10 @@ async function setStatus(
     alert(
       error.message
     );
+
+
+    await render();
+
 
     return;
 
@@ -2476,50 +2716,11 @@ async function activateLoan(
   id
 ) {
 
-  const application =
-
-    allApplications.find(
-
-      item =>
-        String(item.id) ===
-        String(id)
-
-    );
-
-
-  if (
-    !application
-  ) {
-
-    alert(
-      "Application not found."
-    );
-
-    return;
-
-  }
-
-
-  if (
-    application.status !==
-    "Approved"
-  ) {
-
-    alert(
-
-      "The application must be Approved before activating the loan."
-
-    );
-
-    return;
-
-  }
-
-
   const confirmed =
+
     confirm(
 
-      `Activate the loan for ${application.full_name}?`
+      "Activate this loan? The borrower will be moved to Active Clients."
 
     );
 
@@ -2527,46 +2728,109 @@ async function activateLoan(
   if (
     !confirmed
   ) {
+
     return;
+
   }
 
 
-  /*
-    The due-date countdown starts when
-    the admin activates the loan.
-  */
-
-
-  const startDate =
+  const today =
     new Date();
 
 
-  const endDate =
-    new Date(
-      startDate
+  const {
+    data: application,
+    error: loadError
+  } =
+
+    await sb
+
+      .from(
+        "applications"
+      )
+
+      .select("*")
+
+      .eq(
+        "id",
+        id
+      )
+
+      .single();
+
+
+  if (
+    loadError ||
+    !application
+  ) {
+
+    alert(
+
+      loadError?.message ||
+
+      "Application not found."
+
     );
 
 
-  endDate.setDate(
+    return;
 
-    endDate.getDate() +
+  }
+
+
+  const duration =
 
     Number(
-      application.duration_days ||
-      0
-    )
+      application.duration_days
+    ) ||
+    0;
+
+
+  const dueDate =
+
+    new Date(
+      today
+    );
+
+
+  dueDate.setDate(
+
+    dueDate.getDate() +
+
+    duration
 
   );
 
 
-  const totalPayment =
-    Number(
+  const updates = {
 
-      application.total_payment ||
+    status:
+      "Active",
 
-      0
+    loan_status:
+      "Active",
 
-    );
+    payment_status:
+      "Not Paid",
+
+    loan_start_date:
+
+      formatDateForInput(
+        today
+      ),
+
+    loan_end_date:
+
+      formatDateForInput(
+        dueDate
+      ),
+
+    activated_at:
+
+      new Date()
+        .toISOString()
+
+  };
 
 
   const {
@@ -2579,39 +2843,9 @@ async function activateLoan(
         "applications"
       )
 
-      .update({
-
-        loan_status:
-          "Active",
-
-        payment_status:
-          "Not Paid",
-
-        amount_paid:
-          0,
-
-        remaining_balance:
-          totalPayment,
-
-        loan_start_date:
-          formatDateForInput(
-            startDate
-          ),
-
-        loan_end_date:
-          formatDateForInput(
-            endDate
-          ),
-
-        activated_at:
-          new Date()
-            .toISOString(),
-
-        updated_at:
-          new Date()
-            .toISOString()
-
-      })
+      .update(
+        updates
+      )
 
       .eq(
         "id",
@@ -2624,8 +2858,12 @@ async function activateLoan(
   ) {
 
     alert(
+
+      "Unable to activate loan: " +
       error.message
+
     );
+
 
     return;
 
@@ -2634,7 +2872,7 @@ async function activateLoan(
 
   alert(
 
-    "Loan activated successfully. The borrower is now in Clients."
+    "Loan activated successfully."
 
   );
 
@@ -2650,192 +2888,922 @@ async function activateLoan(
 
 
 /* =========================================
-   DUE STATUS
+   ACTIVE CLIENTS
 ========================================= */
 
-function getDueStatus(
-  application
+async function renderClients(
+  suppliedApplications = null
 ) {
 
   if (
-    application.payment_status ===
-    "Paid" ||
+    !$("clientList")
+  ) {
+
+    return;
+
+  }
+
+
+  $("clientList").innerHTML = `
+
+    <tr>
+
+      <td colspan="8">
+        Loading active clients...
+      </td>
+
+    </tr>
+
+  `;
+
+
+  let applications =
+
+    suppliedApplications;
+
+
+  if (
+    !applications
+  ) {
+
+    const {
+      data,
+      error
+    } =
+
+      await sb
+
+        .from(
+          "applications"
+        )
+
+        .select("*")
+
+        .order(
+
+          "created_at",
+
+          {
+            ascending:
+              false
+          }
+
+        );
+
+
+    if (
+      error
+    ) {
+
+      $("clientList").innerHTML = `
+
+        <tr>
+
+          <td colspan="8">
+
+            ${escapeHtml(
+              error.message
+            )}
+
+          </td>
+
+        </tr>
+
+      `;
+
+
+      return;
+
+    }
+
+
+    applications =
+      data ||
+      [];
+
+
+    updateDashboardCounters(
+      applications
+    );
+
+  }
+
+
+  const clients =
+
+    applications.filter(
+
+      application =>
+
+        isActiveLoan(
+          application
+        )
+
+    );
+
+
+  $("clientList").innerHTML =
+
+    clients
+
+      .map(
+
+        application => {
+
+
+          const dueInfo =
+
+            getDueInformation(
+              application
+            );
+
+
+          const paid =
+
+            isPaidLoan(
+              application
+            );
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                <b>
+
+                  ${escapeHtml(
+                    application.full_name
+                  )}
+
+                </b>
+
+                <br>
+
+                <small>
+
+                  ${escapeHtml(
+                    application.application_id
+                  )}
+
+                </small>
+
+              </td>
+
+
+              <td>
+
+                ${escapeHtml(
+                  formatMoney(
+                    application.requested_amount
+                  )
+                )}
+
+              </td>
+
+
+              <td>
+
+                <b>
+
+                  ${escapeHtml(
+                    formatMoney(
+                      paid
+                        ? 0
+                        : dueInfo.amountDue
+                    )
+                  )}
+
+                </b>
+
+                ${
+                  dueInfo.penalty > 0 &&
+                  !paid
+
+                    ? `
+
+                      <br>
+
+                      <small>
+
+                        Includes
+
+                        ${escapeHtml(
+                          formatMoney(
+                            dueInfo.penalty
+                          )
+                        )}
+
+                        late penalty
+
+                      </small>
+
+                    `
+
+                    : ""
+                }
+
+              </td>
+
+
+              <td>
+
+                ${escapeHtml(
+                  formatDisplayDate(
+                    application.loan_start_date
+                  )
+                )}
+
+              </td>
+
+
+              <td>
+
+                ${escapeHtml(
+                  formatDisplayDate(
+                    getLoanEndDate(
+                      application
+                    )
+                  )
+                )}
+
+              </td>
+
+
+              <td>
+
+                <span
+
+                  class="status-badge
+
+                    ${
+                      paid
+
+                        ? "status-paid"
+
+                        : "status-pending"
+                    }
+                  "
+
+                >
+
+                  ${escapeHtml(
+                    paid
+                      ? "Paid"
+                      : (
+                          application.payment_status ||
+                          "Not Paid"
+                        )
+                  )}
+
+                </span>
+
+              </td>
+
+
+              <td>
+
+                <span
+
+                  class="status-badge
+
+                    ${
+                      paid
+
+                        ? "status-paid"
+
+                        : (
+                            dueInfo.delayedDays > 0
+
+                              ? "status-delayed"
+
+                              : "status-active"
+                          )
+                    }
+                  "
+
+                >
+
+                  ${escapeHtml(
+                    paid
+                      ? "Paid"
+                      : dueInfo.label
+                  )}
+
+                </span>
+
+              </td>
+
+
+              <td>
+
+                <button
+
+                  type="button"
+
+                  onclick="viewDocs(
+
+                    '${escapeJsString(
+                      application.id
+                    )}'
+
+                  )"
+
+                >
+
+                  Documents
+
+                </button>
+
+
+                ${
+                  !paid
+
+                    ? `
+
+                      <button
+
+                        type="button"
+
+                        class="primary"
+
+                        onclick="markAsPaid(
+
+                          '${escapeJsString(
+                            application.id
+                          )}'
+
+                        )"
+
+                      >
+
+                        Mark as Paid
+
+                      </button>
+
+                    `
+
+                    : ""
+                }
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+
+      )
+
+      .join("") ||
+
+    `
+
+      <tr>
+
+        <td colspan="8">
+
+          No active clients yet.
+
+        </td>
+
+      </tr>
+
+    `;
+
+}
+
+
+/* =========================================
+   CHECK ACTIVE LOAN
+========================================= */
+
+function isActiveLoan(
+  application
+) {
+
+  return (
+
+    application.status ===
+      "Active" ||
+
+    application.status ===
+      "Paid" ||
 
     application.loan_status ===
-    "Paid"
-  ) {
+      "Active" ||
 
-    return "Paid";
+    application.loan_status ===
+      "Paid" ||
 
-  }
+    application.payment_status ===
+      "Paid" ||
+
+    application.is_active ===
+      true
+
+  );
+
+}
+
+
+/* =========================================
+   CHECK PAID LOAN
+========================================= */
+
+function isPaidLoan(
+  application
+) {
+
+  return (
+
+    application.status ===
+      "Paid" ||
+
+    application.loan_status ===
+      "Paid" ||
+
+    application.payment_status ===
+      "Paid"
+
+  );
+
+}
+
+
+/* =========================================
+   GET BASE TOTAL
+========================================= */
+
+function getBaseTotal(
+  application
+) {
+
+  return Number(
+
+    application.total_payment ||
+
+    application.total_amount_to_pay ||
+
+    0
+
+  ) || 0;
+
+}
+
+
+/* =========================================
+   GET LOAN END DATE
+========================================= */
+
+function getLoanEndDate(
+  application
+) {
+
+  return (
+
+    application.due_date ||
+
+    application.loan_end_date ||
+
+    ""
+
+  );
+
+}
+
+
+/* =========================================
+   AUTOMATIC DUE STATUS
+========================================= */
+
+function getDueInformation(
+  application
+) {
+
+  const baseTotal =
+
+    getBaseTotal(
+      application
+    );
+
+
+  const dueDate =
+
+    parseDate(
+
+      getLoanEndDate(
+        application
+      )
+
+    );
 
 
   if (
-    application.loan_status !==
-    "Active"
+    !dueDate
   ) {
 
-    return "Not Active";
+    return {
 
-  }
+      label:
+        "No Due Date",
 
+      delayedDays:
+        0,
 
-  if (
-    !application.loan_end_date
-  ) {
+      penalty:
+        0,
 
-    return "Not Delayed";
+      amountDue:
+        baseTotal
+
+    };
 
   }
 
 
   const today =
-    startOfLocalDay(
+
+    startOfDay(
       new Date()
     );
 
 
-  const dueDate =
-    startOfLocalDay(
+  const due =
 
-      new Date(
-
-        `${application.loan_end_date}T00:00:00`
-
-      )
-
+    startOfDay(
+      dueDate
     );
 
 
-  const difference =
+  const daysDifference =
 
-    Math.round(
+    differenceInDays(
 
-      (
-        dueDate.getTime() -
-        today.getTime()
-      )
+      due,
 
-      /
-
-      86400000
+      today
 
     );
 
 
   if (
-    difference ===
-    1
+    daysDifference > 1
   ) {
 
-    return "Due Tomorrow";
+    return {
+
+      label:
+        "Not Delayed",
+
+      delayedDays:
+        0,
+
+      penalty:
+        0,
+
+      amountDue:
+        baseTotal
+
+    };
 
   }
 
 
   if (
-    difference ===
-    0
+    daysDifference === 1
   ) {
 
-    return "Due Today";
+    return {
+
+      label:
+        "Due Tomorrow",
+
+      delayedDays:
+        0,
+
+      penalty:
+        0,
+
+      amountDue:
+        baseTotal
+
+    };
 
   }
 
 
   if (
-    difference <
-    0
+    daysDifference === 0
   ) {
 
-    const delayedDays =
-      Math.abs(
-        difference
+    return {
+
+      label:
+        "Due Today",
+
+      delayedDays:
+        0,
+
+      penalty:
+        0,
+
+      amountDue:
+        baseTotal
+
+    };
+
+  }
+
+
+  const delayedDays =
+
+    Math.abs(
+      daysDifference
+    );
+
+
+  const penalty =
+
+    delayedDays *
+    50;
+
+
+  return {
+
+    label:
+
+      `Delayed – ${delayedDays} ${
+        delayedDays === 1
+          ? "Day"
+          : "Days"
+      }`,
+
+    delayedDays,
+
+    penalty,
+
+    amountDue:
+
+      baseTotal +
+      penalty
+
+  };
+
+}
+
+
+/* =========================================
+   MARK AS PAID
+========================================= */
+
+async function markAsPaid(
+  id
+) {
+
+  const {
+    data: application,
+    error: loadError
+  } =
+
+    await sb
+
+      .from(
+        "applications"
+      )
+
+      .select("*")
+
+      .eq(
+        "id",
+        id
+      )
+
+      .single();
+
+
+  if (
+    loadError ||
+    !application
+  ) {
+
+    alert(
+
+      loadError?.message ||
+
+      "Client record not found."
+
+    );
+
+
+    return;
+
+  }
+
+
+  const dueInfo =
+
+    getDueInformation(
+      application
+    );
+
+
+  const paymentAmount =
+
+    prompt(
+
+      "Enter amount paid:",
+
+      dueInfo.amountDue
+        .toFixed(
+          2
+        )
+
+    );
+
+
+  if (
+    paymentAmount ===
+    null
+  ) {
+
+    return;
+
+  }
+
+
+  const amountPaid =
+
+    Number(
+      paymentAmount
+    );
+
+
+  if (
+    !Number.isFinite(
+      amountPaid
+    ) ||
+
+    amountPaid <= 0
+  ) {
+
+    alert(
+
+      "Please enter a valid payment amount."
+
+    );
+
+
+    return;
+
+  }
+
+
+  const paymentMethod =
+
+    prompt(
+
+      "Enter payment method (example: GCash, Cash, Bank Transfer):",
+
+      "GCash"
+
+    );
+
+
+  if (
+    paymentMethod ===
+    null
+  ) {
+
+    return;
+
+  }
+
+
+  const referenceNumber =
+
+    prompt(
+
+      "Enter payment reference number. Leave blank if none:",
+
+      ""
+
+    );
+
+
+  if (
+    referenceNumber ===
+    null
+  ) {
+
+    return;
+
+  }
+
+
+  const confirmed =
+
+    confirm(
+
+      `Mark this loan as fully paid?\n\nAmount Paid: ${formatMoney(
+        amountPaid
+      )}\nPayment Method: ${paymentMethod}`
+
+    );
+
+
+  if (
+    !confirmed
+  ) {
+
+    return;
+
+  }
+
+
+  const updates = {
+
+    status:
+      "Paid",
+
+    loan_status:
+      "Paid",
+
+    payment_status:
+      "Paid",
+
+    amount_paid:
+      amountPaid,
+
+    payment_date:
+
+      formatDateForInput(
+        new Date()
+      ),
+
+    payment_method:
+
+      paymentMethod.trim(),
+
+    payment_reference:
+
+      referenceNumber.trim(),
+
+    paid_at:
+
+      new Date()
+        .toISOString()
+
+  };
+
+
+  const {
+    error
+  } =
+
+    await sb
+
+      .from(
+        "applications"
+      )
+
+      .update(
+        updates
+      )
+
+      .eq(
+        "id",
+        id
       );
 
 
-    return (
-
-      delayedDays === 1
-
-        ? "Delayed - 1 Day"
-
-        : `Delayed - ${delayedDays} Days`
-
-    );
-
-  }
-
-
-  return "Not Delayed";
-
-}
-
-
-/* =========================================
-   START OF LOCAL DAY
-========================================= */
-
-function startOfLocalDay(
-  date
-) {
-
-  return new Date(
-
-    date.getFullYear(),
-
-    date.getMonth(),
-
-    date.getDate()
-
-  );
-
-}
-
-
-/* =========================================
-   REMAINING BALANCE
-========================================= */
-
-function calculateRemainingBalance(
-  application
-) {
-
   if (
-    application.payment_status ===
-    "Paid"
+    error
   ) {
-    return 0;
+
+    alert(
+
+      "Unable to mark payment as paid: " +
+      error.message
+
+    );
+
+
+    return;
+
   }
 
 
-  const total =
-    Number(
+  alert(
 
-      application.total_payment ||
-
-      0
-
-    );
-
-
-  const paid =
-    Number(
-
-      application.amount_paid ||
-
-      0
-
-    );
-
-
-  return Math.max(
-
-    0,
-
-    total - paid
+    "Payment recorded successfully."
 
   );
+
+
+  await render();
 
 }
 
@@ -2844,70 +3812,77 @@ function calculateRemainingBalance(
    DASHBOARD COUNTERS
 ========================================= */
 
-function updateDashboardCounters() {
+function updateDashboardCounters(
+  applications
+) {
 
   let pending =
     0;
 
+
   let active =
     0;
+
 
   let dueToday =
     0;
 
+
   let delayed =
     0;
+
 
   let paid =
     0;
 
 
-  allApplications.forEach(
-
-    application => {
-
-
-      if (
-        application.status ===
-        "Pending Review"
-      ) {
-
-        pending++;
-
-      }
+  for (
+    const application
+    of applications
+  ) {
 
 
-      if (
-        application.loan_status ===
-        "Active"
-      ) {
+    if (
+      application.status ===
+      "Pending Review"
+    ) {
 
-        active++;
+      pending++;
 
-      }
-
-
-      if (
-        application.loan_status ===
-        "Paid" ||
-
-        application.payment_status ===
-        "Paid"
-      ) {
-
-        paid++;
-
-      }
+    }
 
 
-      const dueStatus =
-        getDueStatus(
+    if (
+      isPaidLoan(
+        application
+      )
+    ) {
+
+      paid++;
+
+      continue;
+
+    }
+
+
+    if (
+      isActiveLoan(
+        application
+      )
+    ) {
+
+      active++;
+
+
+      const dueInfo =
+
+        getDueInformation(
           application
         );
 
 
       if (
-        dueStatus ===
+        dueInfo.label ===
         "Due Today"
       ) {
 
@@ -2917,9 +3892,7 @@ function updateDashboardCounters() {
 
 
       if (
-        dueStatus.startsWith(
-          "Delayed"
-        )
+        dueInfo.delayedDays > 0
       ) {
 
         delayed++;
@@ -2928,335 +3901,57 @@ function updateDashboardCounters() {
 
     }
 
-  );
-
-
-  $("pendingCount").textContent =
-    pending;
-
-
-  $("activeCount").textContent =
-    active;
-
-
-  $("dueTodayCount").textContent =
-    dueToday;
-
-
-  $("delayedCount").textContent =
-    delayed;
-
-
-  $("paidCount").textContent =
-    paid;
-
-}
-
-
-/* =========================================
-   VIEW BORROWER RECORD
-========================================= */
-
-function viewRecord(
-  id
-) {
-
-  const application =
-
-    allApplications.find(
-
-      item =>
-        String(item.id) ===
-        String(id)
-
-    );
+  }
 
 
   if (
-    !application
+    $("pendingCount")
   ) {
 
-    alert(
-      "Borrower record not found."
-    );
-
-    return;
+    $("pendingCount").textContent =
+      pending;
 
   }
 
 
-  const dueStatus =
-    getDueStatus(
-      application
-    );
+  if (
+    $("activeCount")
+  ) {
 
+    $("activeCount").textContent =
+      active;
 
-  const remaining =
-    calculateRemainingBalance(
-      application
-    );
+  }
 
 
-  $("recordDetailsContent")
-    .innerHTML = `
+  if (
+    $("dueTodayCount")
+  ) {
 
+    $("dueTodayCount").textContent =
+      dueToday;
 
-      <div class="record-grid">
+  }
 
 
-        ${recordItem(
-          "Application ID",
-          application.application_id
-        )}
+  if (
+    $("delayedCount")
+  ) {
 
+    $("delayedCount").textContent =
+      delayed;
 
-        ${recordItem(
-          "Full Name",
-          application.full_name
-        )}
+  }
 
 
-        ${recordItem(
-          "Email",
-          application.email
-        )}
+  if (
+    $("paidCount")
+  ) {
 
+    $("paidCount").textContent =
+      paid;
 
-        ${recordItem(
-          "Mobile Number",
-          application.mobile_number
-        )}
-
-
-        ${recordItem(
-          "Date of Birth",
-          formatDisplayDate(
-            application.date_of_birth
-          )
-        )}
-
-
-        ${recordItem(
-          "Full Address",
-          application.full_address
-        )}
-
-
-        ${recordItem(
-          "Barangay Captain",
-          application.brgy_captain
-        )}
-
-
-        ${recordItem(
-          "Employment",
-          application.employment_type
-        )}
-
-
-        ${recordItem(
-          "Monthly Income",
-          `₱${money(
-            application.monthly_income
-          )}`
-        )}
-
-
-        ${recordItem(
-          "Relative Facebook 1",
-          application.relative_fb_1
-        )}
-
-
-        ${recordItem(
-          "Relative Facebook 2",
-          application.relative_fb_2
-        )}
-
-
-        ${recordItem(
-          "School Facebook",
-          application.school_facebook_url ||
-          "N/A"
-        )}
-
-
-        ${recordItem(
-          "Requested Amount",
-          `₱${money(
-            application.requested_amount
-          )}`
-        )}
-
-
-        ${recordItem(
-          "Loan Purpose",
-          application.loan_purpose
-        )}
-
-
-        ${recordItem(
-          "Interest Rate",
-          `${application.interest_rate}%`
-        )}
-
-
-        ${recordItem(
-          "Duration",
-          `${application.duration_days} days`
-        )}
-
-
-        ${recordItem(
-          "Total Payment",
-          `₱${money(
-            application.total_payment
-          )}`
-        )}
-
-
-        ${recordItem(
-          "Amount Paid",
-          `₱${money(
-            application.amount_paid
-          )}`
-        )}
-
-
-        ${recordItem(
-          "Remaining Balance",
-          `₱${money(
-            remaining
-          )}`
-        )}
-
-
-        ${recordItem(
-          "Loan Start Date",
-          formatDisplayDate(
-            application.loan_start_date
-          )
-        )}
-
-
-        ${recordItem(
-          "Due Date",
-          formatDisplayDate(
-            application.loan_end_date
-          )
-        )}
-
-
-        ${recordItem(
-          "Application Status",
-          application.status
-        )}
-
-
-        ${recordItem(
-          "Loan Status",
-          application.loan_status ||
-          "Not Active"
-        )}
-
-
-        ${recordItem(
-          "Payment Status",
-          application.payment_status ||
-          "Not Paid"
-        )}
-
-
-        ${recordItem(
-          "Due Status",
-          dueStatus
-        )}
-
-
-        ${recordItem(
-          "Payment Method",
-          application.payment_method ||
-          "N/A"
-        )}
-
-
-        ${recordItem(
-          "Payment Reference",
-          application.payment_reference ||
-          "N/A"
-        )}
-
-
-      </div>
-
-    `;
-
-
-  $("recordDetails")
-    .classList
-    .remove(
-      "hidden"
-    );
-
-
-  $("recordDetails")
-    .scrollIntoView({
-
-      behavior:
-        "smooth"
-
-    });
-
-}
-
-
-/* =========================================
-   RECORD ITEM
-========================================= */
-
-function recordItem(
-  label,
-  value
-) {
-
-  return `
-
-    <div class="record-item">
-
-      <span>
-
-        ${escapeHtml(
-          label
-        )}
-
-      </span>
-
-      <strong>
-
-        ${escapeHtml(
-          value ?? ""
-        )}
-
-      </strong>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================
-   CLOSE RECORD
-========================================= */
-
-function closeRecordDetails() {
-
-  $("recordDetails")
-    .classList
-    .add(
-      "hidden"
-    );
+  }
 
 }
 
@@ -3269,24 +3964,35 @@ async function viewDocs(
   id
 ) {
 
-  const application =
+  const {
+    data: application,
+    error
+  } =
 
-    allApplications.find(
+    await sb
 
-      item =>
-        String(item.id) ===
-        String(id)
+      .from(
+        "applications"
+      )
 
-    );
+      .select("*")
+
+      .eq(
+        "id",
+        id
+      )
+
+      .single();
 
 
   if (
-    !application
+    error
   ) {
 
     alert(
-      "Application not found."
+      error.message
     );
+
 
     return;
 
@@ -3306,20 +4012,13 @@ async function viewDocs(
     ],
 
     [
-      "Signature",
+      "Borrower Signature",
       application.signature_path
     ],
 
     [
       "Verification Video",
-      application
-        .verification_video_path
-    ],
-
-    [
-      "Payment Proof",
-      application
-        .payment_proof_path
+      application.verification_video_path
     ]
 
   ];
@@ -3341,7 +4040,9 @@ async function viewDocs(
     if (
       !path
     ) {
+
       continue;
+
     }
 
 
@@ -3370,16 +4071,17 @@ async function viewDocs(
       data?.signedUrl
     ) {
 
-
       links.push(`
 
         <a
 
-          href="${data.signedUrl}"
+          href="${escapeHtml(
+            data.signedUrl
+          )}"
 
           target="_blank"
 
-          rel="noopener"
+          rel="noopener noreferrer"
 
         >
 
@@ -3396,730 +4098,202 @@ async function viewDocs(
   }
 
 
-  $("docLinks").innerHTML = `
+  let clientInformation = `
 
-    <div class="panel-heading">
-
-      <div>
-
-        <h3>
-          Borrower Files
-        </h3>
-
-        <p>
-          ${escapeHtml(
-            application.full_name
-          )}
-        </p>
-
-      </div>
-
-
-      <button
-
-        type="button"
-
-        onclick="
-          closeDocuments()
-        "
-
-      >
-
-        Close
-
-      </button>
-
-    </div>
-
+    <h3>
+      Borrower Record
+    </h3>
 
     <p>
-      Private file links expire in
-      5 minutes.
-    </p>
-
-
-    <div>
-
-      ${
-
-        links.length
-
-          ? links.join("")
-
-          : "No files available."
-
-      }
-
-    </div>
-
-  `;
-
-
-  $("docLinks")
-    .classList
-    .remove(
-      "hidden"
-    );
-
-
-  $("docLinks")
-    .scrollIntoView({
-
-      behavior:
-        "smooth"
-
-    });
-
-}
-
-
-/* =========================================
-   CLOSE DOCUMENTS
-========================================= */
-
-function closeDocuments() {
-
-  $("docLinks")
-    .classList
-    .add(
-      "hidden"
-    );
-
-}
-
-
-/* =========================================
-   OPEN PAYMENT PANEL
-========================================= */
-
-function openPaymentPanel(
-  id
-) {
-
-  const application =
-
-    allApplications.find(
-
-      item =>
-        String(item.id) ===
-        String(id)
-
-    );
-
-
-  if (
-    !application
-  ) {
-
-    alert(
-      "Client not found."
-    );
-
-    return;
-
-  }
-
-
-  $("paymentApplicationId").value =
-    application.id;
-
-
-  $("paymentClientName").textContent =
-
-    `${application.full_name} — Remaining balance: ₱${money(
-
-      calculateRemainingBalance(
-        application
-      )
-
-    )}`;
-
-
-  $("paymentAmount").value =
-    "";
-
-
-  $("paymentDate").value =
-    formatDateForInput(
-      new Date()
-    );
-
-
-  $("paymentMethod").value =
-    "";
-
-
-  $("paymentReference").value =
-    "";
-
-
-  $("paymentProof").value =
-    "";
-
-
-  $("paymentPanel")
-    .classList
-    .remove(
-      "hidden"
-    );
-
-
-  $("paymentPanel")
-    .scrollIntoView({
-
-      behavior:
-        "smooth"
-
-    });
-
-}
-
-
-/* =========================================
-   CLOSE PAYMENT PANEL
-========================================= */
-
-function closePaymentPanel() {
-
-  $("paymentPanel")
-    .classList
-    .add(
-      "hidden"
-    );
-
-}
-
-
-/* =========================================
-   SAVE PAYMENT
-========================================= */
-
-async function savePayment() {
-
-  const id =
-    $("paymentApplicationId")
-      .value;
-
-
-  const application =
-
-    allApplications.find(
-
-      item =>
-        String(item.id) ===
-        String(id)
-
-    );
-
-
-  if (
-    !application
-  ) {
-
-    alert(
-      "Client not found."
-    );
-
-    return;
-
-  }
-
-
-  const amount =
-    Number(
-      $("paymentAmount").value
-    );
-
-
-  const paymentDate =
-    $("paymentDate").value;
-
-
-  const paymentMethod =
-    $("paymentMethod").value;
-
-
-  const reference =
-    $("paymentReference")
-      .value
-      .trim();
-
-
-  const proof =
-    $("paymentProof")
-      .files[0];
-
-
-  if (
-    !Number.isFinite(amount) ||
-    amount <= 0
-  ) {
-
-    alert(
-
-      "Please enter a valid payment amount."
-
-    );
-
-    return;
-
-  }
-
-
-  if (
-    !paymentDate
-  ) {
-
-    alert(
-
-      "Please select the payment date."
-
-    );
-
-    return;
-
-  }
-
-
-  if (
-    !paymentMethod
-  ) {
-
-    alert(
-
-      "Please select the payment method."
-
-    );
-
-    return;
-
-  }
-
-
-  const currentPaid =
-    Number(
-
-      application.amount_paid ||
-
-      0
-
-    );
-
-
-  const totalPayment =
-    Number(
-
-      application.total_payment ||
-
-      0
-
-    );
-
-
-  const newAmountPaid =
-    currentPaid +
-    amount;
-
-
-  const remainingBalance =
-    Math.max(
-
-      0,
-
-      totalPayment -
-      newAmountPaid
-
-    );
-
-
-  let proofPath =
-    null;
-
-
-  try {
-
-
-    if (
-      proof
-    ) {
-
-
-      const extension =
-
-        proof.name
-          .split(".")
-          .pop()
-          ?.replace(
-            /[^a-zA-Z0-9]/g,
-            ""
-          ) ||
-
-        "jpg";
-
-
-      proofPath =
-
-        `${application.application_id}/payment-proofs/${Date.now()}.${extension}`;
-
-
-      const {
-        error:
-          uploadError
-      } =
-
-        await sb.storage
-
-          .from(
-            "application-documents"
-          )
-
-          .upload(
-
-            proofPath,
-
-            proof,
-
-            {
-
-              contentType:
-
-                proof.type ||
-
-                "application/octet-stream"
-
-            }
-
-          );
-
-
-      if (
-        uploadError
-      ) {
-
-        throw uploadError;
-
-      }
-
-    }
-
-
-    const {
-      error:
-        paymentInsertError
-    } =
-
-      await sb
-
-        .from(
-          "loan_payments"
-        )
-
-        .insert({
-
-          application_id:
-            application.application_id,
-
-          amount,
-
-          payment_method:
-            paymentMethod,
-
-          reference_number:
-            reference ||
-            null,
-
-          proof_path:
-            proofPath,
-
-          payment_date:
-
-            `${paymentDate}T00:00:00`
-
-        });
-
-
-    if (
-      paymentInsertError
-    ) {
-
-      throw paymentInsertError;
-
-    }
-
-
-    const isFullyPaid =
-
-      remainingBalance <=
-      0;
-
-
-    const {
-      error:
-        updateError
-    } =
-
-      await sb
-
-        .from(
-          "applications"
-        )
-
-        .update({
-
-          amount_paid:
-            Math.min(
-              newAmountPaid,
-              totalPayment
-            ),
-
-          remaining_balance:
-            remainingBalance,
-
-          payment_status:
-
-            isFullyPaid
-
-              ? "Paid"
-
-              : "Partially Paid",
-
-          loan_status:
-
-            isFullyPaid
-
-              ? "Paid"
-
-              : "Active",
-
-          payment_date:
-
-            `${paymentDate}T00:00:00`,
-
-          payment_method:
-            paymentMethod,
-
-          payment_reference:
-            reference ||
-            null,
-
-          payment_proof_path:
-
-            proofPath ||
-
-            application
-              .payment_proof_path ||
-
-            null,
-
-          paid_at:
-
-            isFullyPaid
-
-              ? new Date()
-                  .toISOString()
-
-              : null,
-
-          updated_at:
-
-            new Date()
-              .toISOString()
-
-        })
-
-        .eq(
-          "id",
-          application.id
-        );
-
-
-    if (
-      updateError
-    ) {
-
-      throw updateError;
-
-    }
-
-
-    alert(
-
-      isFullyPaid
-
-        ? "Payment saved. The loan is now fully paid."
-
-        : `Payment saved. Remaining balance: ₱${money(
-            remainingBalance
-          )}`
-
-    );
-
-
-    closePaymentPanel();
-
-
-    await render();
-
-
-    showAdminTab(
-      "clientsPanel"
-    );
-
-
-  } catch (
-    error
-  ) {
-
-
-    console.error(
-
-      "Payment error:",
-
-      error
-
-    );
-
-
-    alert(
-
-      error.message ||
-
-      "Unable to save payment."
-
-    );
-
-  }
-
-}
-
-
-/* =========================================
-   STATUS BADGE
-========================================= */
-
-function statusBadge(
-  status
-) {
-
-  const value =
-
-    String(
-
-      status ||
-
-      ""
-
-    );
-
-
-  const lower =
-    value.toLowerCase();
-
-
-  let className =
-    "status-approved";
-
-
-  if (
-    lower.includes(
-      "pending"
-    )
-  ) {
-
-    className =
-      "status-pending";
-
-
-  } else if (
-    lower.includes(
-      "delayed"
-    ) &&
-    !lower.includes(
-      "not delayed"
-    )
-  ) {
-
-    className =
-      "status-delayed";
-
-
-  } else if (
-    lower.includes(
-      "due"
-    )
-  ) {
-
-    className =
-      "status-due";
-
-
-  } else if (
-    lower ===
-    "paid"
-  ) {
-
-    className =
-      "status-paid";
-
-
-  } else if (
-    lower.includes(
-      "not delayed"
-    )
-  ) {
-
-    className =
-      "status-not-delayed";
-
-
-  } else if (
-    lower.includes(
-      "active"
-    ) &&
-    !lower.includes(
-      "not active"
-    )
-  ) {
-
-    className =
-      "status-active";
-
-
-  } else if (
-    lower.includes(
-      "declined"
-    )
-  ) {
-
-    className =
-      "status-declined";
-
-
-  } else if (
-    lower.includes(
-      "document"
-    )
-  ) {
-
-    className =
-      "status-documents";
-
-  }
-
-
-  return `
-
-    <span
-      class="status-badge ${className}"
-    >
+      <b>
+        Application ID:
+      </b>
+
+      <br>
 
       ${escapeHtml(
-        value
+        application.application_id
       )}
+    </p>
 
-    </span>
+    <p>
+      <b>
+        Name:
+      </b>
+
+      <br>
+
+      ${escapeHtml(
+        application.full_name
+      )}
+    </p>
+
+    <p>
+      <b>
+        Mobile Number:
+      </b>
+
+      <br>
+
+      ${escapeHtml(
+        application.mobile_number
+      )}
+    </p>
+
+    <p>
+      <b>
+        Email:
+      </b>
+
+      <br>
+
+      ${escapeHtml(
+        application.email
+      )}
+    </p>
+
+    <p>
+      <b>
+        Requested Amount:
+      </b>
+
+      <br>
+
+      ${escapeHtml(
+        formatMoney(
+          application.requested_amount
+        )
+      )}
+    </p>
 
   `;
+
+
+  if (
+    isActiveLoan(
+      application
+    )
+  ) {
+
+    const dueInfo =
+
+      getDueInformation(
+        application
+      );
+
+
+    clientInformation += `
+
+      <p>
+        <b>
+          Loan Start Date:
+        </b>
+
+        <br>
+
+        ${escapeHtml(
+          formatDisplayDate(
+            application.loan_start_date
+          )
+        )}
+      </p>
+
+      <p>
+        <b>
+          Due Date:
+        </b>
+
+        <br>
+
+        ${escapeHtml(
+          formatDisplayDate(
+            getLoanEndDate(
+              application
+            )
+          )
+        )}
+      </p>
+
+      <p>
+        <b>
+          Due Status:
+        </b>
+
+        <br>
+
+        ${escapeHtml(
+          isPaidLoan(
+            application
+          )
+            ? "Paid"
+            : dueInfo.label
+        )}
+      </p>
+
+      <p>
+        <b>
+          Current Amount Due:
+        </b>
+
+        <br>
+
+        ${escapeHtml(
+          formatMoney(
+            isPaidLoan(
+              application
+            )
+              ? 0
+              : dueInfo.amountDue
+          )
+        )}
+      </p>
+
+    `;
+
+  }
+
+
+  $("docLinks").innerHTML = `
+
+    ${clientInformation}
+
+    <hr>
+
+    <h3>
+      Private Documents
+    </h3>
+
+    <p>
+      Document links expire in 5 minutes.
+    </p>
+
+    ${
+      links.length
+
+        ? links.join(
+            "<br>"
+          )
+
+        : "No documents available."
+    }
+
+  `;
+
+
+  $("docLinks")
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  $("docLinks")
+    .scrollIntoView({
+
+      behavior:
+        "smooth"
+
+    });
 
 }
 
@@ -4135,7 +4309,6 @@ function escapeHtml(
   return String(
 
     value ??
-
     ""
 
   ).replace(
@@ -4159,7 +4332,9 @@ function escapeHtml(
       '"':
         "&quot;"
 
-    }[character])
+    }[
+      character
+    ])
 
   );
 
@@ -4167,102 +4342,80 @@ function escapeHtml(
 
 
 /* =========================================
-   EXISTING ADMIN SESSION
+   ESCAPE VALUE FOR INLINE JAVASCRIPT
 ========================================= */
 
-async function checkAdminSession() {
+function escapeJsString(
+  value
+) {
 
-  const {
-    data
-  } =
+  return String(
 
-    await sb.auth
-      .getSession();
+    value ??
+    ""
 
+  )
 
-  if (
-    data.session
-  ) {
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
 
+    .replace(
+      /'/g,
+      "\\'"
+    )
 
-    $("login")
-      .classList
-      .add(
-        "hidden"
-      );
+    .replace(
+      /\r/g,
+      "\\r"
+    )
 
-
-    $("dashboard")
-      .classList
-      .remove(
-        "hidden"
-      );
-
-
-    await render();
-
-  }
+    .replace(
+      /\n/g,
+      "\\n"
+    );
 
 }
 
 
 /* =========================================
-   INITIALIZE WEBSITE
+   CHECK EXISTING ADMIN SESSION
 ========================================= */
 
-document.addEventListener(
+sb.auth
+  .getSession()
+  .then(
 
-  "DOMContentLoaded",
-
-  function () {
-
-
-    setupStudentField();
-
-
-    setupSignaturePad();
+    async ({
+      data
+    }) => {
 
 
-    setupVideoCheck();
+      if (
+        data.session
+      ) {
 
+        await openDashboard();
 
-    setupApplicationForm();
-
-
-    const amount =
-      $("amount");
-
-
-    if (
-      amount
-    ) {
-
-
-      amount.addEventListener(
-
-        "input",
-
-        updateLoanDetails
-
-      );
-
-
-      amount.addEventListener(
-
-        "change",
-
-        updateLoanDetails
-
-      );
+      }
 
     }
 
+  );
 
-    updateLoanDetails();
+
+/* =========================================
+   INITIAL SETUP
+========================================= */
+
+updateLoanDetails();
 
 
-    checkAdminSession();
+setTimeout(
 
-  }
+  resizeSignatureCanvas,
+
+  150
 
 );
