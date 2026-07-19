@@ -1,307 +1,317 @@
 <!doctype html>
-<html>
+<html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
   <title>GPP Lending</title>
-  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
+
 
 <body>
 
+
+<!-- =========================================
+     HEADER
+========================================= -->
+
 <header>
+
   <b>GPP LENDING</b>
 
   <nav>
-    <button onclick="show('home')">Home</button>
-    <button onclick="show('apply')">Apply</button>
-    <button onclick="show('track')">Track</button>
-    <button onclick="show('admin')">Admin</button>
+
+    <button
+      type="button"
+      onclick="show('home')"
+    >
+      Home
+    </button>
+
+    <button
+      type="button"
+      onclick="show('apply')"
+    >
+      Apply
+    </button>
+
+    <button
+      type="button"
+      onclick="show('track')"
+    >
+      Track
+    </button>
+
+    <button
+      type="button"
+      onclick="show('admin')"
+    >
+      Admin
+    </button>
+
   </nav>
+
 </header>
+
+
 
 <main>
 
-  <!-- HOME -->
-  <section id="home" class="page active">
 
-    <div class="card center">
+<!-- =========================================
+     HOME
+========================================= -->
 
-      <h1>GPP Lending</h1>
+<section
+  id="home"
+  class="page active"
+>
 
-      <p>Personal Loan Application</p>
+  <div class="card center">
 
-      <button
-        class="primary"
-        onclick="show('apply')"
-      >
-        Apply Now
-      </button>
+    <h1>
+      GPP Lending
+    </h1>
 
-      <h2>Terms & Rates</h2>
+    <p>
+      Personal Loan Application
+    </p>
+
+    <button
+      class="primary"
+      type="button"
+      onclick="show('apply')"
+    >
+      Apply Now
+    </button>
+
+
+    <h2>
+      Terms & Rates
+    </h2>
+
+    <p>
+      ₱100–₱500: 20% for 3 days
+      <br>
+
+      ₱501–₱1,000: 25% for 5 days
+      <br>
+
+      ₱1,001–₱2,000: 30% for 7 days
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================================
+     APPLY
+========================================= -->
+
+<section
+  id="apply"
+  class="page"
+>
+
+  <div class="columns">
+
+
+    <!-- APPLICATION FORM -->
+
+    <div class="card">
+
+      <h1>
+        Loan Application
+      </h1>
 
       <p>
-        ₱100–₱500: 20% for 3 days<br>
-        ₱501–₱1,000: 25% for 5 days<br>
-        ₱1,001–₱2,000: 30% for 7 days
+        All fields and supporting documents are required.
       </p>
 
-    </div>
 
-  </section>
-
-
-  <!-- APPLY -->
-  <section id="apply" class="page">
-
-    <div class="columns">
-
-      <div class="card">
-
-        <h1>Loan Application</h1>
-
-        <p>
-          All fields and supporting documents are required.
-        </p>
-
-        <form id="form">
-
-          <div class="grid">
-
-            <label>
-              Full Name
-              <input
-                id="name"
-                type="text"
-                required
-              >
-            </label>
+      <form id="form">
 
 
-            <label>
-              Email
-              <input
-                id="email"
-                type="email"
-                required
-              >
-            </label>
+        <div class="grid">
 
 
-            <label>
-              Mobile Number
-              <input
-                id="phone"
-                type="text"
-                required
-              >
-            </label>
+          <label>
 
+            Full Name
 
-            <label>
-              Date of Birth
-              <input
-                id="dob"
-                type="date"
-                required
-              >
-            </label>
-
-
-            <label class="full">
-              Full Address
-              <input
-                id="address"
-                type="text"
-                required
-              >
-            </label>
-
-
-            <label>
-              Brgy. Captain
-              <input
-                id="brgyCaptain"
-                type="text"
-                required
-              >
-            </label>
-
-
-            <label>
-              Employment
-
-              <select
-                id="employment"
-                required
-              >
-
-                <option value="">
-                  Select
-                </option>
-
-                <option>
-                  Employed
-                </option>
-
-                <option>
-                  Self-employed
-                </option>
-
-                <option>
-                  Student
-                </option>
-
-                <option>
-                  Unemployed
-                </option>
-
-              </select>
-
-            </label>
-
-
-            <label>
-              Monthly Income (PHP)
-
-              <input
-                id="income"
-                type="number"
-                min="0"
-                required
-              >
-
-            </label>
-
-
-            <label>
-              Active Relative 1 Facebook Link
-
-              <input
-                id="relativeFb1"
-                type="url"
-                placeholder="https://www.facebook.com/"
-                required
-              >
-
-            </label>
-
-
-            <label>
-              Active Relative 2 Facebook Link
-
-              <input
-                id="relativeFb2"
-                type="url"
-                placeholder="https://www.facebook.com/"
-                required
-              >
-
-            </label>
-
-
-            <label
-              id="schoolBox"
-              class="full hidden"
+            <input
+              id="name"
+              type="text"
+              required
             >
 
-              School Facebook Page Link
-
-              <input
-                id="school"
-                type="url"
-                placeholder="https://www.facebook.com/your.school.page"
-              >
-
-            </label>
+          </label>
 
 
-            <label>
-              Requested Amount (PHP)
+          <label>
 
-              <input
-                id="amount"
-                type="number"
-                min="100"
-                max="2000"
-                required
-              >
+            Email
 
-            </label>
+            <input
+              id="email"
+              type="email"
+              required
+            >
 
-
-            <label>
-              Loan Purpose
-
-              <input
-                id="purpose"
-                type="text"
-                required
-              >
-
-            </label>
+          </label>
 
 
-            <label>
-              Loan Start Date
+          <label>
 
-              <input
-                id="loanStartDate"
-                type="date"
-                readonly
-              >
+            Mobile Number
 
-            </label>
+            <input
+              id="phone"
+              type="text"
+              required
+            >
 
-
-            <label>
-              Loan End Date
-
-              <input
-                id="loanEndDate"
-                type="date"
-                readonly
-              >
-
-            </label>
+          </label>
 
 
-            <label class="full">
-              Total Amount to Pay
+          <label>
 
-              <input
-                id="totalAmount"
-                type="text"
-                readonly
-              >
+            Date of Birth
 
-            </label>
+            <input
+              id="dob"
+              type="date"
+              required
+            >
 
-          </div>
+          </label>
 
 
-          <div
-            id="terms"
-            class="notice"
+          <label class="full">
+
+            Full Address
+
+            <input
+              id="address"
+              type="text"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Brgy. Captain
+
+            <input
+              id="brgyCaptain"
+              type="text"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Employment
+
+            <select
+              id="employment"
+              required
+            >
+
+              <option value="">
+                Select
+              </option>
+
+              <option>
+                Employed
+              </option>
+
+              <option>
+                Self-employed
+              </option>
+
+              <option>
+                Student
+              </option>
+
+              <option>
+                Unemployed
+              </option>
+
+            </select>
+
+          </label>
+
+
+          <label>
+
+            Monthly Income (PHP)
+
+            <input
+              id="income"
+              type="number"
+              min="0"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Active Relative 1 Facebook Link
+
+            <input
+              id="relativeFb1"
+              type="url"
+              placeholder="https://www.facebook.com/"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Active Relative 2 Facebook Link
+
+            <input
+              id="relativeFb2"
+              type="url"
+              placeholder="https://www.facebook.com/"
+              required
+            >
+
+          </label>
+
+
+          <label
+            id="schoolBox"
+            class="full hidden"
           >
-            Enter ₱100–₱2,000 to calculate terms.
-          </div>
 
-
-          <h2>
-            Required Supporting Documents
-          </h2>
-
-
-          <label>
-
-            Valid ID — Front
+            School Facebook Page Link
 
             <input
-              id="idFront"
-              type="file"
-              accept="image/*"
-              required
+              id="school"
+              type="url"
+              placeholder="https://www.facebook.com/your.school.page"
             >
 
           </label>
@@ -309,107 +319,234 @@
 
           <label>
 
-            Valid ID — Back
+            Requested Amount (PHP)
 
             <input
-              id="idBack"
-              type="file"
-              accept="image/*"
+              id="amount"
+              type="number"
+              min="100"
+              max="2000"
               required
             >
 
           </label>
-
-
-          <!-- BORROWER SIGNATURE -->
-          <div class="signature-section">
-
-            <h2>Borrower Signature</h2>
-
-            <p>
-              Please sign inside the box below using your finger, mouse, or touchscreen.
-            </p>
-
-            <div class="signature-pad-wrapper">
-
-              <canvas
-                id="signaturePad"
-                class="signature-pad"
-              ></canvas>
-
-            </div>
-
-            <div class="signature-actions">
-
-              <button
-                type="button"
-                id="clearSignature"
-              >
-                Clear Signature
-              </button>
-
-            </div>
-
-            <p
-              id="signatureError"
-              class="signature-error hidden"
-            >
-              Please provide your signature before submitting your application.
-            </p>
-
-          </div>
 
 
           <label>
 
-            20-second Video While Holding Your Valid ID
+            Loan Purpose
 
             <input
-              id="video"
-              type="file"
-              accept="video/*"
+              id="purpose"
+              type="text"
               required
             >
 
           </label>
 
 
-          <label class="check">
+          <label>
+
+            Loan Start Date
 
             <input
-              type="checkbox"
-              required
+              id="loanStartDate"
+              type="date"
+              readonly
             >
-
-            I confirm the information is accurate and agree to the loan terms.
 
           </label>
 
 
-          <button
-            class="primary"
-            type="submit"
-          >
-            Submit Application
-          </button>
+          <label>
 
-        </form>
+            Loan End Date
 
+            <input
+              id="loanEndDate"
+              type="date"
+              readonly
+            >
 
-        <div id="decision"></div>
-
-      </div>
+          </label>
 
 
-      <!-- TERMS -->
-      <aside class="card">
+          <label class="full">
+
+            Total Amount to Pay
+
+            <input
+              id="totalAmount"
+              type="text"
+              readonly
+            >
+
+          </label>
+
+
+        </div>
+
+
+        <div
+          id="terms"
+          class="notice"
+        >
+          Enter ₱100–₱2,000 to calculate terms.
+        </div>
+
+
+
+        <!-- DOCUMENTS -->
 
         <h2>
-          Terms & Rates
+          Required Supporting Documents
         </h2>
 
 
-        <table>
+        <label>
+
+          Valid ID — Front
+
+          <input
+            id="idFront"
+            type="file"
+            accept="image/*"
+            required
+          >
+
+        </label>
+
+
+        <label>
+
+          Valid ID — Back
+
+          <input
+            id="idBack"
+            type="file"
+            accept="image/*"
+            required
+          >
+
+        </label>
+
+
+
+        <!-- SIGNATURE PAD -->
+
+        <div class="signature-section">
+
+          <h2>
+            Borrower Signature
+          </h2>
+
+          <p>
+            Please sign inside the box below using your finger,
+            mouse, or touchscreen.
+          </p>
+
+
+          <div class="signature-canvas-wrap">
+
+            <canvas
+              id="signaturePad"
+            ></canvas>
+
+            <span class="signature-placeholder">
+              SIGN HERE
+            </span>
+
+          </div>
+
+
+          <div class="signature-actions">
+
+            <button
+              id="clearSignature"
+              type="button"
+            >
+              Clear Signature
+            </button>
+
+          </div>
+
+
+          <input
+            id="signature"
+            type="file"
+            accept="image/png"
+            class="hidden"
+          >
+
+        </div>
+
+
+
+        <!-- VIDEO -->
+
+        <label>
+
+          20-second Video While Holding Your Valid ID
+
+          <input
+            id="video"
+            type="file"
+            accept="video/*"
+            required
+          >
+
+        </label>
+
+
+
+        <!-- AGREEMENT -->
+
+        <label class="check">
+
+          <input
+            type="checkbox"
+            required
+          >
+
+          I confirm the information is accurate and agree to the loan terms.
+
+        </label>
+
+
+
+        <button
+          class="primary"
+          type="submit"
+        >
+          Submit Application
+        </button>
+
+
+      </form>
+
+
+      <div id="decision"></div>
+
+
+    </div>
+
+
+
+    <!-- =========================================
+         TERMS SIDE PANEL
+    ========================================= -->
+
+    <aside class="card">
+
+
+      <h2>
+        Terms & Rates
+      </h2>
+
+
+      <table>
+
+        <thead>
 
           <tr>
 
@@ -427,6 +564,10 @@
 
           </tr>
 
+        </thead>
+
+
+        <tbody>
 
           <tr>
 
@@ -478,209 +619,395 @@
 
           </tr>
 
-        </table>
+        </tbody>
+
+      </table>
 
 
-        <p>
+      <p>
 
-          <b>
-            Calculation:
-          </b>
+        <b>
+          Calculation:
+        </b>
 
-          <br>
+        <br>
 
-          Total Payment = Amount + (Amount × Rate)
+        Total Payment = Amount + (Amount × Rate)
 
-        </p>
-
-
-        <h2>
-          Agreement Terms
-        </h2>
+      </p>
 
 
-        <p>
-          • The Borrower agrees to repay the loan amount in full on or before the specified due date stated in this Agreement.
-        </p>
+
+      <h2>
+        Agreement Terms
+      </h2>
 
 
-        <p>
-          • Any late payment shall result in a penalty of ₱50 per day until the loan is fully settled. Also, borrowers who have a record of delayed payments of 3 days or more with Good Payer Priority (GPP Lending) will no longer be allowed to borrow again.
-        </p>
+      <p>
+        • The Borrower agrees to repay the loan amount in full on or before the specified due date stated in this Agreement.
+      </p>
 
 
-        <p>
-          • The Borrower must present at least one (1) valid government-issued ID upon application.
-        </p>
+      <p>
+        • Any late payment shall result in a penalty of ₱50 per day until the loan is fully settled. Also, borrowers who have a record of delayed payments of 3 days or more with Good Payer Priority (GPP Lending) will no longer be allowed to borrow again.
+      </p>
 
 
-        <p>
-          • The Borrower must be 18 years old and above to qualify for a loan.
-        </p>
+      <p>
+        • The Borrower must present at least one (1) valid government-issued ID upon application.
+      </p>
 
 
-        <p>
-          • Failure to pay the total loan amount by the due date will authorize the Lender to:
-        </p>
+      <p>
+        • The Borrower must be 18 years old and above to qualify for a loan.
+      </p>
 
 
-        <p>
-          i. Report the Borrower to his/her barangay of residence.
-        </p>
+      <p>
+        • Failure to pay the total loan amount by the due date will authorize the Lender to:
+      </p>
 
 
-        <p>
-          ii. Contact the Borrower’s listed character references and guardian for collection purposes.
-        </p>
+      <p>
+        i. Report the Borrower to his/her barangay of residence.
+      </p>
 
 
-        <p>
-          iii. Publicly post the Borrower’s name and details as a delinquent debtor to warn others against non-payment.
-        </p>
+      <p>
+        ii. Contact the Borrower’s listed character references and guardian for collection purposes.
+      </p>
 
 
-        <p>
-          • By signing this Agreement, both the Borrower and the Lender confirm that they have fully read, understood, and agreed to all the terms and conditions outlined herein.
-        </p>
+      <p>
+        iii. Publicly post the Borrower’s name and details as a delinquent debtor to warn others against non-payment.
+      </p>
 
-      </aside>
+
+      <p>
+        • By signing this Agreement, both the Borrower and the Lender confirm that they have fully read, understood, and agreed to all the terms and conditions outlined herein.
+      </p>
+
+
+    </aside>
+
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================================
+     TRACK APPLICATION
+========================================= -->
+
+<section
+  id="track"
+  class="page"
+>
+
+  <div class="card track-card">
+
+
+    <h1>
+      Track Application
+    </h1>
+
+
+    <div class="row">
+
+      <input
+        id="trackId"
+        type="text"
+        placeholder="Application ID"
+        autocomplete="off"
+      >
+
+
+      <button
+        class="primary"
+        type="button"
+        onclick="track()"
+      >
+        Check Status
+      </button>
 
     </div>
 
-  </section>
+
+    <div id="trackResult"></div>
 
 
-  <!-- TRACK APPLICATION -->
-  <section
-    id="track"
-    class="page"
+  </div>
+
+</section>
+
+
+
+<!-- =========================================
+     ADMIN
+========================================= -->
+
+<section
+  id="admin"
+  class="page"
+>
+
+
+  <!-- ADMIN LOGIN -->
+
+  <div
+    id="login"
+    class="card admin-login-card"
   >
 
-    <div class="card">
-
-      <h1>
-        Track Application
-      </h1>
+    <h1>
+      Admin Login
+    </h1>
 
 
-      <div class="row">
+    <p>
+      Use your authorized GPP Lending admin account.
+    </p>
+
+
+    <div class="grid">
+
+
+      <label>
+
+        Email
 
         <input
-          id="trackId"
-          type="text"
-          placeholder="Application ID"
-          autocomplete="off"
+          id="adminEmail"
+          type="email"
         >
 
+      </label>
 
-        <button
-          class="primary"
-          onclick="track()"
+
+      <label>
+
+        Password
+
+        <input
+          id="adminPassword"
+          type="password"
         >
-          Check Status
-        </button>
+
+      </label>
+
+
+    </div>
+
+
+    <p
+      id="loginError"
+      class="error-text"
+    ></p>
+
+
+    <button
+      class="primary"
+      type="button"
+      onclick="login()"
+    >
+      Login
+    </button>
+
+
+  </div>
+
+
+
+  <!-- =========================================
+       ADMIN DASHBOARD
+  ========================================= -->
+
+  <div
+    id="dashboard"
+    class="hidden"
+  >
+
+
+    <!-- DASHBOARD HEADER -->
+
+    <div class="admin-topbar">
+
+      <div>
+
+        <h1>
+          GPP Lending Admin
+        </h1>
+
+        <p>
+          Manage applications, active clients, and payments.
+        </p>
 
       </div>
 
 
-      <div id="trackResult"></div>
+      <button
+        type="button"
+        onclick="logout()"
+      >
+        Logout
+      </button>
 
     </div>
 
-  </section>
 
 
-  <!-- ADMIN -->
-  <section
-    id="admin"
-    class="page"
-  >
+    <!-- =========================================
+         DASHBOARD COUNTERS
+    ========================================= -->
 
-    <div class="card">
+    <div class="dashboard-stats">
 
 
-      <!-- LOGIN -->
-      <div id="login">
+      <div class="stat-card">
 
-        <h1>
-          Admin Login
-        </h1>
+        <span>
+          Pending
+        </span>
 
+        <strong id="pendingCount">
+          0
+        </strong>
 
-        <p>
-          Use your authorized GPP Lending admin account.
-        </p>
-
-
-        <div class="grid">
+      </div>
 
 
-          <label>
+      <div class="stat-card">
 
-            Email
+        <span>
+          Active
+        </span>
 
-            <input
-              id="adminEmail"
-              type="email"
-            >
+        <strong id="activeCount">
+          0
+        </strong>
 
-          </label>
+      </div>
 
 
-          <label>
+      <div class="stat-card">
 
-            Password
+        <span>
+          Due Today
+        </span>
 
-            <input
-              id="adminPassword"
-              type="password"
-            >
+        <strong id="dueTodayCount">
+          0
+        </strong>
 
-          </label>
+      </div>
 
+
+      <div class="stat-card delayed-stat">
+
+        <span>
+          Delayed
+        </span>
+
+        <strong id="delayedCount">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="stat-card paid-stat">
+
+        <span>
+          Paid
+        </span>
+
+        <strong id="paidCount">
+          0
+        </strong>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- =========================================
+         ADMIN TABS
+    ========================================= -->
+
+    <div class="admin-tabs">
+
+
+      <button
+        id="applicationsTabButton"
+        class="admin-tab active-tab"
+        type="button"
+        onclick="showAdminTab('applicationsPanel')"
+      >
+        Applications
+      </button>
+
+
+      <button
+        id="clientsTabButton"
+        class="admin-tab"
+        type="button"
+        onclick="showAdminTab('clientsPanel')"
+      >
+        Clients
+      </button>
+
+
+    </div>
+
+
+
+    <!-- =========================================
+         APPLICATIONS PANEL
+    ========================================= -->
+
+    <div
+      id="applicationsPanel"
+      class="admin-panel"
+    >
+
+
+      <div class="card">
+
+
+        <div class="panel-heading">
+
+          <div>
+
+            <h2>
+              Loan Applications
+            </h2>
+
+            <p>
+              Review pending, approved, declined, and incomplete applications.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            onclick="render()"
+          >
+            Refresh
+          </button>
 
         </div>
 
-
-        <p id="loginError"></p>
-
-
-        <button
-          class="primary"
-          onclick="login()"
-        >
-          Login
-        </button>
-
-      </div>
-
-
-      <!-- DASHBOARD -->
-      <div
-        id="dashboard"
-        class="hidden"
-      >
-
-        <h1>
-          Applications
-        </h1>
-
-
-        <button onclick="logout()">
-          Logout
-        </button>
-
-
-        <div
-          id="docLinks"
-          class="notice hidden"
-        ></div>
 
 
         <div class="scroll">
 
 
-          <table>
+          <table class="admin-table">
 
 
             <thead>
@@ -688,7 +1015,7 @@
               <tr>
 
                 <th>
-                  ID
+                  Application ID
                 </th>
 
                 <th>
@@ -704,11 +1031,11 @@
                 </th>
 
                 <th>
-                  Status
+                  Application Status
                 </th>
 
                 <th>
-                  Files
+                  Actions
                 </th>
 
               </tr>
@@ -716,7 +1043,17 @@
             </thead>
 
 
-            <tbody id="list"></tbody>
+            <tbody id="list">
+
+              <tr>
+
+                <td colspan="6">
+                  Loading applications...
+                </td>
+
+              </tr>
+
+            </tbody>
 
 
           </table>
@@ -730,21 +1067,351 @@
 
     </div>
 
-  </section>
+
+
+    <!-- =========================================
+         CLIENTS PANEL
+    ========================================= -->
+
+    <div
+      id="clientsPanel"
+      class="admin-panel hidden"
+    >
+
+
+      <div class="card">
+
+
+        <div class="panel-heading">
+
+          <div>
+
+            <h2>
+              Clients
+            </h2>
+
+            <p>
+              Active and completed borrower loan records.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            onclick="render()"
+          >
+            Refresh
+          </button>
+
+        </div>
+
+
+
+        <div class="scroll">
+
+
+          <table class="admin-table">
+
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Client
+                </th>
+
+                <th>
+                  Loan
+                </th>
+
+                <th>
+                  Due Date
+                </th>
+
+                <th>
+                  Loan Status
+                </th>
+
+                <th>
+                  Payment
+                </th>
+
+                <th>
+                  Due Status
+                </th>
+
+                <th>
+                  Actions
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody id="clientList">
+
+              <tr>
+
+                <td colspan="7">
+                  No active clients yet.
+                </td>
+
+              </tr>
+
+            </tbody>
+
+
+          </table>
+
+
+        </div>
+
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- =========================================
+         CLIENT / APPLICATION DETAILS
+    ========================================= -->
+
+    <div
+      id="recordDetails"
+      class="card hidden record-details"
+    >
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h2>
+            Borrower Record
+          </h2>
+
+          <p>
+            Complete application and loan information.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          onclick="closeRecordDetails()"
+        >
+          Close
+        </button>
+
+      </div>
+
+
+      <div id="recordDetailsContent"></div>
+
+
+    </div>
+
+
+
+    <!-- =========================================
+         DOCUMENT LINKS
+    ========================================= -->
+
+    <div
+      id="docLinks"
+      class="card hidden"
+    ></div>
+
+
+
+    <!-- =========================================
+         PAYMENT MODAL / PANEL
+    ========================================= -->
+
+    <div
+      id="paymentPanel"
+      class="card hidden payment-panel"
+    >
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h2>
+            Record Payment
+          </h2>
+
+          <p id="paymentClientName">
+            Add borrower payment information.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          onclick="closePaymentPanel()"
+        >
+          Close
+        </button>
+
+      </div>
+
+
+      <input
+        id="paymentApplicationId"
+        type="hidden"
+      >
+
+
+      <div class="grid">
+
+
+        <label>
+
+          Amount Paid
+
+          <input
+            id="paymentAmount"
+            type="number"
+            min="0"
+            step="0.01"
+          >
+
+        </label>
+
+
+        <label>
+
+          Payment Date
+
+          <input
+            id="paymentDate"
+            type="date"
+          >
+
+        </label>
+
+
+        <label>
+
+          Payment Method
+
+          <select id="paymentMethod">
+
+            <option value="">
+              Select payment method
+            </option>
+
+            <option>
+              GCash
+            </option>
+
+            <option>
+              Maya
+            </option>
+
+            <option>
+              Bank Transfer
+            </option>
+
+            <option>
+              Cash
+            </option>
+
+            <option>
+              Other
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          Reference Number
+
+          <input
+            id="paymentReference"
+            type="text"
+          >
+
+        </label>
+
+
+        <label class="full">
+
+          Proof of Payment
+
+          <input
+            id="paymentProof"
+            type="file"
+            accept="image/*"
+          >
+
+        </label>
+
+
+      </div>
+
+
+      <button
+        class="primary"
+        type="button"
+        onclick="savePayment()"
+      >
+        Save Payment
+      </button>
+
+
+    </div>
+
+
+  </div>
+
+
+</section>
+
 
 
 </main>
 
 
+
+<!-- =========================================
+     FOOTER
+========================================= -->
+
 <footer>
+
   GPP Lending
+
 </footer>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="app.js"></script>
+<!-- =========================================
+     SUPABASE
+========================================= -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script
+  src="app.js"
+></script>
 
 
 </body>
+
 </html>
