@@ -112,9 +112,33 @@ function formatDisplayDate(value) {
     return "—";
   }
 
+  const cleanValue =
+    String(value).trim();
+
+  const dateOnly =
+    cleanValue.split("T")[0];
+
+  const parts =
+    dateOnly.split("-");
+
+  if (parts.length !== 3) {
+    return cleanValue;
+  }
+
+  const year =
+    Number(parts[0]);
+
+  const month =
+    Number(parts[1]);
+
+  const day =
+    Number(parts[2]);
+
   const date =
     new Date(
-      `${value}T00:00:00`
+      year,
+      month - 1,
+      day
     );
 
   if (
@@ -122,7 +146,7 @@ function formatDisplayDate(value) {
       date.getTime()
     )
   ) {
-    return value;
+    return cleanValue;
   }
 
   return date.toLocaleDateString(
