@@ -4,6 +4,9 @@ const SUPABASE_KEY = "sb_publishable_BfNlckA6XfPk0rt_bv1kKQ_-RBQvl_L";
 const SUBMIT_URL =
   `${SUPABASE_URL}/functions/v1/submit-application`;
 
+const GENERATE_PDF_URL =
+  `${SUPABASE_URL}/functions/v1/generate-application-pdf`;
+
 const TRACK_URL =
   `${SUPABASE_URL}/functions/v1/track-application`;
 
@@ -2101,52 +2104,102 @@ function showAdminTab(
 async function activateLoan(id) {
 
   const confirmed =
-    confirm(
-      "Activate this borrower's loan?"
-    );
+    confirm("Activate this borrower's loan and generate the final PDF?");
 
+  if (!confirmed) return;
 
-  if (!confirmed) {
+  const { data: application, error: fetchError } =
+    await sb
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+  if (fetchError) {
+    alert(fetchError.message);
     return;
   }
 
+  const startDate = formatDateForInput(new Date());
+  const dueDateObject = new Date();
+  dueDateObject.setDate(
+    dueDateObject.getDate() +
+    Number(application.duration_days || 0)
+  );
+  const endDate = formatDateForInput(dueDateObject);
 
-  const {
-    error
-  } =
+  const totalDue =
+    Number(application.total_payment || 0);
+
+  const { error: updateError } =
     await sb
-      .from(
-        "applications"
-      )
+      .from("applications")
       .update({
-        loan_status:
-          "Active",
-
-        payment_status:
-          "Unpaid"
+        status: "Approved",
+        loan_status: "Active",
+        payment_status: "Unpaid",
+        loan_start_date: startDate,
+        loan_end_date: endDate,
+        amount_paid: 0,
+        remaining_balance: totalDue,
+        due_status: "Not Yet Due"
       })
-      .eq(
-        "id",
-        id
+      .eq("id", id);
+
+  if (updateError) {
+    alert(updateError.message);
+    return;
+  }
+
+  try {
+    const {
+      data: { session }
+    } = await sb.auth.getSession();
+
+    const response =
+      await fetch(
+        GENERATE_PDF_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_KEY,
+            Authorization:
+              `Bearer ${session?.access_token || SUPABASE_KEY}`
+          },
+          body: JSON.stringify({
+            application_id: application.application_id,
+            id: application.id
+          })
+        }
       );
 
+    const result =
+      await response.json();
 
-  if (error) {
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        result.message ||
+        "The loan was activated, but PDF generation failed."
+      );
+    }
 
     alert(
-      error.message
+      "Loan activated successfully. The final PDF and Google Drive documents were generated."
     );
 
-    return;
+  } catch (error) {
+    console.error("PDF generation error:", error);
+
+    alert(
+      "The loan was activated, but the PDF/Google Drive process failed: " +
+      (error.message || "Unknown error")
+    );
   }
 
-
-  alert(
-    "Loan activated successfully."
-  );
-
-
   await render();
+  await renderClients();
 }
 
 
@@ -2187,9 +2240,9 @@ async function renderClients() {
         "applications"
       )
       .select("*")
-      .eq(
+      .in(
         "loan_status",
-        "Active"
+        ["Active", "Paid"]
       )
       .order(
         "loan_end_date",
@@ -2368,49 +2421,66 @@ async function renderClients() {
 
 async function markAsPaid(id) {
 
-  const confirmed =
-    confirm(
-      "Mark this loan as fully paid?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  const {
-    data: application,
-    error: fetchError
-  } =
+  const { data: application, error: fetchError } =
     await sb
-      .from(
-        "applications"
-      )
+      .from("applications")
       .select("*")
-      .eq(
-        "id",
-        id
-      )
+      .eq("id", id)
       .single();
 
-
   if (fetchError) {
-
-    alert(
-      fetchError.message
-    );
-
+    alert(fetchError.message);
     return;
   }
 
-
   const totalDue =
-    Number(
-      application.total_payment ||
-      application.total_amount_to_pay ||
+    Number(application.total_payment || 0);
+
+  const alreadyPaid =
+    Number(application.amount_paid || 0);
+
+  const currentBalance =
+    Math.max(
+      Number(
+        application.remaining_balance != null
+          ? application.remaining_balance
+          : totalDue - alreadyPaid
+      ),
       0
     );
 
+  if (currentBalance <= 0) {
+    alert("This loan is already fully paid.");
+    return;
+  }
+
+  const amountText =
+    prompt(
+      `Remaining balance: ${formatMoney(currentBalance)}\n\nEnter payment amount:`,
+      String(currentBalance)
+    );
+
+  if (amountText === null) return;
+
+  const paymentAmount =
+    Number(
+      String(amountText).replace(/[₱,\s]/g, "")
+    );
+
+  if (
+    !Number.isFinite(paymentAmount) ||
+    paymentAmount <= 0
+  ) {
+    alert("Please enter a valid payment amount.");
+    return;
+  }
+
+  if (paymentAmount > currentBalance) {
+    alert(
+      `Payment cannot be greater than the remaining balance of ${formatMoney(currentBalance)}.`
+    );
+    return;
+  }
 
   const paymentMethod =
     prompt(
@@ -2418,53 +2488,63 @@ async function markAsPaid(id) {
       application.payment_method || "GCash"
     );
 
-  if (paymentMethod === null) {
-    return;
-  }
-
+  if (paymentMethod === null) return;
 
   const paymentReference =
     prompt(
       "Payment reference number (optional):",
-      application.payment_reference ||
-      application.reference_number ||
-      ""
+      application.payment_reference || ""
     );
 
-  if (paymentReference === null) {
-    return;
-  }
+  if (paymentReference === null) return;
 
+  const newAmountPaid =
+    alreadyPaid + paymentAmount;
+
+  const newBalance =
+    Math.max(totalDue - newAmountPaid, 0);
+
+  const isFullyPaid =
+    newBalance <= 0.009;
 
   const paymentDate =
-    formatDateForInput(
-      new Date()
-    );
+    formatDateForInput(new Date());
 
+  const finalDueStatus =
+    isFullyPaid
+      ? getPaymentTimingStatus(
+          application.loan_end_date,
+          paymentDate
+        )
+      : getCalculatedDueStatus(application);
 
-  const {
-    error: updateError
-  } =
+  const { error: updateError } =
     await sb
-      .from(
-        "applications"
-      )
+      .from("applications")
       .update({
-
         payment_status:
-          "Paid",
+          isFullyPaid
+            ? "Paid"
+            : "Partially Paid",
 
         loan_status:
-          "Paid",
+          isFullyPaid
+            ? "Paid"
+            : "Active",
 
         due_status:
-          "Paid",
+          finalDueStatus,
 
         payment_date:
           paymentDate,
 
+        paid_at:
+          isFullyPaid
+            ? new Date().toISOString()
+            : application.paid_at,
+
         amount_paid:
-          totalDue,
+          newAmountPaid,
 
         payment_method:
           paymentMethod.trim() || null,
@@ -2473,85 +2553,128 @@ async function markAsPaid(id) {
           paymentReference.trim() || null,
 
         remaining_balance:
-          0
-
+          newBalance
       })
-      .eq(
-        "id",
-        id
-      );
-
+      .eq("id", id);
 
   if (updateError) {
-
-    console.error(
-      "Mark as paid error:",
-      updateError
-    );
-
-    alert(
-      updateError.message
-    );
-
+    alert(updateError.message);
     return;
   }
 
-
   alert(
-    "Payment recorded successfully. The loan is now marked as Paid."
+    isFullyPaid
+      ? `Full payment recorded. ${finalDueStatus}`
+      : `Partial payment recorded. Remaining balance: ${formatMoney(newBalance)}`
   );
 
-
   await render();
-
   await renderClients();
 }
 
 
-/* =========================================
-   CALCULATE DUE STATUS
-========================================= */
+function getPaymentTimingStatus(
+  dueDateValue,
+  paymentDateValue
+) {
+
+  if (!dueDateValue || !paymentDateValue) {
+    return "Paid";
+  }
+
+  const due =
+    new Date(`${dueDateValue}T00:00:00`);
+
+  const paid =
+    new Date(`${paymentDateValue}T00:00:00`);
+
+  const difference =
+    Math.round(
+      (due - paid) /
+      (1000 * 60 * 60 * 24)
+    );
+
+  if (difference > 0) {
+    return `Paid Early - ${difference} day${difference === 1 ? "" : "s"}`;
+  }
+
+  if (difference === 0) {
+    return "Paid On Time";
+  }
+
+  const lateDays =
+    Math.abs(difference);
+
+  return `Paid Late - ${lateDays} day${lateDays === 1 ? "" : "s"}`;
+}
+
 
 function getCalculatedDueStatus(
   application
 ) {
 
   if (
-    application.payment_status ===
-    "Paid"
+    application.payment_status === "Paid"
   ) {
-    return "Paid";
+    return (
+      application.due_status ||
+      getPaymentTimingStatus(
+        application.loan_end_date,
+        application.payment_date
+      )
+    );
   }
-
 
   if (!application.loan_end_date) {
     return "—";
   }
 
-
   const today =
-    formatDateForInput(
-      new Date()
-    );
+    formatDateForInput(new Date());
 
+  if (application.loan_end_date < today) {
+    const due =
+      new Date(
+        `${application.loan_end_date}T00:00:00`
+      );
 
-  if (
-    application.loan_end_date <
-    today
-  ) {
-    return "Delayed";
+    const now =
+      new Date(`${today}T00:00:00`);
+
+    const days =
+      Math.max(
+        1,
+        Math.round(
+          (now - due) /
+          (1000 * 60 * 60 * 24)
+        )
+      );
+
+    return `Delayed - ${days} day${days === 1 ? "" : "s"}`;
   }
 
-
-  if (
-    application.loan_end_date ===
-    today
-  ) {
+  if (application.loan_end_date === today) {
     return "Due Today";
   }
 
+  const due =
+    new Date(
+      `${application.loan_end_date}T00:00:00`
+    );
 
-  return "Not Yet Due";
+  const now =
+    new Date(`${today}T00:00:00`);
+
+  const days =
+    Math.max(
+      0,
+      Math.round(
+        (due - now) /
+        (1000 * 60 * 60 * 24)
+      )
+    );
+
+  return `Not Delayed - ${days} day${days === 1 ? "" : "s"} remaining`;
 }
 
 
