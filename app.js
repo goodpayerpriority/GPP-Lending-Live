@@ -26,32 +26,22 @@ function show(id) {
   document
     .querySelectorAll(".page")
     .forEach(page => {
-
-      page.classList.remove(
-        "active"
-      );
-
+      page.classList.remove("active");
     });
 
-
-  const target =
-    $(id);
-
+  const target = $(id);
 
   if (target) {
-
-    target.classList.add(
-      "active"
-    );
-
+    target.classList.add("active");
   }
 
+  window.scrollTo(0, 0);
 
-  window.scrollTo(
-    0,
-    0
-  );
-
+  if (id === "apply") {
+    setTimeout(() => {
+      resizeSignatureCanvas();
+    }, 100);
+  }
 }
 
 
@@ -65,43 +55,24 @@ function term(amount) {
     amount >= 100 &&
     amount <= 500
   ) {
-
-    return [
-      20,
-      3
-    ];
-
+    return [20, 3];
   }
-
 
   if (
     amount >= 501 &&
     amount <= 1000
   ) {
-
-    return [
-      25,
-      5
-    ];
-
+    return [25, 5];
   }
-
 
   if (
     amount >= 1001 &&
     amount <= 2000
   ) {
-
-    return [
-      30,
-      7
-    ];
-
+    return [30, 7];
   }
 
-
   return null;
-
 }
 
 
@@ -114,29 +85,17 @@ function formatDateForInput(date) {
   const year =
     date.getFullYear();
 
-
   const month =
     String(
       date.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
-
+    ).padStart(2, "0");
 
   const day =
     String(
       date.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
+    ).padStart(2, "0");
 
-
-  return (
-    `${year}-${month}-${day}`
-  );
-
+  return `${year}-${month}-${day}`;
 }
 
 
@@ -147,48 +106,30 @@ function formatDateForInput(date) {
 function formatDisplayDate(value) {
 
   if (!value) {
-
     return "—";
-
   }
-
 
   const date =
     new Date(
       `${value}T00:00:00`
     );
 
-
   if (
     Number.isNaN(
       date.getTime()
     )
   ) {
-
     return value;
-
   }
 
-
   return date.toLocaleDateString(
-
     "en-PH",
-
     {
-
-      year:
-        "numeric",
-
-      month:
-        "long",
-
-      day:
-        "numeric"
-
+      year: "numeric",
+      month: "long",
+      day: "numeric"
     }
-
   );
-
 }
 
 
@@ -201,32 +142,22 @@ function formatMoney(value) {
   const number =
     Number(value);
 
-
   if (
-    !Number.isFinite(
-      number
-    )
+    !Number.isFinite(number)
   ) {
-
     return "₱0.00";
-
   }
-
 
   return (
     "₱" +
     number.toLocaleString(
       "en-PH",
       {
-        minimumFractionDigits:
-          2,
-
-        maximumFractionDigits:
-          2
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       }
     )
   );
-
 }
 
 
@@ -251,7 +182,6 @@ function updateLoanDetails() {
   const termsBox =
     $("terms");
 
-
   if (
     !amountInput ||
     !startDateInput ||
@@ -259,101 +189,68 @@ function updateLoanDetails() {
     !totalAmountInput ||
     !termsBox
   ) {
-
     return;
-
   }
-
 
   const amount =
     Number(
       amountInput.value
     );
 
-
   const loanTerm =
-    term(
-      amount
-    );
+    term(amount);
 
+  if (!loanTerm) {
 
-  if (
-    !loanTerm
-  ) {
-
-    startDateInput.value =
-      "";
-
-    endDateInput.value =
-      "";
-
-    totalAmountInput.value =
-      "";
-
+    startDateInput.value = "";
+    endDateInput.value = "";
+    totalAmountInput.value = "";
 
     termsBox.textContent =
       "Enter ₱100–₱2,000 to calculate terms.";
 
-
     return;
-
   }
-
 
   const interestRate =
     loanTerm[0];
 
-
   const durationDays =
     loanTerm[1];
 
-
   const totalPayment =
-
     amount +
-
     (
       amount *
       interestRate /
       100
     );
 
-
   const startDate =
     new Date();
 
-
   const endDate =
-    new Date(
-      startDate
-    );
-
+    new Date(startDate);
 
   endDate.setDate(
-
     endDate.getDate() +
     durationDays
-
   );
-
 
   startDateInput.value =
     formatDateForInput(
       startDate
     );
 
-
   endDateInput.value =
     formatDateForInput(
       endDate
     );
 
-
   totalAmountInput.value =
     formatMoney(
       totalPayment
     );
-
 
   termsBox.innerHTML = `
 
@@ -390,7 +287,6 @@ function updateLoanDetails() {
     )}
 
   `;
-
 }
 
 
@@ -398,29 +294,19 @@ function updateLoanDetails() {
    AMOUNT EVENT LISTENERS
 ========================================= */
 
-if (
-  $("amount")
-) {
+if ($("amount")) {
 
   $("amount")
     .addEventListener(
-
       "input",
-
       updateLoanDetails
-
     );
-
 
   $("amount")
     .addEventListener(
-
       "change",
-
       updateLoanDetails
-
     );
-
 }
 
 
@@ -428,55 +314,479 @@ if (
    STUDENT SCHOOL FIELD
 ========================================= */
 
-if (
-  $("employment")
-) {
+if ($("employment")) {
 
   $("employment")
     .addEventListener(
-
       "change",
-
       function () {
 
-
         const isStudent =
-
-          $("employment")
-            .value ===
+          $("employment").value ===
           "Student";
 
-
-        if (
-          $("schoolBox")
-        ) {
+        if ($("schoolBox")) {
 
           $("schoolBox")
             .classList
             .toggle(
-
               "hidden",
-
               !isStudent
-
             );
-
         }
 
-
-        if (
-          $("school")
-        ) {
-
+        if ($("school")) {
           $("school").required =
             isStudent;
-
         }
-
       }
+    );
+}
 
+
+/* =========================================
+   SIGNATURE PAD
+========================================= */
+
+let signatureCanvas = null;
+let signatureContext = null;
+let signatureDrawing = false;
+let signatureHasDrawing = false;
+
+
+/* =========================================
+   INITIALIZE SIGNATURE PAD
+========================================= */
+
+function initializeSignaturePad() {
+
+  signatureCanvas =
+    $("signatureCanvas");
+
+  if (!signatureCanvas) {
+    return;
+  }
+
+  signatureContext =
+    signatureCanvas.getContext(
+      "2d"
     );
 
+  resizeSignatureCanvas();
+
+  signatureCanvas.addEventListener(
+    "pointerdown",
+    startSignatureDrawing
+  );
+
+  signatureCanvas.addEventListener(
+    "pointermove",
+    drawSignature
+  );
+
+  signatureCanvas.addEventListener(
+    "pointerup",
+    stopSignatureDrawing
+  );
+
+  signatureCanvas.addEventListener(
+    "pointercancel",
+    stopSignatureDrawing
+  );
+
+  signatureCanvas.addEventListener(
+    "pointerleave",
+    stopSignatureDrawing
+  );
+
+  window.addEventListener(
+    "resize",
+    resizeSignatureCanvas
+  );
+}
+
+
+/* =========================================
+   RESIZE SIGNATURE CANVAS
+========================================= */
+
+function resizeSignatureCanvas() {
+
+  const canvas =
+    $("signatureCanvas");
+
+  if (!canvas) {
+    return;
+  }
+
+  const wrapper =
+    canvas.parentElement;
+
+  if (!wrapper) {
+    return;
+  }
+
+  const width =
+    wrapper.clientWidth;
+
+  if (
+    !width ||
+    width <= 0
+  ) {
+    return;
+  }
+
+  /*
+    Do not resize after the borrower has
+    already signed because resizing a canvas
+    clears the drawing.
+  */
+
+  if (
+    signatureHasDrawing &&
+    canvas.width > 0
+  ) {
+    return;
+  }
+
+  const ratio =
+    Math.max(
+      window.devicePixelRatio || 1,
+      1
+    );
+
+  const displayHeight =
+    180;
+
+  canvas.width =
+    Math.floor(
+      width * ratio
+    );
+
+  canvas.height =
+    Math.floor(
+      displayHeight * ratio
+    );
+
+  canvas.style.width =
+    `${width}px`;
+
+  canvas.style.height =
+    `${displayHeight}px`;
+
+  signatureContext =
+    canvas.getContext(
+      "2d"
+    );
+
+  signatureContext.setTransform(
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+  );
+
+  signatureContext.lineWidth =
+    2.5;
+
+  signatureContext.lineCap =
+    "round";
+
+  signatureContext.lineJoin =
+    "round";
+
+  signatureContext.strokeStyle =
+    "#111827";
+}
+
+
+/* =========================================
+   GET SIGNATURE POINTER POSITION
+========================================= */
+
+function getSignaturePosition(event) {
+
+  const rect =
+    signatureCanvas
+      .getBoundingClientRect();
+
+  return {
+
+    x:
+      event.clientX -
+      rect.left,
+
+    y:
+      event.clientY -
+      rect.top
+
+  };
+}
+
+
+/* =========================================
+   START SIGNATURE DRAWING
+========================================= */
+
+function startSignatureDrawing(event) {
+
+  if (
+    !signatureCanvas ||
+    !signatureContext
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+
+  signatureDrawing =
+    true;
+
+  signatureHasDrawing =
+    true;
+
+  const position =
+    getSignaturePosition(
+      event
+    );
+
+  signatureContext
+    .beginPath();
+
+  signatureContext
+    .moveTo(
+      position.x,
+      position.y
+    );
+
+  if (
+    signatureCanvas
+      .setPointerCapture
+  ) {
+
+    try {
+
+      signatureCanvas
+        .setPointerCapture(
+          event.pointerId
+        );
+
+    } catch {
+      // Ignore unsupported pointer capture.
+    }
+  }
+
+  const placeholder =
+    $("signaturePlaceholder");
+
+  if (placeholder) {
+
+    placeholder.style.display =
+      "none";
+  }
+
+  const error =
+    $("signatureError");
+
+  if (error) {
+
+    error.textContent =
+      "";
+  }
+}
+
+
+/* =========================================
+   DRAW SIGNATURE
+========================================= */
+
+function drawSignature(event) {
+
+  if (
+    !signatureDrawing ||
+    !signatureContext
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const position =
+    getSignaturePosition(
+      event
+    );
+
+  signatureContext
+    .lineTo(
+      position.x,
+      position.y
+    );
+
+  signatureContext
+    .stroke();
+}
+
+
+/* =========================================
+   STOP SIGNATURE DRAWING
+========================================= */
+
+function stopSignatureDrawing(event) {
+
+  if (!signatureDrawing) {
+    return;
+  }
+
+  signatureDrawing =
+    false;
+
+  if (signatureContext) {
+
+    signatureContext
+      .closePath();
+  }
+
+  if (
+    signatureCanvas &&
+    event &&
+    signatureCanvas
+      .releasePointerCapture
+  ) {
+
+    try {
+
+      if (
+        signatureCanvas
+          .hasPointerCapture(
+            event.pointerId
+          )
+      ) {
+
+        signatureCanvas
+          .releasePointerCapture(
+            event.pointerId
+          );
+      }
+
+    } catch {
+      // Ignore unsupported pointer capture.
+    }
+  }
+}
+
+
+/* =========================================
+   CLEAR SIGNATURE
+========================================= */
+
+function clearSignature() {
+
+  const canvas =
+    $("signatureCanvas");
+
+  if (!canvas) {
+    return;
+  }
+
+  const context =
+    canvas.getContext(
+      "2d"
+    );
+
+  context.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  signatureHasDrawing =
+    false;
+
+  signatureDrawing =
+    false;
+
+  const placeholder =
+    $("signaturePlaceholder");
+
+  if (placeholder) {
+
+    placeholder.style.display =
+      "";
+  }
+
+  const error =
+    $("signatureError");
+
+  if (error) {
+
+    error.textContent =
+      "";
+  }
+}
+
+
+/* =========================================
+   CONVERT SIGNATURE TO PNG FILE
+========================================= */
+
+function getSignatureFile() {
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+
+      const canvas =
+        $("signatureCanvas");
+
+      if (
+        !canvas ||
+        !signatureHasDrawing
+      ) {
+
+        reject(
+          new Error(
+            "Please draw your signature before submitting."
+          )
+        );
+
+        return;
+      }
+
+      canvas.toBlob(
+        blob => {
+
+          if (!blob) {
+
+            reject(
+              new Error(
+                "Unable to process your signature. Please sign again."
+              )
+            );
+
+            return;
+          }
+
+          const file =
+            new File(
+              [blob],
+              "signature.png",
+              {
+                type:
+                  "image/png"
+              }
+            );
+
+          resolve(file);
+        },
+        "image/png"
+      );
+    }
+  );
 }
 
 
@@ -484,62 +794,40 @@ if (
    VIDEO SIZE CHECK
 ========================================= */
 
-if (
-  $("video")
-) {
+if ($("video")) {
 
   $("video")
     .addEventListener(
-
       "change",
-
       function () {
 
-
         const file =
-
           $("video")
             .files[0];
 
-
-        if (
-          !file
-        ) {
-
+        if (!file) {
           return;
-
         }
 
-
         const maxSize =
-
           50 *
           1024 *
           1024;
-
 
         if (
           file.size >
           maxSize
         ) {
 
-
           alert(
-
             "Verification video must be under 50 MB. Please select a smaller video."
-
           );
-
 
           $("video").value =
             "";
-
         }
-
       }
-
     );
-
 }
 
 
@@ -547,407 +835,276 @@ if (
    SUBMIT APPLICATION
 ========================================= */
 
-if (
-  $("form")
-) {
+if ($("form")) {
 
   $("form")
     .addEventListener(
-
       "submit",
 
-      async function (
-        event
-      ) {
-
+      async function (event) {
 
         event.preventDefault();
 
-
         const button =
-
           event.submitter;
 
-
         const amount =
-
           Number(
-
-            $("amount")
-              .value
-
+            $("amount").value
           );
-
 
         const loanTerm =
+          term(amount);
 
-          term(
-            amount
-          );
-
-
-        if (
-          !loanTerm
-        ) {
-
+        if (!loanTerm) {
 
           alert(
-
             "Please enter a loan amount from ₱100 to ₱2,000."
-
           );
 
+          return;
+        }
+
+
+        /* CHECK SIGNATURE */
+
+        if (!signatureHasDrawing) {
+
+          const signatureError =
+            $("signatureError");
+
+          if (signatureError) {
+
+            signatureError.textContent =
+              "Please draw your signature before submitting.";
+          }
+
+          $("signatureCanvas")
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
 
           return;
-
         }
 
 
         const video =
-
-          $("video")
-            .files[0];
-
+          $("video").files[0];
 
         if (
-
           video &&
-
           video.size >
-
           50 *
           1024 *
           1024
-
         ) {
 
-
           alert(
-
             "Verification video must be under 50 MB."
-
           );
 
-
           return;
-
         }
 
 
-        if (
-          button
-        ) {
+        if (button) {
 
           button.disabled =
             true;
 
-
           button.textContent =
             "Submitting...";
-
         }
-
-
-        const formData =
-
-          new FormData();
-
-
-        /* PERSONAL INFORMATION */
-
-
-        formData.append(
-
-          "full_name",
-
-          $("name")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "email",
-
-          $("email")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "mobile_number",
-
-          $("phone")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "date_of_birth",
-
-          $("dob")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "full_address",
-
-          $("address")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "brgy_captain",
-
-          $("brgyCaptain")
-            .value
-
-        );
-
-
-        /* RELATIVES */
-
-
-        formData.append(
-
-          "relative_fb_1",
-
-          $("relativeFb1")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "relative_fb_2",
-
-          $("relativeFb2")
-            .value
-
-        );
-
-
-        /* EMPLOYMENT */
-
-
-        formData.append(
-
-          "employment_type",
-
-          $("employment")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "school_facebook_url",
-
-          $("school")
-            .value ||
-          ""
-
-        );
-
-
-        formData.append(
-
-          "monthly_income",
-
-          $("income")
-            .value
-
-        );
-
-
-        /* LOAN INFORMATION */
-
-
-        formData.append(
-
-          "requested_amount",
-
-          $("amount")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "loan_purpose",
-
-          $("purpose")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "loan_start_date",
-
-          $("loanStartDate")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "loan_end_date",
-
-          $("loanEndDate")
-            .value
-
-        );
-
-
-        formData.append(
-
-          "total_amount_to_pay",
-
-          $("totalAmount")
-            .value
-            .replace(
-              /[₱,]/g,
-              ""
-            )
-
-        );
-
-
-        /* DOCUMENTS */
-
-
-        formData.append(
-
-          "id_front",
-
-          $("idFront")
-            .files[0]
-
-        );
-
-
-        formData.append(
-
-          "id_back",
-
-          $("idBack")
-            .files[0]
-
-        );
-
-
-        formData.append(
-
-          "signature",
-
-          $("signature")
-            .files[0]
-
-        );
-
-
-        formData.append(
-
-          "verification_video",
-
-          $("video")
-            .files[0]
-
-        );
 
 
         try {
 
+          /*
+            Convert the drawn signature into
+            a real PNG file before submission.
+          */
+
+          const signatureFile =
+            await getSignatureFile();
+
+
+          const formData =
+            new FormData();
+
+
+          /* PERSONAL INFORMATION */
+
+          formData.append(
+            "full_name",
+            $("name").value
+          );
+
+          formData.append(
+            "email",
+            $("email").value
+          );
+
+          formData.append(
+            "mobile_number",
+            $("phone").value
+          );
+
+          formData.append(
+            "date_of_birth",
+            $("dob").value
+          );
+
+          formData.append(
+            "full_address",
+            $("address").value
+          );
+
+          formData.append(
+            "brgy_captain",
+            $("brgyCaptain").value
+          );
+
+
+          /* RELATIVES */
+
+          formData.append(
+            "relative_fb_1",
+            $("relativeFb1").value
+          );
+
+          formData.append(
+            "relative_fb_2",
+            $("relativeFb2").value
+          );
+
+
+          /* EMPLOYMENT */
+
+          formData.append(
+            "employment_type",
+            $("employment").value
+          );
+
+          formData.append(
+            "school_facebook_url",
+            $("school").value || ""
+          );
+
+          formData.append(
+            "monthly_income",
+            $("income").value
+          );
+
+
+          /* LOAN INFORMATION */
+
+          formData.append(
+            "requested_amount",
+            $("amount").value
+          );
+
+          formData.append(
+            "loan_purpose",
+            $("purpose").value
+          );
+
+          formData.append(
+            "loan_start_date",
+            $("loanStartDate").value
+          );
+
+          formData.append(
+            "loan_end_date",
+            $("loanEndDate").value
+          );
+
+          formData.append(
+            "total_amount_to_pay",
+            $("totalAmount")
+              .value
+              .replace(
+                /[₱,]/g,
+                ""
+              )
+          );
+
+
+          /* DOCUMENTS */
+
+          formData.append(
+            "id_front",
+            $("idFront").files[0]
+          );
+
+          formData.append(
+            "id_back",
+            $("idBack").files[0]
+          );
+
+
+          /*
+            IMPORTANT:
+            The canvas signature is sent using
+            the same "signature" field expected
+            by your Supabase Edge Function.
+          */
+
+          formData.append(
+            "signature",
+            signatureFile
+          );
+
+          formData.append(
+            "verification_video",
+            $("video").files[0]
+          );
+
 
           const response =
-
             await fetch(
-
               SUBMIT_URL,
-
               {
-
-                method:
-                  "POST",
-
+                method: "POST",
 
                 headers: {
-
                   apikey:
                     SUPABASE_KEY
-
                 },
-
 
                 body:
                   formData
-
               }
-
             );
 
 
           let data;
 
-
           try {
-
 
             data =
               await response.json();
 
-
           } catch {
 
-
             throw new Error(
-
               "The server returned an invalid response."
-
             );
-
           }
 
 
-          if (
-            !response.ok
-          ) {
-
+          if (!response.ok) {
 
             throw new Error(
-
               data.error ||
-
               data.message ||
-
               "Unable to submit the application."
-
             );
-
           }
 
 
           const applicationId =
-
             data.application_id ||
-
             "Application submitted";
 
 
@@ -989,27 +1146,23 @@ if (
 
           event.target.reset();
 
+          clearSignature();
 
-          if (
-            $("schoolBox")
-          ) {
+
+          if ($("schoolBox")) {
 
             $("schoolBox")
               .classList
               .add(
                 "hidden"
               );
-
           }
 
 
-          if (
-            $("school")
-          ) {
+          if ($("school")) {
 
             $("school").required =
               false;
-
           }
 
 
@@ -1018,58 +1171,56 @@ if (
 
           $("decision")
             .scrollIntoView({
-
               behavior:
                 "smooth"
-
             });
 
 
-        } catch (
-          error
-        ) {
-
+        } catch (error) {
 
           console.error(
-
             "Submission error:",
-
             error
-
           );
-
 
           alert(
-
             error.message ||
-
             "Unable to submit the application. Please try again."
-
           );
-
 
         } finally {
 
-
-          if (
-            button
-          ) {
+          if (button) {
 
             button.disabled =
               false;
 
-
             button.textContent =
               "Submit Application";
-
           }
-
         }
-
       }
-
     );
+}
 
+
+/* =========================================
+   START SIGNATURE PAD
+========================================= */
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeSignaturePad
+  );
+
+} else {
+
+  initializeSignaturePad();
 }
 /* =========================================
    TRACK APPLICATION
@@ -1078,22 +1229,15 @@ if (
 async function track() {
 
   const applicationId =
-    $("trackId")
-      .value
-      .trim();
-
+    $("trackId").value.trim();
 
   const result =
     $("trackResult");
 
-
-  if (
-    !applicationId
-  ) {
+  if (!applicationId) {
 
     result.className =
       "result";
-
 
     result.innerHTML = `
 
@@ -1108,15 +1252,12 @@ async function track() {
 
     `;
 
-
     return;
-
   }
 
 
   result.className =
     "result";
-
 
   result.innerHTML = `
 
@@ -1133,41 +1274,27 @@ async function track() {
 
   try {
 
-
     const response =
-
       await fetch(
-
         TRACK_URL,
-
         {
-
           method:
             "POST",
 
-
           headers: {
-
             "Content-Type":
               "application/json",
 
             apikey:
               SUPABASE_KEY
-
           },
 
-
           body:
-
             JSON.stringify({
-
               application_id:
                 applicationId
-
             })
-
         }
-
       );
 
 
@@ -1175,78 +1302,52 @@ async function track() {
       await response.json();
 
 
-    if (
-      !response.ok
-    ) {
-
+    if (!response.ok) {
 
       throw new Error(
-
         data.error ||
-
         "Unable to track application."
-
       );
-
     }
 
 
     const application =
-
       data.application ||
-
       data;
 
 
     const applicationStatus =
-
       application.status ||
-
       application.application_status ||
-
       "Pending Review";
 
 
     const loanStatus =
-
       application.loan_status ||
-
       "";
 
 
     const paymentStatus =
-
       application.payment_status ||
-
       "";
 
 
     const dueStatus =
-
       application.due_status ||
-
       application.delay_status ||
-
       "";
 
 
     const requestedAmount =
-
       Number(
-
         application.requested_amount
-
       );
 
 
     const totalPayment =
-
       Number(
-
         application.total_payment ||
-
         application.total_amount_to_pay
-
       );
 
 
@@ -1254,16 +1355,7 @@ async function track() {
       "";
 
 
-    /*
-      Only show loan/payment/due information
-      after the application has progressed
-      beyond the initial review stage.
-    */
-
-
-    if (
-      loanStatus
-    ) {
+    if (loanStatus) {
 
       statusDetails += `
 
@@ -1272,23 +1364,18 @@ async function track() {
           <b>Loan Status:</b><br>
 
           <strong>
-
             ${escapeHtml(
               loanStatus
             )}
-
           </strong>
 
         </p>
 
       `;
-
     }
 
 
-    if (
-      paymentStatus
-    ) {
+    if (paymentStatus) {
 
       statusDetails += `
 
@@ -1297,23 +1384,18 @@ async function track() {
           <b>Payment Status:</b><br>
 
           <strong>
-
             ${escapeHtml(
               paymentStatus
             )}
-
           </strong>
 
         </p>
 
       `;
-
     }
 
 
-    if (
-      dueStatus
-    ) {
+    if (dueStatus) {
 
       statusDetails += `
 
@@ -1322,17 +1404,14 @@ async function track() {
           <b>Due Status:</b><br>
 
           <strong>
-
             ${escapeHtml(
               dueStatus
             )}
-
           </strong>
 
         </p>
 
       `;
-
     }
 
 
@@ -1375,11 +1454,9 @@ async function track() {
           Number.isFinite(
             requestedAmount
           )
-
             ? formatMoney(
                 requestedAmount
               )
-
             : "—"
         }
 
@@ -1405,17 +1482,41 @@ async function track() {
 
       <p>
 
+        <b>Loan Start Date:</b><br>
+
+        ${escapeHtml(
+          formatDisplayDate(
+            application.loan_start_date
+          )
+        )}
+
+      </p>
+
+
+      <p>
+
+        <b>Loan End Date / Due Date:</b><br>
+
+        ${escapeHtml(
+          formatDisplayDate(
+            application.loan_end_date
+          )
+        )}
+
+      </p>
+
+
+      <p>
+
         <b>Total Payment:</b><br>
 
         ${
           Number.isFinite(
             totalPayment
           )
-
             ? formatMoney(
                 totalPayment
               )
-
             : "—"
         }
 
@@ -1427,11 +1528,9 @@ async function track() {
         <b>Application Status:</b><br>
 
         <strong>
-
           ${escapeHtml(
             applicationStatus
           )}
-
         </strong>
 
       </p>
@@ -1442,17 +1541,11 @@ async function track() {
     `;
 
 
-  } catch (
-    error
-  ) {
-
+  } catch (error) {
 
     console.error(
-
       "Tracking error:",
-
       error
-
     );
 
 
@@ -1463,21 +1556,14 @@ async function track() {
       </h3>
 
       <p>
-
         ${escapeHtml(
-
           error.message ||
-
           "Please try again."
-
         )}
-
       </p>
 
     `;
-
   }
-
 }
 
 
@@ -1488,49 +1574,36 @@ async function track() {
 async function login() {
 
   const email =
-
     $("adminEmail")
       .value
       .trim();
 
 
   const password =
-
     $("adminPassword")
       .value;
 
 
-  $("loginError")
-    .textContent =
-      "";
+  $("loginError").textContent =
+    "";
 
 
   const {
     error
   } =
-
     await sb.auth
       .signInWithPassword({
-
         email,
-
         password
-
       });
 
 
-  if (
-    error
-  ) {
+  if (error) {
 
-
-    $("loginError")
-      .textContent =
-        error.message;
-
+    $("loginError").textContent =
+      error.message;
 
     return;
-
   }
 
 
@@ -1549,7 +1622,6 @@ async function login() {
 
 
   render();
-
 }
 
 
@@ -1558,7 +1630,6 @@ async function login() {
 ========================================= */
 
 async function logout() {
-
 
   await sb.auth
     .signOut();
@@ -1576,7 +1647,6 @@ async function logout() {
     .remove(
       "hidden"
     );
-
 }
 
 
@@ -1586,15 +1656,521 @@ async function logout() {
 
 async function render() {
 
-
   $("list").innerHTML = `
 
     <tr>
-
-      <td colspan="6">
-
+      <td colspan="7">
         Loading applications...
+      </td>
+    </tr>
 
+  `;
+
+
+  const {
+    data,
+    error
+  } =
+    await sb
+      .from(
+        "applications"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:
+            false
+        }
+      );
+
+
+  if (error) {
+
+    $("list").innerHTML = `
+
+      <tr>
+        <td colspan="7">
+          ${escapeHtml(
+            error.message
+          )}
+        </td>
+      </tr>
+
+    `;
+
+    return;
+  }
+
+
+  updateDashboardCounts(
+    data || []
+  );
+
+
+  $("list").innerHTML =
+
+    (data || [])
+      .map(
+        application => `
+
+          <tr>
+
+            <td>
+              ${escapeHtml(
+                application.application_id
+              )}
+            </td>
+
+
+            <td>
+              ${escapeHtml(
+                application.full_name
+              )}
+            </td>
+
+
+            <td>
+              ${formatMoney(
+                application.requested_amount
+              )}
+            </td>
+
+
+            <td>
+
+              ${escapeHtml(
+                application.interest_rate
+              )}%
+
+              /
+
+              ${escapeHtml(
+                application.duration_days
+              )}
+
+              days
+
+            </td>
+
+
+            <td>
+
+              <select
+
+                onchange="setStatus(
+
+                  '${escapeJsString(
+                    application.id
+                  )}',
+
+                  this.value
+
+                )"
+
+              >
+
+                ${[
+
+                  "Pending Review",
+
+                  "Approved",
+
+                  "More Documents Required",
+
+                  "Declined"
+
+                ].map(
+                  status => `
+
+                    <option
+
+                      value="${escapeHtml(
+                        status
+                      )}"
+
+                      ${
+                        status ===
+                        application.status
+                          ? "selected"
+                          : ""
+                      }
+
+                    >
+
+                      ${escapeHtml(
+                        status
+                      )}
+
+                    </option>
+
+                  `
+                ).join("")}
+
+              </select>
+
+            </td>
+
+
+            <td>
+
+              <button
+
+                type="button"
+
+                onclick="viewDocs(
+
+                  '${escapeJsString(
+                    application.id
+                  )}'
+
+                )"
+
+              >
+
+                Borrower Record
+
+              </button>
+
+            </td>
+
+
+            <td>
+
+              ${
+                application.status ===
+                "Approved"
+
+                  ? `
+
+                    <button
+
+                      type="button"
+
+                      onclick="activateLoan(
+
+                        '${escapeJsString(
+                          application.id
+                        )}'
+
+                      )"
+
+                    >
+
+                      Activate Loan
+
+                    </button>
+
+                  `
+
+                  : "—"
+              }
+
+            </td>
+
+          </tr>
+
+        `
+      )
+      .join("") ||
+
+    `
+
+      <tr>
+
+        <td colspan="7">
+          No applications yet.
+        </td>
+
+      </tr>
+
+    `;
+}
+
+
+/* =========================================
+   DASHBOARD COUNTS
+========================================= */
+
+function updateDashboardCounts(
+  applications
+) {
+
+  const today =
+    formatDateForInput(
+      new Date()
+    );
+
+
+  const pending =
+    applications.filter(
+      application =>
+        application.status ===
+        "Pending Review"
+    ).length;
+
+
+  const active =
+    applications.filter(
+      application =>
+        application.loan_status ===
+        "Active"
+    ).length;
+
+
+  const dueToday =
+    applications.filter(
+      application =>
+        application.loan_status ===
+        "Active" &&
+        application.loan_end_date ===
+        today
+    ).length;
+
+
+  const delayed =
+    applications.filter(
+      application =>
+        application.due_status ===
+          "Delayed" ||
+        application.delay_status ===
+          "Delayed"
+    ).length;
+
+
+  const paid =
+    applications.filter(
+      application =>
+        application.payment_status ===
+        "Paid"
+    ).length;
+
+
+  if ($("pendingCount")) {
+    $("pendingCount").textContent =
+      pending;
+  }
+
+  if ($("activeCount")) {
+    $("activeCount").textContent =
+      active;
+  }
+
+  if ($("dueTodayCount")) {
+    $("dueTodayCount").textContent =
+      dueToday;
+  }
+
+  if ($("delayedCount")) {
+    $("delayedCount").textContent =
+      delayed;
+  }
+
+  if ($("paidCount")) {
+    $("paidCount").textContent =
+      paid;
+  }
+}
+
+
+/* =========================================
+   UPDATE APPLICATION STATUS
+========================================= */
+
+async function setStatus(
+  id,
+  status
+) {
+
+  const {
+    error
+  } =
+    await sb
+      .from(
+        "applications"
+      )
+      .update({
+        status:
+          status
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (error) {
+
+    alert(
+      error.message
+    );
+
+    return;
+  }
+
+
+  await render();
+}
+
+
+/* =========================================
+   ADMIN TAB SWITCHER
+========================================= */
+
+function showAdminTab(
+  panelId
+) {
+
+  const applicationsPanel =
+    $("applicationsPanel");
+
+  const clientsPanel =
+    $("clientsPanel");
+
+  const applicationsButton =
+    $("applicationsTabButton");
+
+  const clientsButton =
+    $("clientsTabButton");
+
+
+  if (
+    !applicationsPanel ||
+    !clientsPanel
+  ) {
+    return;
+  }
+
+
+  applicationsPanel
+    .classList
+    .toggle(
+      "hidden",
+      panelId !==
+      "applicationsPanel"
+    );
+
+
+  clientsPanel
+    .classList
+    .toggle(
+      "hidden",
+      panelId !==
+      "clientsPanel"
+    );
+
+
+  if (applicationsButton) {
+
+    applicationsButton
+      .classList
+      .toggle(
+        "active-admin-tab",
+        panelId ===
+        "applicationsPanel"
+      );
+  }
+
+
+  if (clientsButton) {
+
+    clientsButton
+      .classList
+      .toggle(
+        "active-admin-tab",
+        panelId ===
+        "clientsPanel"
+      );
+  }
+
+
+  if (
+    panelId ===
+    "clientsPanel"
+  ) {
+
+    renderClients();
+  }
+}
+
+
+/* =========================================
+   ACTIVATE APPROVED LOAN
+========================================= */
+
+async function activateLoan(id) {
+
+  const confirmed =
+    confirm(
+      "Activate this borrower's loan?"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await sb
+      .from(
+        "applications"
+      )
+      .update({
+        loan_status:
+          "Active",
+
+        payment_status:
+          "Unpaid"
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (error) {
+
+    alert(
+      error.message
+    );
+
+    return;
+  }
+
+
+  alert(
+    "Loan activated successfully."
+  );
+
+
+  await render();
+}
+
+
+/* =========================================
+   LOAD ACTIVE CLIENTS
+========================================= */
+
+async function renderClients() {
+
+  const clientList =
+    $("clientList");
+
+
+  if (!clientList) {
+    return;
+  }
+
+
+  clientList.innerHTML = `
+
+    <tr>
+
+      <td colspan="8">
+        Loading active clients...
       </td>
 
     </tr>
@@ -1606,291 +2182,226 @@ async function render() {
     data,
     error
   } =
-
     await sb
-
       .from(
         "applications"
       )
-
       .select("*")
-
+      .eq(
+        "loan_status",
+        "Active"
+      )
       .order(
-
-        "created_at",
-
+        "loan_end_date",
         {
-
           ascending:
-            false
-
+            true
         }
-
       );
 
 
-  if (
-    error
-  ) {
+  if (error) {
 
-
-    $("list").innerHTML = `
+    clientList.innerHTML = `
 
       <tr>
 
-        <td colspan="6">
-
+        <td colspan="8">
           ${escapeHtml(
             error.message
           )}
-
         </td>
 
       </tr>
 
     `;
 
-
     return;
-
   }
 
 
-  $("list").innerHTML =
+  clientList.innerHTML =
 
-    data.map(
+    (data || [])
+      .map(
+        application => {
 
-      application => `
+          const dueStatus =
+            getCalculatedDueStatus(
+              application
+            );
 
 
-        <tr>
+          return `
 
+            <tr>
 
-          <td>
+              <td>
 
-            ${escapeHtml(
-              application.application_id
-            )}
+                <b>
+                  ${escapeHtml(
+                    application.full_name
+                  )}
+                </b>
 
-          </td>
+                <br>
 
+                <small>
+                  ${escapeHtml(
+                    application.application_id
+                  )}
+                </small>
 
-          <td>
+              </td>
 
-            ${escapeHtml(
-              application.full_name
-            )}
 
-          </td>
+              <td>
 
+                ${formatMoney(
+                  application.requested_amount
+                )}
 
-          <td>
+              </td>
 
-            ${formatMoney(
-              application.requested_amount
-            )}
 
-          </td>
+              <td>
 
+                ${formatMoney(
+                  application.total_payment ||
+                  application.total_amount_to_pay
+                )}
 
-          <td>
+              </td>
 
-            ${escapeHtml(
-              application.interest_rate
-            )}%
 
-            /
+              <td>
 
-            ${escapeHtml(
-              application.duration_days
-            )}
+                ${escapeHtml(
+                  formatDisplayDate(
+                    application.loan_start_date
+                  )
+                )}
 
-            days
+              </td>
 
-          </td>
 
+              <td>
 
-          <td>
+                ${escapeHtml(
+                  formatDisplayDate(
+                    application.loan_end_date
+                  )
+                )}
 
+              </td>
 
-            <select
 
-              onchange="setStatus(
+              <td>
 
-                '${escapeJsString(
-                  application.id
-                )}',
+                ${escapeHtml(
+                  application.payment_status ||
+                  "Unpaid"
+                )}
 
-                this.value
+              </td>
 
-              )"
 
-            >
+              <td>
 
+                ${escapeHtml(
+                  dueStatus
+                )}
 
-              ${[
+              </td>
 
-                "Pending Review",
 
-                "Approved",
+              <td>
 
-                "More Documents Required",
+                <button
 
-                "Declined"
+                  type="button"
 
+                  onclick="viewDocs(
 
-              ].map(
+                    '${escapeJsString(
+                      application.id
+                    )}'
 
-                status => `
+                  )"
 
+                >
 
-                  <option
+                  View Record
 
-                    value="${escapeHtml(
-                      status
-                    )}"
+                </button>
 
-                    ${
+              </td>
 
-                      status ===
-                      application.status
+            </tr>
 
-                        ? "selected"
-
-                        : ""
-
-                    }
-
-                  >
-
-                    ${escapeHtml(
-                      status
-                    )}
-
-                  </option>
-
-
-                `
-
-              ).join("")}
-
-
-            </select>
-
-
-          </td>
-
-
-          <td>
-
-
-            <button
-
-              onclick="viewDocs(
-
-                '${escapeJsString(
-                  application.id
-                )}'
-
-              )"
-
-            >
-
-              Borrower Record
-
-            </button>
-
-
-          </td>
-
-
-        </tr>
-
-
-      `
-
-    ).join("") ||
-
+          `;
+        }
+      )
+      .join("") ||
 
     `
 
       <tr>
 
-        <td colspan="6">
-
-          No applications yet.
-
+        <td colspan="8">
+          No active clients found.
         </td>
 
       </tr>
 
     `;
-
 }
 
 
 /* =========================================
-   UPDATE APPLICATION STATUS
+   CALCULATE DUE STATUS
 ========================================= */
 
-async function setStatus(
-
-  id,
-
-  status
-
+function getCalculatedDueStatus(
+  application
 ) {
 
-
-  const {
-    error
-  } =
-
-    await sb
-
-      .from(
-        "applications"
-      )
-
-      .update({
-
-        status:
-          status
-
-      })
-
-      .eq(
-
-        "id",
-
-        id
-
-      );
-
-
   if (
-    error
+    application.payment_status ===
+    "Paid"
   ) {
-
-
-    alert(
-      error.message
-    );
-
-
-    return;
-
+    return "Paid";
   }
 
 
-  /*
-    Refresh the table after a successful
-    status update.
-  */
+  if (!application.loan_end_date) {
+    return "—";
+  }
 
 
-  await render();
+  const today =
+    formatDateForInput(
+      new Date()
+    );
 
+
+  if (
+    application.loan_end_date <
+    today
+  ) {
+    return "Delayed";
+  }
+
+
+  if (
+    application.loan_end_date ===
+    today
+  ) {
+    return "Due Today";
+  }
+
+
+  return "Not Yet Due";
 }
 
 
@@ -1900,17 +2411,12 @@ async function setStatus(
 
 async function viewDocs(id) {
 
-
   const docLinks =
     $("docLinks");
 
 
-  if (
-    !docLinks
-  ) {
-
+  if (!docLinks) {
     return;
-
   }
 
 
@@ -1936,113 +2442,70 @@ async function viewDocs(id) {
 
   try {
 
-
-    /*
-      Load the complete application record.
-
-      This includes all information submitted
-      by the borrower, loan information,
-      PDF details, and document storage paths.
-    */
-
-
     const {
-
       data:
         application,
 
       error
-
     } =
-
       await sb
-
         .from(
           "applications"
         )
-
         .select("*")
-
         .eq(
           "id",
           id
         )
-
         .single();
 
 
-    if (
-      error
-    ) {
-
+    if (error) {
       throw error;
-
     }
 
 
-    if (
-      !application
-    ) {
+    if (!application) {
 
       throw new Error(
         "Borrower record was not found."
       );
-
     }
-
-
-    /*
-      Generate temporary signed links for
-      private Supabase Storage files.
-    */
 
 
     const documentPaths = [
 
-
       {
-
         label:
           "Valid ID — Front",
 
         path:
           application.id_front_path
-
       },
 
-
       {
-
         label:
           "Valid ID — Back",
 
         path:
           application.id_back_path
-
       },
 
-
       {
-
         label:
           "Borrower Signature",
 
         path:
           application.signature_path
-
       },
 
-
       {
-
         label:
           "Verification Video",
 
         path:
           application.verification_video_path
-
       }
-
 
     ];
 
@@ -2056,323 +2519,196 @@ async function viewDocs(id) {
       of documentPaths
     ) {
 
-
-      if (
-        !document.path
-      ) {
-
+      if (!document.path) {
         continue;
-
       }
 
 
       const {
-
         data:
           signedData,
 
         error:
           signedError
-
       } =
-
         await sb.storage
-
           .from(
             "application-documents"
           )
-
           .createSignedUrl(
-
             document.path,
-
             300
-
           );
 
 
       if (
-
         !signedError &&
-
         signedData?.signedUrl
-
       ) {
 
-
         documentLinks.push({
-
           label:
             document.label,
 
           url:
             signedData.signedUrl
-
         });
-
       }
-
     }
 
 
-    /*
-      Prepare application values.
-    */
-
-
     const applicationStatus =
-
       application.status ||
-
       "Pending Review";
 
 
     const loanStatus =
-
       application.loan_status ||
-
       "—";
 
 
     const paymentStatus =
-
       application.payment_status ||
-
       "—";
 
 
     const dueStatus =
-
       application.due_status ||
-
       application.delay_status ||
-
-      "—";
+      getCalculatedDueStatus(
+        application
+      );
 
 
     const pdfLink =
-
       application.pdf_drive_link ||
-
       "";
-
-
-    /*
-      Build private documents section.
-    */
 
 
     const privateDocumentsHtml =
 
       documentLinks.length
 
-        ?
+        ? documentLinks
+            .map(
+              document => `
 
-          documentLinks.map(
+                <div class="borrower-document-item">
 
-            document => `
+                  <span>
+                    ${escapeHtml(
+                      document.label
+                    )}
+                  </span>
 
+                  <a
+                    href="${escapeHtml(
+                      document.url
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="record-link-button"
+                  >
+                    Open
+                  </a>
 
-              <div class="borrower-document-item">
+                </div>
 
+              `
+            )
+            .join("")
 
-                <span>
-
-                  ${escapeHtml(
-                    document.label
-                  )}
-
-                </span>
-
-
-                <a
-
-                  href="${escapeHtml(
-                    document.url
-                  )}"
-
-                  target="_blank"
-
-                  rel="noopener noreferrer"
-
-                  class="record-link-button"
-
-                >
-
-                  Open
-
-                </a>
-
-
-              </div>
-
-
-            `
-
-          ).join("")
-
-
-        :
-
-          `
+        : `
 
             <p>
-
               No private documents available.
-
             </p>
 
           `;
-
-
-    /*
-      PDF section with Open PDF and
-      Copy Link buttons.
-    */
 
 
     const pdfHtml =
 
       pdfLink
 
-        ?
-
-          `
-
+        ? `
 
             <div class="pdf-record-box">
 
-
               <div>
-
 
                 <b>
                   Generated Application PDF
                 </b>
 
-
                 <p class="record-small-text">
-
                   ${escapeHtml(
                     pdfLink
                   )}
-
                 </p>
 
-
               </div>
-
 
               <div class="record-action-buttons">
 
-
                 <a
-
                   href="${escapeHtml(
                     pdfLink
                   )}"
-
                   target="_blank"
-
                   rel="noopener noreferrer"
-
                   class="record-link-button"
-
                 >
-
                   Open PDF
-
                 </a>
 
-
                 <button
-
                   type="button"
-
                   class="record-copy-button"
-
                   onclick="copyPdfLink(
-
                     '${escapeJsString(
                       pdfLink
                     )}'
-
                   )"
-
                 >
-
                   📋 Copy Link
-
                 </button>
-
 
               </div>
 
-
             </div>
 
-
           `
 
-
-        :
-
-          `
-
+        : `
 
             <div class="notice">
-
 
               <b>
                 Generated Application PDF
               </b>
 
-
               <p>
-
                 No PDF link is saved yet.
-
               </p>
-
-
-              <p class="record-small-text">
-
-                New applications should save
-                the PDF link automatically
-                after the PDF is generated.
-
-              </p>
-
 
             </div>
-
 
           `;
 
 
-    /*
-      Render the complete Borrower Record.
-    */
-
-
     docLinks.innerHTML = `
-
 
       <div class="borrower-record">
 
 
         <div class="borrower-record-header">
 
-
           <div>
 
-
             <h2>
-
               Borrower Record
-
             </h2>
-
 
             <p>
 
@@ -2380,377 +2716,231 @@ async function viewDocs(id) {
               information for
 
               <b>
-
                 ${escapeHtml(
                   application.full_name ||
                   "Borrower"
                 )}
-
               </b>
 
             </p>
-
 
           </div>
 
 
           <button
-
             type="button"
-
             onclick="closeBorrowerRecord()"
-
           >
-
             Close
-
           </button>
-
 
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Application Information
-
           </h3>
-
 
           <div class="borrower-record-grid">
 
-
             ${recordField(
-
               "Application ID",
-
               application.application_id
-
             )}
 
-
             ${recordField(
-
               "Application Status",
-
               applicationStatus
-
             )}
 
-
             ${recordField(
-
               "Full Name",
-
               application.full_name
-
             )}
 
-
             ${recordField(
-
               "Email Address",
-
               application.email
-
             )}
 
-
             ${recordField(
-
               "Mobile Number",
-
               application.mobile_number
-
             )}
 
-
             ${recordField(
-
               "Date of Birth",
-
               formatDisplayDate(
                 application.date_of_birth
               )
-
             )}
 
-
             ${recordField(
-
               "Full Address",
-
               application.full_address,
-
               true
-
             )}
-
 
             ${recordField(
-
               "Barangay Captain",
-
               application.brgy_captain
-
             )}
-
 
           </div>
-
 
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Employment Information
-
           </h3>
-
 
           <div class="borrower-record-grid">
 
-
             ${recordField(
-
               "Employment",
-
               application.employment_type
-
             )}
 
-
             ${recordField(
-
               "Monthly Income",
-
               formatMoney(
                 application.monthly_income
               )
-
             )}
 
-
             ${recordLinkField(
-
               "School Facebook Page",
-
               application.school_facebook_url
-
             )}
 
-
           </div>
-
 
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Relative / Character References
-
           </h3>
-
 
           <div class="borrower-record-grid">
 
-
             ${recordLinkField(
-
               "Active Relative 1 Facebook",
-
               application.relative_fb_1
-
             )}
-
 
             ${recordLinkField(
-
               "Active Relative 2 Facebook",
-
               application.relative_fb_2
-
             )}
-
 
           </div>
-
 
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Loan Information
-
           </h3>
 
-
           <div class="borrower-record-grid">
-
 
             ${recordField(
-
               "Requested Amount",
-
               formatMoney(
                 application.requested_amount
               )
-
             )}
 
-
             ${recordField(
-
               "Loan Purpose",
-
               application.loan_purpose,
-
               true
-
             )}
 
-
             ${recordField(
-
               "Interest Rate",
-
               `${
-
                 application.interest_rate ||
-
                 0
-
               }%`
-
             )}
 
-
             ${recordField(
-
               "Loan Duration",
-
               `${
-
                 application.duration_days ||
-
                 0
-
               } days`
-
             )}
 
-
             ${recordField(
-
               "Loan Start Date",
-
               formatDisplayDate(
                 application.loan_start_date
               )
-
             )}
 
-
             ${recordField(
-
               "Loan End Date / Due Date",
-
               formatDisplayDate(
                 application.loan_end_date
               )
-
             )}
-
 
             ${recordField(
-
               "Total Amount to Pay",
-
               formatMoney(
-
                 application.total_payment ||
-
                 application.total_amount_to_pay
-
               )
-
             )}
 
-
           </div>
-
 
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Loan & Payment Status
-
           </h3>
-
 
           <div class="borrower-record-grid">
 
-
             ${recordField(
-
               "Loan Status",
-
               loanStatus
-
             )}
 
-
             ${recordField(
-
               "Payment Status",
-
               paymentStatus
-
             )}
 
-
             ${recordField(
-
               "Due Status",
-
               dueStatus
-
             )}
 
-
             ${recordField(
-
               "Payment Date",
-
               formatDisplayDate(
                 application.payment_date
               )
-
             )}
 
-
             ${recordField(
-
               "Amount Paid",
 
               application.amount_paid != null
@@ -2760,32 +2950,21 @@ async function viewDocs(id) {
                   )
 
                 : "—"
-
             )}
 
-
             ${recordField(
-
               "Payment Method",
-
               application.payment_method
-
             )}
 
-
             ${recordField(
-
               "Reference Number",
 
               application.payment_reference ||
-
               application.reference_number
-
             )}
 
-
             ${recordField(
-
               "Remaining Balance",
 
               application.remaining_balance != null
@@ -2795,121 +2974,80 @@ async function viewDocs(id) {
                   )
 
                 : "—"
-
             )}
 
-
           </div>
-
 
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Application PDF
-
           </h3>
-
 
           ${pdfHtml}
 
-
         </div>
 
 
         <div class="borrower-record-section">
 
-
           <h3>
-
             Uploaded Documents
-
           </h3>
 
-
           <p class="record-small-text">
-
             Private document links expire
             after 5 minutes.
-
           </p>
 
-
           <div class="borrower-documents-list">
-
-
             ${privateDocumentsHtml}
-
-
           </div>
-
 
         </div>
 
 
       </div>
 
-
     `;
 
 
     docLinks
       .scrollIntoView({
-
         behavior:
           "smooth",
 
         block:
           "start"
-
       });
 
 
-  } catch (
-    error
-  ) {
-
+  } catch (error) {
 
     console.error(
-
       "Borrower record error:",
-
       error
-
     );
 
 
     docLinks.innerHTML = `
 
-
       <h3>
-
         Unable to Load Borrower Record
-
       </h3>
 
-
       <p>
-
         ${escapeHtml(
-
           error.message ||
-
           "Please try again."
-
         )}
-
       </p>
 
-
     `;
-
   }
-
 }
 /* =========================================
    BORROWER RECORD FIELD HELPER
@@ -2962,7 +3100,6 @@ function recordField(
     </div>
 
   `;
-
 }
 
 
@@ -2985,20 +3122,16 @@ function recordLinkField(
       : "";
 
 
-  if (
-    !link
-  ) {
+  if (!link) {
 
     return recordField(
       label,
       "—"
     );
-
   }
 
 
   const safeLink =
-
     escapeHtml(
       link
     );
@@ -3007,7 +3140,6 @@ function recordLinkField(
   return `
 
     <div class="borrower-record-field">
-
 
       <span class="borrower-record-label">
 
@@ -3020,29 +3152,21 @@ function recordLinkField(
 
       <div class="borrower-record-value">
 
-
         <a
-
           href="${safeLink}"
-
           target="_blank"
-
           rel="noopener noreferrer"
-
         >
 
           ${safeLink}
 
         </a>
 
-
       </div>
-
 
     </div>
 
   `;
-
 }
 
 
@@ -3054,44 +3178,31 @@ async function copyPdfLink(
   link
 ) {
 
-
-  if (
-    !link
-  ) {
+  if (!link) {
 
     alert(
       "No PDF link is available."
     );
 
-
     return;
-
   }
 
 
   try {
 
-
     if (
-
       navigator.clipboard &&
-
       window.isSecureContext
-
     ) {
-
 
       await navigator.clipboard
         .writeText(
           link
         );
 
-
     } else {
 
-
       const textArea =
-
         document.createElement(
           "textarea"
         );
@@ -3121,7 +3232,6 @@ async function copyPdfLink(
 
       textArea.focus();
 
-
       textArea.select();
 
 
@@ -3131,7 +3241,6 @@ async function copyPdfLink(
 
 
       textArea.remove();
-
     }
 
 
@@ -3140,28 +3249,18 @@ async function copyPdfLink(
     );
 
 
-  } catch (
-    error
-  ) {
-
+  } catch (error) {
 
     console.error(
-
       "Copy link error:",
-
       error
-
     );
 
 
     alert(
-
       "Unable to copy the PDF link automatically. Please copy the displayed link manually."
-
     );
-
   }
-
 }
 
 
@@ -3171,17 +3270,12 @@ async function copyPdfLink(
 
 function closeBorrowerRecord() {
 
-
   const docLinks =
     $("docLinks");
 
 
-  if (
-    !docLinks
-  ) {
-
+  if (!docLinks) {
     return;
-
   }
 
 
@@ -3194,7 +3288,6 @@ function closeBorrowerRecord() {
 
   docLinks.innerHTML =
     "";
-
 }
 
 
@@ -3206,43 +3299,29 @@ function escapeJsString(
   value
 ) {
 
-
   return String(
     value ?? ""
   )
 
     .replace(
-
       /\\/g,
-
       "\\\\"
-
     )
 
     .replace(
-
       /'/g,
-
       "\\'"
-
     )
 
     .replace(
-
       /\r/g,
-
       "\\r"
-
     )
 
     .replace(
-
       /\n/g,
-
       "\\n"
-
     );
-
 }
 
 
@@ -3254,45 +3333,32 @@ function escapeHtml(
   value
 ) {
 
-
   return String(
-
     value ?? ""
-
   ).replace(
-
 
     /[&<>'"]/g,
 
-
     character => ({
-
 
       "&":
         "&amp;",
 
-
       "<":
         "&lt;",
-
 
       ">":
         "&gt;",
 
-
       "'":
         "&#39;",
-
 
       '"':
         "&quot;"
 
-
     }[character])
 
-
   );
-
 }
 
 
@@ -3307,32 +3373,22 @@ sb.auth
   .then(
 
     ({
-
       data
-
     }) => {
 
-
       if (
-
         data.session
-
       ) {
-
 
         if (
           $("login")
         ) {
 
-
           $("login")
-
             .classList
-
             .add(
               "hidden"
             );
-
         }
 
 
@@ -3340,24 +3396,17 @@ sb.auth
           $("dashboard")
         ) {
 
-
           $("dashboard")
-
             .classList
-
             .remove(
               "hidden"
             );
-
         }
 
 
         render();
-
       }
-
     }
-
   );
 
 
