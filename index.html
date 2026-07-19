@@ -19,9 +19,7 @@
   >
 </head>
 
-
 <body>
-
 
 <!-- =========================================
      HEADER
@@ -33,7 +31,6 @@
     GPP LENDING
   </b>
 
-
   <nav>
 
     <button
@@ -43,7 +40,6 @@
       Home
     </button>
 
-
     <button
       type="button"
       onclick="show('apply')"
@@ -51,14 +47,12 @@
       Apply
     </button>
 
-
     <button
       type="button"
       onclick="show('track')"
     >
       Track
     </button>
-
 
     <button
       type="button"
@@ -72,9 +66,7 @@
 </header>
 
 
-
 <main>
-
 
 <!-- =========================================
      HOME
@@ -91,11 +83,9 @@
       GPP Lending
     </h1>
 
-
     <p>
       Personal Loan Application
     </p>
-
 
     <button
       type="button"
@@ -105,26 +95,21 @@
       Apply Now
     </button>
 
-
     <h2>
       Terms & Rates
     </h2>
 
-
     <p>
       ₱100–₱500: 20% for 3 days
       <br>
-
       ₱501–₱1,000: 25% for 5 days
       <br>
-
       ₱1,001–₱2,000: 30% for 7 days
     </p>
 
   </div>
 
 </section>
-
 
 
 <!-- =========================================
@@ -138,7 +123,6 @@
 
   <div class="columns">
 
-
     <!-- APPLICATION FORM -->
 
     <div class="card">
@@ -147,20 +131,15 @@
         Loan Application
       </h1>
 
-
       <p>
         All fields and supporting documents are required.
       </p>
 
-
       <form id="form">
-
 
         <div class="grid">
 
-
           <label>
-
             Full Name
 
             <input
@@ -168,13 +147,9 @@
               type="text"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Email
 
             <input
@@ -182,13 +157,9 @@
               type="email"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Mobile Number
 
             <input
@@ -196,13 +167,9 @@
               type="text"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Date of Birth
 
             <input
@@ -210,13 +177,9 @@
               type="date"
               required
             >
-
           </label>
 
-
-
           <label class="full">
-
             Full Address
 
             <input
@@ -224,13 +187,9 @@
               type="text"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Brgy. Captain
 
             <input
@@ -238,20 +197,15 @@
               type="text"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Employment
 
             <select
               id="employment"
               required
             >
-
               <option value="">
                 Select
               </option>
@@ -271,15 +225,10 @@
               <option value="Unemployed">
                 Unemployed
               </option>
-
             </select>
-
           </label>
 
-
-
           <label>
-
             Monthly Income (PHP)
 
             <input
@@ -288,13 +237,9 @@
               min="0"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Active Relative 1 Facebook Link
 
             <input
@@ -303,13 +248,9 @@
               placeholder="https://www.facebook.com/"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Active Relative 2 Facebook Link
 
             <input
@@ -318,16 +259,12 @@
               placeholder="https://www.facebook.com/"
               required
             >
-
           </label>
-
-
 
           <label
             id="schoolBox"
             class="full hidden"
           >
-
             School Facebook Page Link
 
             <input
@@ -335,13 +272,9 @@
               type="url"
               placeholder="https://www.facebook.com/your.school.page"
             >
-
           </label>
 
-
-
           <label>
-
             Requested Amount (PHP)
 
             <input
@@ -351,13 +284,9 @@
               max="2000"
               required
             >
-
           </label>
 
-
-
           <label>
-
             Loan Purpose
 
             <input
@@ -365,9 +294,7 @@
               type="text"
               required
             >
-
           </label>
-
 
 
           <!-- =================================
@@ -380,17 +307,13 @@
               Loan Schedule Preview
             </h2>
 
-
             <p class="loan-preview-note">
               These dates are shown before you submit so you can review your expected loan schedule.
             </p>
 
-
             <div class="grid">
 
-
               <label>
-
                 Loan Start Date
 
                 <input
@@ -398,13 +321,9 @@
                   type="date"
                   readonly
                 >
-
               </label>
 
-
-
               <label>
-
                 Loan End Date / Due Date
 
                 <input
@@ -412,13 +331,9 @@
                   type="date"
                   readonly
                 >
-
               </label>
 
-
-
               <label class="full">
-
                 Total Amount to Pay
 
                 <input
@@ -426,17 +341,13 @@
                   type="text"
                   readonly
                 >
-
               </label>
-
 
             </div>
 
           </div>
 
-
         </div>
-
 
 
         <div
@@ -447,7 +358,6 @@
         </div>
 
 
-
         <!-- =================================
              SUPPORTING DOCUMENTS
         ================================== -->
@@ -456,10 +366,7 @@
           Required Supporting Documents
         </h2>
 
-
-
         <label>
-
           Valid ID — Front
 
           <input
@@ -468,13 +375,9 @@
             accept="image/*"
             required
           >
-
         </label>
 
-
-
         <label>
-
           Valid ID — Back
 
           <input
@@ -483,13 +386,11 @@
             accept="image/*"
             required
           >
-
         </label>
 
 
-
         <!-- =================================
-             BORROWER SIGNATURE
+             BORROWER SIGNATURE PAD
         ================================== -->
 
         <div class="signature-section">
@@ -498,11 +399,9 @@
             Borrower Signature
           </h2>
 
-
-          <p>
-            Please sign inside the box below using your finger, mouse, or touchscreen.
+          <p class="signature-help">
+            Please sign inside the box below using your finger, stylus, or mouse.
           </p>
-
 
           <div class="signature-canvas-wrapper">
 
@@ -510,13 +409,14 @@
               id="signatureCanvas"
             ></canvas>
 
-
-            <span class="signature-placeholder">
+            <span
+              id="signaturePlaceholder"
+              class="signature-placeholder"
+            >
               SIGN HERE
             </span>
 
           </div>
-
 
           <div class="signature-actions">
 
@@ -530,16 +430,12 @@
 
           </div>
 
-
-          <input
-            id="signature"
-            type="file"
-            accept="image/*"
-            class="hidden"
-          >
+          <p
+            id="signatureError"
+            class="signature-error"
+          ></p>
 
         </div>
-
 
 
         <!-- =================================
@@ -547,7 +443,6 @@
         ================================== -->
 
         <label>
-
           20-second Video While Holding Your Valid ID
 
           <input
@@ -556,9 +451,7 @@
             accept="video/*"
             required
           >
-
         </label>
-
 
 
         <!-- =================================
@@ -579,8 +472,6 @@
 
         </label>
 
-
-
         <button
           class="primary"
           type="submit"
@@ -588,15 +479,11 @@
           Submit Application
         </button>
 
-
       </form>
-
-
 
       <div id="decision"></div>
 
     </div>
-
 
 
     <!-- =====================================
@@ -605,95 +492,45 @@
 
     <aside class="card">
 
-
       <h2>
         Terms & Rates
       </h2>
 
-
       <table>
 
         <thead>
-
           <tr>
-
-            <th>
-              Amount
-            </th>
-
-            <th>
-              Rate
-            </th>
-
-            <th>
-              Duration
-            </th>
-
+            <th>Amount</th>
+            <th>Rate</th>
+            <th>Duration</th>
           </tr>
-
         </thead>
-
 
         <tbody>
 
           <tr>
-
-            <td>
-              ₱100–₱500
-            </td>
-
-            <td>
-              20%
-            </td>
-
-            <td>
-              3 days
-            </td>
-
+            <td>₱100–₱500</td>
+            <td>20%</td>
+            <td>3 days</td>
           </tr>
 
-
           <tr>
-
-            <td>
-              ₱501–₱1,000
-            </td>
-
-            <td>
-              25%
-            </td>
-
-            <td>
-              5 days
-            </td>
-
+            <td>₱501–₱1,000</td>
+            <td>25%</td>
+            <td>5 days</td>
           </tr>
 
-
           <tr>
-
-            <td>
-              ₱1,001–₱2,000
-            </td>
-
-            <td>
-              30%
-            </td>
-
-            <td>
-              7 days
-            </td>
-
+            <td>₱1,001–₱2,000</td>
+            <td>30%</td>
+            <td>7 days</td>
           </tr>
 
         </tbody>
 
       </table>
 
-
-
       <p>
-
         <b>
           Calculation:
         </b>
@@ -702,68 +539,53 @@
 
         Total Payment =
         Amount + (Amount × Rate)
-
       </p>
-
-
 
       <h2>
         Agreement Terms
       </h2>
 
-
       <p>
         • The Borrower agrees to repay the loan amount in full on or before the specified due date stated in this Agreement.
       </p>
-
 
       <p>
         • Any late payment shall result in a penalty of ₱50 per day until the loan is fully settled. Also, borrowers who have a record of delayed payments of 3 days or more with Good Payer Priority (GPP Lending) will no longer be allowed to borrow again.
       </p>
 
-
       <p>
         • The Borrower must present at least one (1) valid government-issued ID upon application.
       </p>
-
 
       <p>
         • The Borrower must be 18 years old and above to qualify for a loan.
       </p>
 
-
       <p>
         • Failure to pay the total loan amount by the due date will authorize the Lender to:
       </p>
-
 
       <p>
         i. Report the Borrower to his/her barangay of residence.
       </p>
 
-
       <p>
         ii. Contact the Borrower’s listed character references and guardian for collection purposes.
       </p>
-
 
       <p>
         iii. Publicly post the Borrower’s name and details as a delinquent debtor to warn others against non-payment.
       </p>
 
-
       <p>
         • By signing this Agreement, both the Borrower and the Lender confirm that they have fully read, understood, and agreed to all the terms and conditions outlined herein.
       </p>
 
-
     </aside>
-
 
   </div>
 
 </section>
-
 
 
 <!-- =========================================
@@ -777,17 +599,13 @@
 
   <div class="card track-card">
 
-
     <h1>
       Track Application
     </h1>
 
-
     <p>
       Enter your Application ID to check your latest application and loan status.
     </p>
-
-
 
     <div class="row">
 
@@ -797,7 +615,6 @@
         placeholder="Enter your Application ID"
         autocomplete="off"
       >
-
 
       <button
         type="button"
@@ -809,15 +626,11 @@
 
     </div>
 
-
-
     <div id="trackResult"></div>
-
 
   </div>
 
 </section>
-
 
 
 <!-- =========================================
@@ -829,33 +642,24 @@
   class="page"
 >
 
-
   <div class="card admin-card">
 
 
-    <!-- =====================================
-         ADMIN LOGIN
-    ====================================== -->
+    <!-- ADMIN LOGIN -->
 
     <div id="login">
-
 
       <h1>
         Admin Login
       </h1>
 
-
       <p>
         Use your authorized GPP Lending admin account.
       </p>
 
-
-
       <div class="grid">
 
-
         <label>
-
           Email
 
           <input
@@ -863,13 +667,9 @@
             type="email"
             autocomplete="username"
           >
-
         </label>
 
-
-
         <label>
-
           Password
 
           <input
@@ -877,20 +677,14 @@
             type="password"
             autocomplete="current-password"
           >
-
         </label>
 
-
       </div>
-
-
 
       <p
         id="loginError"
         class="error-message"
       ></p>
-
-
 
       <button
         type="button"
@@ -900,25 +694,17 @@
         Login
       </button>
 
-
     </div>
 
 
-
-    <!-- =====================================
-         ADMIN DASHBOARD
-    ====================================== -->
+    <!-- ADMIN DASHBOARD -->
 
     <div
       id="dashboard"
       class="hidden"
     >
 
-
-      <!-- DASHBOARD HEADER -->
-
       <div class="admin-topbar">
-
 
         <div>
 
@@ -926,14 +712,11 @@
             GPP Lending Admin
           </h1>
 
-
           <p>
             Manage applications, active loans, payments, and borrower records.
           </p>
 
         </div>
-
-
 
         <button
           type="button"
@@ -942,97 +725,44 @@
           Logout
         </button>
 
-
       </div>
 
 
-
-      <!-- =================================
-           DASHBOARD COUNTERS
-      ================================== -->
+      <!-- DASHBOARD COUNTERS -->
 
       <div class="dashboard-stats">
 
-
         <div class="stat-card">
-
-          <span>
-            Pending Review
-          </span>
-
-          <strong id="pendingCount">
-            0
-          </strong>
-
+          <span>Pending Review</span>
+          <strong id="pendingCount">0</strong>
         </div>
 
-
-
         <div class="stat-card">
-
-          <span>
-            Active Loans
-          </span>
-
-          <strong id="activeCount">
-            0
-          </strong>
-
+          <span>Active Loans</span>
+          <strong id="activeCount">0</strong>
         </div>
 
-
-
         <div class="stat-card">
-
-          <span>
-            Due Today
-          </span>
-
-          <strong id="dueTodayCount">
-            0
-          </strong>
-
+          <span>Due Today</span>
+          <strong id="dueTodayCount">0</strong>
         </div>
 
-
-
         <div class="stat-card">
-
-          <span>
-            Delayed
-          </span>
-
-          <strong id="delayedCount">
-            0
-          </strong>
-
+          <span>Delayed</span>
+          <strong id="delayedCount">0</strong>
         </div>
 
-
-
         <div class="stat-card">
-
-          <span>
-            Paid
-          </span>
-
-          <strong id="paidCount">
-            0
-          </strong>
-
+          <span>Paid</span>
+          <strong id="paidCount">0</strong>
         </div>
-
 
       </div>
 
 
-
-      <!-- =================================
-           ADMIN TABS
-      ================================== -->
+      <!-- ADMIN TABS -->
 
       <div class="admin-tabs">
-
 
         <button
           id="applicationsTabButton"
@@ -1043,8 +773,6 @@
           Applications
         </button>
 
-
-
         <button
           id="clientsTabButton"
           type="button"
@@ -1054,23 +782,17 @@
           Active Clients
         </button>
 
-
       </div>
 
 
-
-      <!-- =================================
-           APPLICATIONS PANEL
-      ================================== -->
+      <!-- APPLICATIONS PANEL -->
 
       <div
         id="applicationsPanel"
         class="admin-panel"
       >
 
-
         <div class="admin-section-heading">
-
 
           <div>
 
@@ -1078,13 +800,11 @@
               Loan Applications
             </h2>
 
-
             <p>
               Review new applications before activating a loan.
             </p>
 
           </div>
-
 
           <button
             type="button"
@@ -1093,92 +813,51 @@
             Refresh
           </button>
 
-
         </div>
-
-
 
         <div class="scroll">
 
-
           <table class="admin-table">
-
 
             <thead>
 
               <tr>
-
-                <th>
-                  Application ID
-                </th>
-
-                <th>
-                  Name
-                </th>
-
-                <th>
-                  Amount
-                </th>
-
-                <th>
-                  Terms
-                </th>
-
-                <th>
-                  Application Status
-                </th>
-
-                <th>
-                  Documents
-                </th>
-
-                <th>
-                  Action
-                </th>
-
+                <th>Application ID</th>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Terms</th>
+                <th>Application Status</th>
+                <th>Documents</th>
+                <th>Action</th>
               </tr>
 
             </thead>
 
-
-
             <tbody id="list">
 
-
               <tr>
-
                 <td colspan="7">
                   Loading applications...
                 </td>
-
               </tr>
-
 
             </tbody>
 
-
           </table>
 
-
         </div>
-
 
       </div>
 
 
-
-      <!-- =================================
-           ACTIVE CLIENTS PANEL
-      ================================== -->
+      <!-- ACTIVE CLIENTS PANEL -->
 
       <div
         id="clientsPanel"
         class="admin-panel hidden"
       >
 
-
         <div class="admin-section-heading">
-
 
           <div>
 
@@ -1186,13 +865,11 @@
               Active Clients
             </h2>
 
-
             <p>
               Manage active loans, due dates, delays, and payments.
             </p>
 
           </div>
-
 
           <button
             type="button"
@@ -1201,105 +878,58 @@
             Refresh
           </button>
 
-
         </div>
-
-
 
         <div class="scroll">
 
-
           <table class="admin-table">
-
 
             <thead>
 
               <tr>
-
-                <th>
-                  Client
-                </th>
-
-                <th>
-                  Loan Amount
-                </th>
-
-                <th>
-                  Total Due
-                </th>
-
-                <th>
-                  Start Date
-                </th>
-
-                <th>
-                  Due Date
-                </th>
-
-                <th>
-                  Payment
-                </th>
-
-                <th>
-                  Due Status
-                </th>
-
-                <th>
-                  Actions
-                </th>
-
+                <th>Client</th>
+                <th>Loan Amount</th>
+                <th>Total Due</th>
+                <th>Start Date</th>
+                <th>Due Date</th>
+                <th>Payment</th>
+                <th>Due Status</th>
+                <th>Actions</th>
               </tr>
 
             </thead>
 
-
-
             <tbody id="clientList">
 
-
               <tr>
-
                 <td colspan="8">
                   No active clients loaded.
                 </td>
-
               </tr>
-
 
             </tbody>
 
-
           </table>
 
-
         </div>
-
 
       </div>
 
 
-
-      <!-- =================================
-           BORROWER / DOCUMENT DETAILS
-      ================================== -->
+      <!-- BORROWER / DOCUMENT DETAILS -->
 
       <div
         id="docLinks"
         class="notice hidden"
       ></div>
 
-
     </div>
-
 
   </div>
 
-
 </section>
 
-
 </main>
-
 
 
 <!-- =========================================
@@ -1311,7 +941,6 @@
 </footer>
 
 
-
 <!-- =========================================
      SUPABASE
 ========================================= -->
@@ -1320,9 +949,7 @@
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
-
 <script src="app.js"></script>
-
 
 </body>
 
