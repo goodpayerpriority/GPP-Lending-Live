@@ -954,3 +954,109 @@ footer {
   }
 
 }
+
+/* =========================================
+   SIGNATURE PAD
+========================================= */
+
+.signature-section {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.signature-section h2 {
+  margin-bottom: 8px;
+}
+
+.signature-help {
+  margin-bottom: 12px;
+  color: #667085;
+}
+
+.signature-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 2px dashed #b7c5d8;
+  border-radius: 10px;
+}
+
+#signatureCanvas {
+  display: block;
+  width: 100%;
+  height: 180px;
+  cursor: crosshair;
+
+  /*
+    IMPORTANT:
+    This prevents the page from scrolling
+    while signing with a finger.
+  */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.signature-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: #a0aec0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.signature-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.secondary-button {
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: #eaf0f7;
+}
+
+.signature-error {
+  min-height: 20px;
+  margin-top: 8px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* =========================================
+   SIGNATURE PAD MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .signature-canvas-wrapper,
+  #signatureCanvas {
+    height: 160px;
+  }
+
+  .signature-actions {
+    justify-content: stretch;
+  }
+
+  .secondary-button {
+    width: 100%;
+  }
+
+}
