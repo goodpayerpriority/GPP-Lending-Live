@@ -9,7 +9,9 @@
     content="width=device-width, initial-scale=1"
   >
 
-  <title>GPP Lending</title>
+  <title>
+    GPP Lending
+  </title>
 
   <link
     rel="stylesheet"
@@ -27,7 +29,10 @@
 
 <header>
 
-  <b>GPP LENDING</b>
+  <b>
+    GPP LENDING
+  </b>
+
 
   <nav>
 
@@ -38,6 +43,7 @@
       Home
     </button>
 
+
     <button
       type="button"
       onclick="show('apply')"
@@ -45,12 +51,14 @@
       Apply
     </button>
 
+
     <button
       type="button"
       onclick="show('track')"
     >
       Track
     </button>
+
 
     <button
       type="button"
@@ -83,13 +91,15 @@
       GPP Lending
     </h1>
 
+
     <p>
       Personal Loan Application
     </p>
 
+
     <button
-      class="primary"
       type="button"
+      class="primary"
       onclick="show('apply')"
     >
       Apply Now
@@ -99,6 +109,7 @@
     <h2>
       Terms & Rates
     </h2>
+
 
     <p>
       ₱100–₱500: 20% for 3 days
@@ -136,6 +147,7 @@
         Loan Application
       </h1>
 
+
       <p>
         All fields and supporting documents are required.
       </p>
@@ -160,6 +172,7 @@
           </label>
 
 
+
           <label>
 
             Email
@@ -171,6 +184,7 @@
             >
 
           </label>
+
 
 
           <label>
@@ -186,6 +200,7 @@
           </label>
 
 
+
           <label>
 
             Date of Birth
@@ -197,6 +212,7 @@
             >
 
           </label>
+
 
 
           <label class="full">
@@ -212,6 +228,7 @@
           </label>
 
 
+
           <label>
 
             Brgy. Captain
@@ -223,6 +240,7 @@
             >
 
           </label>
+
 
 
           <label>
@@ -238,25 +256,26 @@
                 Select
               </option>
 
-              <option>
+              <option value="Employed">
                 Employed
               </option>
 
-              <option>
+              <option value="Self-employed">
                 Self-employed
               </option>
 
-              <option>
+              <option value="Student">
                 Student
               </option>
 
-              <option>
+              <option value="Unemployed">
                 Unemployed
               </option>
 
             </select>
 
           </label>
+
 
 
           <label>
@@ -273,6 +292,7 @@
           </label>
 
 
+
           <label>
 
             Active Relative 1 Facebook Link
@@ -287,6 +307,7 @@
           </label>
 
 
+
           <label>
 
             Active Relative 2 Facebook Link
@@ -299,6 +320,7 @@
             >
 
           </label>
+
 
 
           <label
@@ -317,6 +339,7 @@
           </label>
 
 
+
           <label>
 
             Requested Amount (PHP)
@@ -332,6 +355,7 @@
           </label>
 
 
+
           <label>
 
             Loan Purpose
@@ -345,46 +369,74 @@
           </label>
 
 
-          <label>
 
-            Loan Start Date
+          <!-- =================================
+               LOAN PREVIEW
+          ================================== -->
 
-            <input
-              id="loanStartDate"
-              type="date"
-              readonly
-            >
+          <div class="full loan-preview-box">
 
-          </label>
-
-
-          <label>
-
-            Loan End Date
-
-            <input
-              id="loanEndDate"
-              type="date"
-              readonly
-            >
-
-          </label>
+            <h2>
+              Loan Schedule Preview
+            </h2>
 
 
-          <label class="full">
+            <p class="loan-preview-note">
+              These dates are shown before you submit so you can review your expected loan schedule.
+            </p>
 
-            Total Amount to Pay
 
-            <input
-              id="totalAmount"
-              type="text"
-              readonly
-            >
+            <div class="grid">
 
-          </label>
+
+              <label>
+
+                Loan Start Date
+
+                <input
+                  id="loanStartDate"
+                  type="date"
+                  readonly
+                >
+
+              </label>
+
+
+
+              <label>
+
+                Loan End Date / Due Date
+
+                <input
+                  id="loanEndDate"
+                  type="date"
+                  readonly
+                >
+
+              </label>
+
+
+
+              <label class="full">
+
+                Total Amount to Pay
+
+                <input
+                  id="totalAmount"
+                  type="text"
+                  readonly
+                >
+
+              </label>
+
+
+            </div>
+
+          </div>
 
 
         </div>
+
 
 
         <div
@@ -396,11 +448,14 @@
 
 
 
-        <!-- DOCUMENTS -->
+        <!-- =================================
+             SUPPORTING DOCUMENTS
+        ================================== -->
 
         <h2>
           Required Supporting Documents
         </h2>
+
 
 
         <label>
@@ -415,6 +470,7 @@
           >
 
         </label>
+
 
 
         <label>
@@ -432,7 +488,9 @@
 
 
 
-        <!-- SIGNATURE PAD -->
+        <!-- =================================
+             BORROWER SIGNATURE
+        ================================== -->
 
         <div class="signature-section">
 
@@ -440,17 +498,18 @@
             Borrower Signature
           </h2>
 
+
           <p>
-            Please sign inside the box below using your finger,
-            mouse, or touchscreen.
+            Please sign inside the box below using your finger, mouse, or touchscreen.
           </p>
 
 
-          <div class="signature-canvas-wrap">
+          <div class="signature-canvas-wrapper">
 
             <canvas
-              id="signaturePad"
+              id="signatureCanvas"
             ></canvas>
+
 
             <span class="signature-placeholder">
               SIGN HERE
@@ -462,8 +521,9 @@
           <div class="signature-actions">
 
             <button
-              id="clearSignature"
               type="button"
+              class="secondary-button"
+              onclick="clearSignature()"
             >
               Clear Signature
             </button>
@@ -474,7 +534,7 @@
           <input
             id="signature"
             type="file"
-            accept="image/png"
+            accept="image/*"
             class="hidden"
           >
 
@@ -482,7 +542,9 @@
 
 
 
-        <!-- VIDEO -->
+        <!-- =================================
+             VIDEO
+        ================================== -->
 
         <label>
 
@@ -499,16 +561,21 @@
 
 
 
-        <!-- AGREEMENT -->
+        <!-- =================================
+             AGREEMENT
+        ================================== -->
 
         <label class="check">
 
           <input
+            id="agreementCheckbox"
             type="checkbox"
             required
           >
 
-          I confirm the information is accurate and agree to the loan terms.
+          <span>
+            I confirm the information is accurate and agree to the loan terms.
+          </span>
 
         </label>
 
@@ -525,16 +592,16 @@
       </form>
 
 
-      <div id="decision"></div>
 
+      <div id="decision"></div>
 
     </div>
 
 
 
-    <!-- =========================================
-         TERMS SIDE PANEL
-    ========================================= -->
+    <!-- =====================================
+         TERMS SIDEBAR
+    ====================================== -->
 
     <aside class="card">
 
@@ -624,6 +691,7 @@
       </table>
 
 
+
       <p>
 
         <b>
@@ -632,7 +700,8 @@
 
         <br>
 
-        Total Payment = Amount + (Amount × Rate)
+        Total Payment =
+        Amount + (Amount × Rate)
 
       </p>
 
@@ -714,25 +783,32 @@
     </h1>
 
 
+    <p>
+      Enter your Application ID to check your latest application and loan status.
+    </p>
+
+
+
     <div class="row">
 
       <input
         id="trackId"
         type="text"
-        placeholder="Application ID"
+        placeholder="Enter your Application ID"
         autocomplete="off"
       >
 
 
       <button
-        class="primary"
         type="button"
+        class="primary"
         onclick="track()"
       >
         Check Status
       </button>
 
     </div>
+
 
 
     <div id="trackResult"></div>
@@ -754,210 +830,74 @@
 >
 
 
-  <!-- ADMIN LOGIN -->
-
-  <div
-    id="login"
-    class="card admin-login-card"
-  >
-
-    <h1>
-      Admin Login
-    </h1>
+  <div class="card admin-card">
 
 
-    <p>
-      Use your authorized GPP Lending admin account.
-    </p>
+    <!-- =====================================
+         ADMIN LOGIN
+    ====================================== -->
+
+    <div id="login">
 
 
-    <div class="grid">
+      <h1>
+        Admin Login
+      </h1>
 
 
-      <label>
-
-        Email
-
-        <input
-          id="adminEmail"
-          type="email"
-        >
-
-      </label>
-
-
-      <label>
-
-        Password
-
-        <input
-          id="adminPassword"
-          type="password"
-        >
-
-      </label>
-
-
-    </div>
-
-
-    <p
-      id="loginError"
-      class="error-text"
-    ></p>
-
-
-    <button
-      class="primary"
-      type="button"
-      onclick="login()"
-    >
-      Login
-    </button>
-
-
-  </div>
+      <p>
+        Use your authorized GPP Lending admin account.
+      </p>
 
 
 
-  <!-- =========================================
-       ADMIN DASHBOARD
-  ========================================= -->
-
-  <div
-    id="dashboard"
-    class="hidden"
-  >
+      <div class="grid">
 
 
-    <!-- DASHBOARD HEADER -->
+        <label>
 
-    <div class="admin-topbar">
+          Email
 
-      <div>
+          <input
+            id="adminEmail"
+            type="email"
+            autocomplete="username"
+          >
 
-        <h1>
-          GPP Lending Admin
-        </h1>
+        </label>
 
-        <p>
-          Manage applications, active clients, and payments.
-        </p>
+
+
+        <label>
+
+          Password
+
+          <input
+            id="adminPassword"
+            type="password"
+            autocomplete="current-password"
+          >
+
+        </label>
+
 
       </div>
+
+
+
+      <p
+        id="loginError"
+        class="error-message"
+      ></p>
+
 
 
       <button
         type="button"
-        onclick="logout()"
+        class="primary"
+        onclick="login()"
       >
-        Logout
-      </button>
-
-    </div>
-
-
-
-    <!-- =========================================
-         DASHBOARD COUNTERS
-    ========================================= -->
-
-    <div class="dashboard-stats">
-
-
-      <div class="stat-card">
-
-        <span>
-          Pending
-        </span>
-
-        <strong id="pendingCount">
-          0
-        </strong>
-
-      </div>
-
-
-      <div class="stat-card">
-
-        <span>
-          Active
-        </span>
-
-        <strong id="activeCount">
-          0
-        </strong>
-
-      </div>
-
-
-      <div class="stat-card">
-
-        <span>
-          Due Today
-        </span>
-
-        <strong id="dueTodayCount">
-          0
-        </strong>
-
-      </div>
-
-
-      <div class="stat-card delayed-stat">
-
-        <span>
-          Delayed
-        </span>
-
-        <strong id="delayedCount">
-          0
-        </strong>
-
-      </div>
-
-
-      <div class="stat-card paid-stat">
-
-        <span>
-          Paid
-        </span>
-
-        <strong id="paidCount">
-          0
-        </strong>
-
-      </div>
-
-
-    </div>
-
-
-
-    <!-- =========================================
-         ADMIN TABS
-    ========================================= -->
-
-    <div class="admin-tabs">
-
-
-      <button
-        id="applicationsTabButton"
-        class="admin-tab active-tab"
-        type="button"
-        onclick="showAdminTab('applicationsPanel')"
-      >
-        Applications
-      </button>
-
-
-      <button
-        id="clientsTabButton"
-        class="admin-tab"
-        type="button"
-        onclick="showAdminTab('clientsPanel')"
-      >
-        Clients
+        Login
       </button>
 
 
@@ -965,20 +905,172 @@
 
 
 
-    <!-- =========================================
-         APPLICATIONS PANEL
-    ========================================= -->
+    <!-- =====================================
+         ADMIN DASHBOARD
+    ====================================== -->
 
     <div
-      id="applicationsPanel"
-      class="admin-panel"
+      id="dashboard"
+      class="hidden"
     >
 
 
-      <div class="card">
+      <!-- DASHBOARD HEADER -->
+
+      <div class="admin-topbar">
 
 
-        <div class="panel-heading">
+        <div>
+
+          <h1>
+            GPP Lending Admin
+          </h1>
+
+
+          <p>
+            Manage applications, active loans, payments, and borrower records.
+          </p>
+
+        </div>
+
+
+
+        <button
+          type="button"
+          onclick="logout()"
+        >
+          Logout
+        </button>
+
+
+      </div>
+
+
+
+      <!-- =================================
+           DASHBOARD COUNTERS
+      ================================== -->
+
+      <div class="dashboard-stats">
+
+
+        <div class="stat-card">
+
+          <span>
+            Pending Review
+          </span>
+
+          <strong id="pendingCount">
+            0
+          </strong>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+          <span>
+            Active Loans
+          </span>
+
+          <strong id="activeCount">
+            0
+          </strong>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+          <span>
+            Due Today
+          </span>
+
+          <strong id="dueTodayCount">
+            0
+          </strong>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+          <span>
+            Delayed
+          </span>
+
+          <strong id="delayedCount">
+            0
+          </strong>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+          <span>
+            Paid
+          </span>
+
+          <strong id="paidCount">
+            0
+          </strong>
+
+        </div>
+
+
+      </div>
+
+
+
+      <!-- =================================
+           ADMIN TABS
+      ================================== -->
+
+      <div class="admin-tabs">
+
+
+        <button
+          id="applicationsTabButton"
+          type="button"
+          class="admin-tab active-admin-tab"
+          onclick="showAdminTab('applicationsPanel')"
+        >
+          Applications
+        </button>
+
+
+
+        <button
+          id="clientsTabButton"
+          type="button"
+          class="admin-tab"
+          onclick="showAdminTab('clientsPanel')"
+        >
+          Active Clients
+        </button>
+
+
+      </div>
+
+
+
+      <!-- =================================
+           APPLICATIONS PANEL
+      ================================== -->
+
+      <div
+        id="applicationsPanel"
+        class="admin-panel"
+      >
+
+
+        <div class="admin-section-heading">
+
 
           <div>
 
@@ -986,8 +1078,9 @@
               Loan Applications
             </h2>
 
+
             <p>
-              Review pending, approved, declined, and incomplete applications.
+              Review new applications before activating a loan.
             </p>
 
           </div>
@@ -999,6 +1092,7 @@
           >
             Refresh
           </button>
+
 
         </div>
 
@@ -1035,7 +1129,11 @@
                 </th>
 
                 <th>
-                  Actions
+                  Documents
+                </th>
+
+                <th>
+                  Action
                 </th>
 
               </tr>
@@ -1043,15 +1141,18 @@
             </thead>
 
 
+
             <tbody id="list">
+
 
               <tr>
 
-                <td colspan="6">
+                <td colspan="7">
                   Loading applications...
                 </td>
 
               </tr>
+
 
             </tbody>
 
@@ -1065,33 +1166,29 @@
       </div>
 
 
-    </div>
+
+      <!-- =================================
+           ACTIVE CLIENTS PANEL
+      ================================== -->
+
+      <div
+        id="clientsPanel"
+        class="admin-panel hidden"
+      >
 
 
+        <div class="admin-section-heading">
 
-    <!-- =========================================
-         CLIENTS PANEL
-    ========================================= -->
-
-    <div
-      id="clientsPanel"
-      class="admin-panel hidden"
-    >
-
-
-      <div class="card">
-
-
-        <div class="panel-heading">
 
           <div>
 
             <h2>
-              Clients
+              Active Clients
             </h2>
 
+
             <p>
-              Active and completed borrower loan records.
+              Manage active loans, due dates, delays, and payments.
             </p>
 
           </div>
@@ -1099,10 +1196,11 @@
 
           <button
             type="button"
-            onclick="render()"
+            onclick="renderClients()"
           >
             Refresh
           </button>
+
 
         </div>
 
@@ -1123,15 +1221,19 @@
                 </th>
 
                 <th>
-                  Loan
+                  Loan Amount
+                </th>
+
+                <th>
+                  Total Due
+                </th>
+
+                <th>
+                  Start Date
                 </th>
 
                 <th>
                   Due Date
-                </th>
-
-                <th>
-                  Loan Status
                 </th>
 
                 <th>
@@ -1151,15 +1253,18 @@
             </thead>
 
 
+
             <tbody id="clientList">
+
 
               <tr>
 
-                <td colspan="7">
-                  No active clients yet.
+                <td colspan="8">
+                  No active clients loaded.
                 </td>
 
               </tr>
+
 
             </tbody>
 
@@ -1173,203 +1278,15 @@
       </div>
 
 
-    </div>
 
-
-
-    <!-- =========================================
-         CLIENT / APPLICATION DETAILS
-    ========================================= -->
-
-    <div
-      id="recordDetails"
-      class="card hidden record-details"
-    >
-
-
-      <div class="panel-heading">
-
-        <div>
-
-          <h2>
-            Borrower Record
-          </h2>
-
-          <p>
-            Complete application and loan information.
-          </p>
-
-        </div>
-
-
-        <button
-          type="button"
-          onclick="closeRecordDetails()"
-        >
-          Close
-        </button>
-
-      </div>
-
-
-      <div id="recordDetailsContent"></div>
-
-
-    </div>
-
-
-
-    <!-- =========================================
-         DOCUMENT LINKS
-    ========================================= -->
-
-    <div
-      id="docLinks"
-      class="card hidden"
-    ></div>
-
-
-
-    <!-- =========================================
-         PAYMENT MODAL / PANEL
-    ========================================= -->
-
-    <div
-      id="paymentPanel"
-      class="card hidden payment-panel"
-    >
-
-
-      <div class="panel-heading">
-
-        <div>
-
-          <h2>
-            Record Payment
-          </h2>
-
-          <p id="paymentClientName">
-            Add borrower payment information.
-          </p>
-
-        </div>
-
-
-        <button
-          type="button"
-          onclick="closePaymentPanel()"
-        >
-          Close
-        </button>
-
-      </div>
-
-
-      <input
-        id="paymentApplicationId"
-        type="hidden"
-      >
-
-
-      <div class="grid">
-
-
-        <label>
-
-          Amount Paid
-
-          <input
-            id="paymentAmount"
-            type="number"
-            min="0"
-            step="0.01"
-          >
-
-        </label>
-
-
-        <label>
-
-          Payment Date
-
-          <input
-            id="paymentDate"
-            type="date"
-          >
-
-        </label>
-
-
-        <label>
-
-          Payment Method
-
-          <select id="paymentMethod">
-
-            <option value="">
-              Select payment method
-            </option>
-
-            <option>
-              GCash
-            </option>
-
-            <option>
-              Maya
-            </option>
-
-            <option>
-              Bank Transfer
-            </option>
-
-            <option>
-              Cash
-            </option>
-
-            <option>
-              Other
-            </option>
-
-          </select>
-
-        </label>
-
-
-        <label>
-
-          Reference Number
-
-          <input
-            id="paymentReference"
-            type="text"
-          >
-
-        </label>
-
-
-        <label class="full">
-
-          Proof of Payment
-
-          <input
-            id="paymentProof"
-            type="file"
-            accept="image/*"
-          >
-
-        </label>
-
-
-      </div>
-
-
-      <button
-        class="primary"
-        type="button"
-        onclick="savePayment()"
-      >
-        Save Payment
-      </button>
+      <!-- =================================
+           BORROWER / DOCUMENT DETAILS
+      ================================== -->
+
+      <div
+        id="docLinks"
+        class="notice hidden"
+      ></div>
 
 
     </div>
@@ -1381,7 +1298,6 @@
 </section>
 
 
-
 </main>
 
 
@@ -1391,9 +1307,7 @@
 ========================================= -->
 
 <footer>
-
   GPP Lending
-
 </footer>
 
 
@@ -1407,9 +1321,7 @@
 ></script>
 
 
-<script
-  src="app.js"
-></script>
+<script src="app.js"></script>
 
 
 </body>
