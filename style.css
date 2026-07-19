@@ -1,5 +1,5 @@
 /* =========================================
-   GPP LENDING - COMPLETE STYLE
+   GLOBAL
 ========================================= */
 
 * {
@@ -18,6 +18,12 @@ body {
   line-height: 1.5;
 }
 
+button,
+input,
+select {
+  font-family: inherit;
+}
+
 
 /* =========================================
    HEADER
@@ -31,7 +37,6 @@ header {
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 4px 18px rgba(6, 61, 145, 0.2);
 }
 
 header b {
@@ -39,41 +44,43 @@ header b {
   white-space: nowrap;
 }
 
-nav {
+header nav {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   flex-wrap: wrap;
 }
+
+header button {
+  background: transparent;
+  color: white;
+  border: 0;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+header button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
 
 button {
   padding: 11px 16px;
   border: 0;
   border-radius: 8px;
   font-weight: bold;
-  font-size: 14px;
   cursor: pointer;
-  transition: 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-1px);
-  opacity: 0.92;
 }
 
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-}
-
-header button {
-  background: transparent;
-  color: white;
-}
-
-header button:hover {
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .primary {
@@ -83,6 +90,16 @@ header button:hover {
 
 .primary:hover {
   background: #064eb9;
+}
+
+.secondary-button {
+  background: #eaf3ff;
+  color: #075bd8;
+  border: 1px solid #b8d2f7;
+}
+
+.secondary-button:hover {
+  background: #dcecff;
 }
 
 
@@ -102,6 +119,10 @@ header button:hover {
   display: block;
 }
 
+.hidden {
+  display: none !important;
+}
+
 
 /* =========================================
    CARDS
@@ -110,9 +131,8 @@ header button:hover {
 .card {
   background: white;
   padding: 28px;
-  border-radius: 16px;
-  box-shadow:
-    0 5px 25px rgba(16, 33, 61, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 5px 25px rgba(16, 33, 61, 0.12);
 }
 
 .center {
@@ -122,12 +142,6 @@ header button:hover {
   line-height: 2;
 }
 
-.center h1 {
-  color: #063d91;
-  font-size: 38px;
-  margin-bottom: 5px;
-}
-
 
 /* =========================================
    APPLICATION LAYOUT
@@ -135,7 +149,7 @@ header button:hover {
 
 .columns {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
   gap: 22px;
   align-items: start;
 }
@@ -148,10 +162,6 @@ header button:hover {
 
 .full {
   grid-column: 1 / -1;
-}
-
-.hidden {
-  display: none !important;
 }
 
 
@@ -168,157 +178,144 @@ label {
 }
 
 input,
-select,
-textarea {
+select {
   width: 100%;
   padding: 12px;
   border: 1px solid #ccd6e5;
   border-radius: 8px;
-  font-size: 15px;
-  color: #10213d;
   background: white;
+  color: #10213d;
+  font-size: 15px;
   outline: none;
 }
 
 input:focus,
-select:focus,
-textarea:focus {
+select:focus {
   border-color: #075bd8;
-  box-shadow:
-    0 0 0 3px rgba(7, 91, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(7, 91, 216, 0.1);
 }
 
 input[readonly] {
   background: #f5f8fc;
+  color: #10213d;
+  cursor: default;
+}
+
+input[type="file"] {
+  padding: 10px;
 }
 
 .check {
   flex-direction: row;
   align-items: flex-start;
-  font-weight: normal;
   gap: 10px;
+  font-weight: normal;
 }
 
 .check input {
   width: auto;
   margin-top: 5px;
+  flex-shrink: 0;
 }
 
 
 /* =========================================
-   NOTICE / RESULT
+   LOAN PREVIEW
+========================================= */
+
+.loan-preview-box {
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid #c9ddfa;
+  border-radius: 12px;
+  background: #f5f9ff;
+}
+
+.loan-preview-box h2 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #06459f;
+}
+
+.loan-preview-note {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #667085;
+  font-size: 14px;
+}
+
+#loanStartDate,
+#loanEndDate {
+  font-weight: bold;
+  color: #063d91;
+}
+
+#totalAmount {
+  font-size: 22px;
+  font-weight: bold;
+  color: #d60000;
+  border: 2px solid #075bd8;
+  background: white;
+}
+
+
+/* =========================================
+   NOTICES AND RESULTS
 ========================================= */
 
 .notice,
 .result {
   padding: 18px;
   background: #eef6ff;
-  border: 1px solid #d5e7ff;
-  border-radius: 10px;
+  border-radius: 9px;
   margin: 18px 0;
+  border: 1px solid #d4e6ff;
 }
 
 .result h3 {
-  color: #063d91;
   margin-top: 0;
+  color: #063d91;
 }
 
-.error-text {
+.error-message {
   color: #c62828;
   font-weight: bold;
 }
 
 
 /* =========================================
-   TRACK
-========================================= */
-
-.track-card {
-  max-width: 850px;
-  margin: 50px auto;
-}
-
-.track-card h1 {
-  color: #10213d;
-  font-size: 34px;
-}
-
-.row {
-  display: flex;
-  gap: 10px;
-}
-
-.row input {
-  flex: 1;
-}
-
-
-/* =========================================
-   TABLES
-========================================= */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 12px;
-  border: 1px solid #dce3ed;
-  text-align: left;
-  vertical-align: middle;
-}
-
-th {
-  background: #eef5ff;
-  color: #063d91;
-  font-size: 13px;
-}
-
-td {
-  font-size: 14px;
-}
-
-.scroll {
-  overflow-x: auto;
-  margin-top: 20px;
-}
-
-
-/* =========================================
-   SIGNATURE SECTION
+   SIGNATURE PAD
 ========================================= */
 
 .signature-section {
-  margin: 35px 0;
+  margin: 28px 0;
   padding: 26px;
-  background: #f5f9ff;
-  border: 1px solid #d4e4fb;
+  background: #f7faff;
+  border: 1px solid #c9ddfa;
   border-radius: 14px;
 }
 
 .signature-section h2 {
-  color: #06499e;
   margin-top: 0;
+  color: #06459f;
 }
 
 .signature-section p {
   color: #667085;
 }
 
-.signature-canvas-wrap {
+.signature-canvas-wrapper {
   position: relative;
   width: 100%;
-  height: 235px;
+  height: 240px;
   background: white;
-  border: 2px dashed #0b66dc;
+  border: 2px dashed #075bd8;
   border-radius: 12px;
   overflow: hidden;
   touch-action: none;
 }
 
-#signaturePad {
+#signatureCanvas {
   position: relative;
   z-index: 2;
   display: block;
@@ -334,9 +331,9 @@ td {
   left: 50%;
   bottom: 14px;
   transform: translateX(-50%);
-  color: #a7b5ca;
+  color: #b6c4d9;
+  font-size: 14px;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: 1px;
   pointer-events: none;
 }
@@ -347,83 +344,114 @@ td {
   margin-top: 12px;
 }
 
-#clearSignature {
-  background: #eaf3ff;
-  color: #075bd8;
-  border: 1px solid #bcd7fb;
+
+/* =========================================
+   TRACK APPLICATION
+========================================= */
+
+.track-card {
+  max-width: 850px;
+  margin: 40px auto;
+}
+
+.track-card h1 {
+  font-size: 38px;
+  margin-top: 0;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.row input {
+  flex: 1;
+  min-width: 0;
+}
+
+#trackResult {
+  margin-top: 20px;
+}
+
+#trackResult .result {
+  background: #eef6ff;
+  padding: 24px;
 }
 
 
 /* =========================================
-   ADMIN LOGIN
+   TABLES
 ========================================= */
 
-.admin-login-card {
-  max-width: 700px;
-  margin: 70px auto;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.admin-login-card h1 {
-  color: #063d91;
+th,
+td {
+  padding: 11px;
+  border: 1px solid #dce3ed;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  background: #f4f7fb;
+  color: #10213d;
+  font-size: 14px;
+}
+
+td {
+  font-size: 14px;
+}
+
+.scroll {
+  overflow-x: auto;
+  margin-top: 20px;
 }
 
 
 /* =========================================
-   ADMIN TOP BAR
+   ADMIN
 ========================================= */
+
+.admin-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
 .admin-topbar {
-  background: linear-gradient(
-    135deg,
-    #063d91,
-    #075bd8
-  );
-  color: white;
-  padding: 25px 28px;
-  border-radius: 16px;
-  margin-bottom: 22px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 20px;
-  box-shadow:
-    0 8px 28px rgba(6, 61, 145, 0.18);
+  margin-bottom: 24px;
 }
 
 .admin-topbar h1 {
-  margin: 0 0 5px;
+  margin-top: 0;
+  margin-bottom: 5px;
 }
 
 .admin-topbar p {
-  margin: 0;
-  opacity: 0.85;
+  margin-top: 0;
+  color: #667085;
 }
-
-.admin-topbar button {
-  background: white;
-  color: #063d91;
-}
-
-
-/* =========================================
-   DASHBOARD COUNTERS
-========================================= */
 
 .dashboard-stats {
   display: grid;
-  grid-template-columns:
-    repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
-  margin-bottom: 22px;
+  margin: 25px 0;
 }
 
 .stat-card {
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-  border-top: 4px solid #075bd8;
-  box-shadow:
-    0 4px 18px rgba(16, 33, 61, 0.08);
+  background: #f5f9ff;
+  border: 1px solid #d5e5fa;
+  border-radius: 12px;
+  padding: 18px;
 }
 
 .stat-card span {
@@ -437,23 +465,7 @@ td {
 .stat-card strong {
   display: block;
   color: #063d91;
-  font-size: 30px;
-}
-
-.delayed-stat {
-  border-top-color: #dc2626;
-}
-
-.delayed-stat strong {
-  color: #dc2626;
-}
-
-.paid-stat {
-  border-top-color: #16803b;
-}
-
-.paid-stat strong {
-  color: #16803b;
+  font-size: 28px;
 }
 
 
@@ -464,50 +476,47 @@ td {
 .admin-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 18px;
+  margin: 25px 0 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dce3ed;
 }
 
 .admin-tab {
-  background: #e6eef9;
-  color: #334155;
-  padding: 13px 22px;
+  background: #eef2f7;
+  color: #344054;
 }
 
-.admin-tab.active-tab {
+.admin-tab:hover {
+  background: #dfe7f2;
+}
+
+.active-admin-tab {
   background: #075bd8;
   color: white;
 }
 
-
-/* =========================================
-   ADMIN PANELS
-========================================= */
-
-.admin-panel {
-  display: block;
+.active-admin-tab:hover {
+  background: #064eb9;
 }
 
-.panel-heading {
+.admin-panel {
+  margin-top: 20px;
+}
+
+.admin-section-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  margin-bottom: 15px;
 }
 
-.panel-heading h2 {
-  color: #063d91;
-  margin: 0 0 5px;
+.admin-section-heading h2 {
+  margin-bottom: 4px;
 }
 
-.panel-heading p {
+.admin-section-heading p {
+  margin-top: 0;
   color: #667085;
-  margin: 0;
-}
-
-.panel-heading button {
-  background: #eaf2ff;
-  color: #075bd8;
 }
 
 
@@ -516,29 +525,16 @@ td {
 ========================================= */
 
 .admin-table {
-  min-width: 900px;
-}
-
-.admin-table th {
-  background: #063d91;
-  color: white;
-  border-color: #174f9c;
-}
-
-.admin-table tbody tr:hover {
-  background: #f7faff;
+  min-width: 950px;
 }
 
 .admin-table select {
-  min-width: 180px;
-  padding: 9px;
+  min-width: 160px;
+  padding: 8px;
 }
 
 .admin-table button {
-  padding: 8px 11px;
-  margin: 2px;
-  background: #eaf2ff;
-  color: #075bd8;
+  white-space: nowrap;
 }
 
 
@@ -556,23 +552,18 @@ td {
 }
 
 .status-pending {
-  background: #fff7d6;
-  color: #8a6500;
-}
-
-.status-approved {
-  background: #e7f0ff;
-  color: #075bd8;
+  background: #fff4cc;
+  color: #7a5900;
 }
 
 .status-active {
-  background: #e6f2ff;
-  color: #06499e;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .status-paid {
-  background: #dcfce7;
-  color: #166534;
+  background: #dbeafe;
+  color: #1e40af;
 }
 
 .status-delayed {
@@ -580,65 +571,9 @@ td {
   color: #b91c1c;
 }
 
-.status-due {
-  background: #ffedd5;
-  color: #c2410c;
-}
-
-.status-not-delayed {
-  background: #e8f7ed;
-  color: #16803b;
-}
-
 .status-declined {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.status-documents {
-  background: #f3e8ff;
-  color: #7e22ce;
-}
-
-
-/* =========================================
-   BORROWER RECORD
-========================================= */
-
-.record-details {
-  margin-top: 22px;
-  border-top: 5px solid #075bd8;
-}
-
-#recordDetailsContent {
-  margin-top: 20px;
-}
-
-.record-grid {
-  display: grid;
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.record-item {
-  padding: 15px;
-  background: #f7faff;
-  border: 1px solid #e0e9f5;
-  border-radius: 10px;
-}
-
-.record-item span {
-  display: block;
-  color: #667085;
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.record-item strong {
-  color: #10213d;
-  overflow-wrap: anywhere;
+  background: #f2f4f7;
+  color: #475467;
 }
 
 
@@ -647,58 +582,19 @@ td {
 ========================================= */
 
 #docLinks {
-  margin-top: 22px;
-  border-top: 5px solid #075bd8;
-}
-
-#docLinks h3 {
-  color: #063d91;
+  margin-top: 25px;
 }
 
 #docLinks a {
   display: inline-block;
-  padding: 9px 13px;
-  margin: 5px 5px 5px 0;
-  background: #eaf2ff;
+  margin: 5px 0;
   color: #075bd8;
-  border-radius: 7px;
-  text-decoration: none;
   font-weight: bold;
+  text-decoration: none;
 }
 
 #docLinks a:hover {
-  background: #075bd8;
-  color: white;
-}
-
-
-/* =========================================
-   PAYMENT PANEL
-========================================= */
-
-.payment-panel {
-  margin-top: 22px;
-  border-top: 5px solid #16803b;
-}
-
-.payment-panel h2 {
-  color: #063d91;
-}
-
-
-/* =========================================
-   SPECIAL AMOUNT DISPLAY
-========================================= */
-
-.amount-due {
-  font-size: 20px;
-  font-weight: bold;
-  color: #dc2626;
-}
-
-.remaining-balance {
-  font-weight: bold;
-  color: #dc2626;
+  text-decoration: underline;
 }
 
 
@@ -708,7 +604,7 @@ td {
 
 footer {
   text-align: center;
-  padding: 30px;
+  padding: 35px 25px;
   color: #667085;
 }
 
@@ -717,17 +613,10 @@ footer {
    TABLET
 ========================================= */
 
-@media (
-  max-width: 1000px
-) {
+@media (max-width: 1000px) {
 
   .dashboard-stats {
-    grid-template-columns:
-      repeat(3, 1fr);
-  }
-
-  .columns {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
 }
@@ -737,47 +626,36 @@ footer {
    MOBILE
 ========================================= */
 
-@media (
-  max-width: 800px
-) {
+@media (max-width: 800px) {
 
   header {
     flex-direction: column;
-    align-items: center;
-    padding: 15px;
+    align-items: stretch;
+    gap: 12px;
   }
 
   header b {
-    font-size: 21px;
+    text-align: center;
   }
 
-  nav {
-    width: 100%;
+  header nav {
     justify-content: center;
   }
 
   header button {
-    padding: 9px 10px;
+    padding: 9px 11px;
   }
 
   .page {
-    margin: 18px auto;
-    padding: 0 12px;
+    margin-top: 20px;
+    padding: 0 10px;
   }
 
   .card {
     padding: 20px;
-    border-radius: 13px;
   }
 
-  .center {
-    margin: 35px auto;
-  }
-
-  .center h1 {
-    font-size: 31px;
-  }
-
+  .columns,
   .grid {
     grid-template-columns: 1fr;
   }
@@ -794,45 +672,34 @@ footer {
     width: 100%;
   }
 
+  .track-card h1 {
+    font-size: 30px;
+  }
+
   .signature-section {
-    padding: 16px;
+    padding: 18px;
   }
 
-  .signature-canvas-wrap {
-    height: 200px;
-  }
-
-  .admin-topbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .admin-topbar button {
-    width: 100%;
+  .signature-canvas-wrapper {
+    height: 210px;
   }
 
   .dashboard-stats {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-topbar,
+  .admin-section-heading {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .admin-tabs {
-    display: grid;
-    grid-template-columns:
-      1fr 1fr;
-  }
-
-  .panel-heading {
     flex-direction: column;
-    align-items: flex-start;
   }
 
-  .panel-heading button {
+  .admin-tab {
     width: 100%;
-  }
-
-  .record-grid {
-    grid-template-columns: 1fr;
   }
 
 }
@@ -842,34 +709,23 @@ footer {
    SMALL MOBILE
 ========================================= */
 
-@media (
-  max-width: 480px
-) {
+@media (max-width: 480px) {
+
+  header nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   .dashboard-stats {
     grid-template-columns: 1fr;
   }
 
-  .stat-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .signature-canvas-wrapper {
+    height: 180px;
   }
 
-  .stat-card span {
-    margin: 0;
-  }
-
-  .stat-card strong {
-    font-size: 25px;
-  }
-
-  .admin-tabs {
-    grid-template-columns: 1fr;
-  }
-
-  .track-card h1 {
-    font-size: 28px;
+  #totalAmount {
+    font-size: 19px;
   }
 
 }
