@@ -2318,22 +2318,26 @@ async function renderClients() {
               <td>
 
                 <button
-
                   type="button"
-
-                  onclick="viewDocs(
-
-                    '${escapeJsString(
-                      application.id
-                    )}'
-
-                  )"
-
+                  onclick="viewDocs('${escapeJsString(application.id)}')"
                 >
-
                   View Record
-
                 </button>
+
+                ${
+                  application.payment_status !== "Paid"
+                    ? `
+                      <button
+                        type="button"
+                        onclick="markAsPaid('${escapeJsString(application.id)}')"
+                      >
+                        Mark as Paid
+                      </button>
+                    `
+                    : `
+                      <span>Paid</span>
+                    `
+                }
 
               </td>
 
@@ -2355,6 +2359,152 @@ async function renderClients() {
       </tr>
 
     `;
+}
+
+
+/* =========================================
+   MARK LOAN AS PAID
+========================================= */
+
+async function markAsPaid(id) {
+
+  const confirmed =
+    confirm(
+      "Mark this loan as fully paid?"
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const {
+    data: application,
+    error: fetchError
+  } =
+    await sb
+      .from(
+        "applications"
+      )
+      .select("*")
+      .eq(
+        "id",
+        id
+      )
+      .single();
+
+
+  if (fetchError) {
+
+    alert(
+      fetchError.message
+    );
+
+    return;
+  }
+
+
+  const totalDue =
+    Number(
+      application.total_payment ||
+      application.total_amount_to_pay ||
+      0
+    );
+
+
+  const paymentMethod =
+    prompt(
+      "Payment method (example: GCash, Cash, Bank Transfer):",
+      application.payment_method || "GCash"
+    );
+
+  if (paymentMethod === null) {
+    return;
+  }
+
+
+  const paymentReference =
+    prompt(
+      "Payment reference number (optional):",
+      application.payment_reference ||
+      application.reference_number ||
+      ""
+    );
+
+  if (paymentReference === null) {
+    return;
+  }
+
+
+  const paymentDate =
+    formatDateForInput(
+      new Date()
+    );
+
+
+  const {
+    error: updateError
+  } =
+    await sb
+      .from(
+        "applications"
+      )
+      .update({
+
+        payment_status:
+          "Paid",
+
+        loan_status:
+          "Paid",
+
+        due_status:
+          "Paid",
+
+        payment_date:
+          paymentDate,
+
+        amount_paid:
+          totalDue,
+
+        payment_method:
+          paymentMethod.trim() || null,
+
+        payment_reference:
+          paymentReference.trim() || null,
+
+        remaining_balance:
+          0
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (updateError) {
+
+    console.error(
+      "Mark as paid error:",
+      updateError
+    );
+
+    alert(
+      updateError.message
+    );
+
+    return;
+  }
+
+
+  alert(
+    "Payment recorded successfully. The loan is now marked as Paid."
+  );
+
+
+  await render();
+
+  await renderClients();
 }
 
 
