@@ -2152,10 +2152,6 @@ async function activateLoan(id) {
   }
 
   try {
-    const {
-      data: { session }
-    } = await sb.auth.getSession();
-
     const response =
       await fetch(
         GENERATE_PDF_URL,
@@ -2165,7 +2161,7 @@ async function activateLoan(id) {
             "Content-Type": "application/json",
             apikey: SUPABASE_KEY,
             Authorization:
-              `Bearer ${session?.access_token || SUPABASE_KEY}`
+              `Bearer ${SUPABASE_KEY}`
           },
           body: JSON.stringify({
             application_id: application.application_id,
