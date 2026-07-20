@@ -1064,8 +1064,6 @@ if (!isReloan) {
 
           /* DOCUMENTS */
 
-          const isReloan =
-  new URLSearchParams(window.location.search).get("reloan") === "true";
 
 if (isReloan && window.reloanExistingDocuments) {
   formData.append(
