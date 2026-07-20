@@ -1278,6 +1278,18 @@ if (
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
 
+  const isReloan = params.get("reloan") === "true";
+
+if (isReloan) {
+  const idFrontInput = $("idFront");
+  const idBackInput = $("idBack");
+  const videoInput = $("video");
+
+  if (idFrontInput) idFrontInput.required = false;
+  if (idBackInput) idBackInput.required = false;
+  if (videoInput) videoInput.required = false;
+}
+  
   if (params.get("reloan") !== "true") {
     return;
   }
