@@ -3347,6 +3347,35 @@ async function viewDocs(id) {
     `;
   }
 }
+async function reloan(id) {
+  try {
+    const { data: application, error } = await supabase
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+
+    if (!application) {
+      alert("Borrower record not found.");
+      return;
+    }
+
+    // Save the selected borrower's existing data for the new re-loan
+    localStorage.setItem(
+      "reloanApplication",
+      JSON.stringify(application)
+    );
+
+    // Open the application form in re-loan mode
+    window.location.href = "application.html?reloan=true";
+  } catch (error) {
+    console.error("Re-loan error:", error);
+    alert("Unable to create re-loan. Please try again.");
+  }
+}
+
 /* =========================================
    BORROWER RECORD FIELD HELPER
 ========================================= */
