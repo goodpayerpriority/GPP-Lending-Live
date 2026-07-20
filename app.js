@@ -1250,6 +1250,48 @@ if (
   initializeSignaturePad();
 }
 /* =========================================
+   RE-LOAN AUTO-FILL
+========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("reloan") !== "true") {
+    return;
+  }
+
+  const savedApplication = localStorage.getItem("reloanApplication");
+
+  if (!savedApplication) {
+    return;
+  }
+
+  try {
+    const application = JSON.parse(savedApplication);
+
+    $("name").value = application.full_name || "";
+    $("email").value = application.email || "";
+    $("phone").value = application.mobile_number || "";
+    $("dob").value = application.date_of_birth || "";
+    $("address").value = application.full_address || "";
+    $("brgyCaptain").value = application.brgy_captain || "";
+    $("employment").value = application.employment_type || "";
+    $("income").value = application.monthly_income || "";
+    $("relativeFb1").value = application.relative_fb_1 || "";
+    $("relativeFb2").value = application.relative_fb_2 || "";
+    $("school").value = application.school_facebook_url || "";
+
+    show("apply");
+
+    if (typeof updateTerms === "function") {
+      updateTerms();
+    }
+  } catch (error) {
+    console.error("Unable to load re-loan data:", error);
+  }
+});
+
+/* =========================================
    TRACK APPLICATION
 ========================================= */
 
