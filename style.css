@@ -1394,3 +1394,11 @@ footer {
   font-size: 14px;
   line-height: 1.7;
 }
+
+/* SLIGHTLY BIGGER TOP NAVIGATION */
+
+header button {
+  padding: 13px 20px;
+  font-size: 16px;
+  border-radius: 9px;
+}
