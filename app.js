@@ -895,7 +895,9 @@ if ($("form")) {
 
         /* CHECK SIGNATURE */
 
-        if (!signatureHasDrawing) {
+const isReloan = new URLSearchParams(window.location.search).get("reloan") === "true";
+
+if (!isReloan && !signatureHasDrawing) {
 
           const signatureError =
             $("signatureError");
@@ -952,8 +954,11 @@ if ($("form")) {
             a real PNG file before submission.
           */
 
-          const signatureFile =
-            await getSignatureFile();
+let signatureFile = null;
+
+if (!isReloan) {
+  signatureFile = await getSignatureFile();
+}
 
 
           const formData =
@@ -1059,33 +1064,50 @@ if ($("form")) {
 
           /* DOCUMENTS */
 
-          formData.append(
-            "id_front",
-            $("idFront").files[0]
-          );
+          const isReloan =
+  new URLSearchParams(window.location.search).get("reloan") === "true";
 
-          formData.append(
-            "id_back",
-            $("idBack").files[0]
-          );
+if (isReloan && window.reloanExistingDocuments) {
+  formData.append(
+    "existing_id_front_path",
+    window.reloanExistingDocuments.id_front_path
+  );
 
+  formData.append(
+    "existing_id_back_path",
+    window.reloanExistingDocuments.id_back_path
+  );
 
-          /*
-            IMPORTANT:
-            The canvas signature is sent using
-            the same "signature" field expected
-            by your Supabase Edge Function.
-          */
+  formData.append(
+    "existing_signature_path",
+    window.reloanExistingDocuments.signature_path
+  );
 
-          formData.append(
-            "signature",
-            signatureFile
-          );
+  formData.append(
+    "existing_verification_video_path",
+    window.reloanExistingDocuments.verification_video_path
+  );
+} else {
+  formData.append(
+    "id_front",
+    $("idFront").files[0]
+  );
 
-          formData.append(
-            "verification_video",
-            $("video").files[0]
-          );
+  formData.append(
+    "id_back",
+    $("idBack").files[0]
+  );
+
+  formData.append(
+    "signature",
+    signatureFile
+  );
+
+  formData.append(
+    "verification_video",
+    $("video").files[0]
+  );
+}
 
 
           const response =
@@ -1281,6 +1303,13 @@ document.addEventListener("DOMContentLoaded", function () {
     $("relativeFb2").value = application.relative_fb_2 || "";
     $("school").value = application.school_facebook_url || "";
 
+    window.reloanExistingDocuments = {
+  id_front_path: application.id_front_path || "",
+  id_back_path: application.id_back_path || "",
+  signature_path: application.signature_path || "",
+  verification_video_path: application.verification_video_path || ""
+};
+    
     show("apply");
 
     if (typeof updateTerms === "function") {
