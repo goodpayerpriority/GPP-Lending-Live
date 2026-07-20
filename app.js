@@ -3411,7 +3411,7 @@ async function reloan(id) {
     );
 
     // Open the application form in re-loan mode
-    window.location.href = "application.html?reloan=true";
+    window.location.href = "index.html?reloan=true";
   } catch (error) {
     console.error("Re-loan error:", error);
     alert("Unable to create re-loan. Please try again.");
