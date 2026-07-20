@@ -1284,10 +1284,15 @@ if (isReloan) {
   const idFrontInput = $("idFront");
   const idBackInput = $("idBack");
   const videoInput = $("video");
+  const form = $("form");
 
   if (idFrontInput) idFrontInput.required = false;
   if (idBackInput) idBackInput.required = false;
   if (videoInput) videoInput.required = false;
+
+  if (form) {
+    form.setAttribute("novalidate", "novalidate");
+  }
 }
   
   if (params.get("reloan") !== "true") {
