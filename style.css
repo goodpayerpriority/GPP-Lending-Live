@@ -1293,3 +1293,50 @@ footer {
   }
 
 }
+
+/* COMPACT HOME DESIGN */
+
+.home-card {
+  max-width: 850px;
+  padding: 40px 35px;
+}
+
+.home-title {
+  font-size: 42px;
+}
+
+.home-subtitle {
+  font-size: 18px;
+}
+
+.home-actions {
+  gap: 14px;
+  margin: 28px auto 35px;
+}
+
+.home-action {
+  min-height: 85px;
+  padding: 14px 16px;
+  font-size: 16px;
+  border-radius: 14px;
+  gap: 12px;
+}
+
+.home-action-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 23px;
+}
+
+.home-action-arrow {
+  font-size: 27px;
+}
+
+.home-terms h2 {
+  font-size: 30px;
+}
+
+.home-terms p {
+  font-size: 16px;
+  line-height: 1.9;
+}
