@@ -3391,11 +3391,11 @@ async function viewDocs(id) {
 }
 async function reloan(id) {
   try {
-    cconst { data: application, error } = await sb
-      .from("applications")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const { data: application, error } = await sb
+  .from("applications")
+  .select("*")
+  .eq("id", id)
+  .single();
 
     if (error) throw error;
 
