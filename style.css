@@ -1340,3 +1340,57 @@ footer {
   font-size: 16px;
   line-height: 1.9;
 }
+
+/* EXTRA COMPACT HOME */
+
+.home-card {
+  max-width: 700px;
+  margin: 35px auto;
+  padding: 28px 25px;
+}
+
+.home-title {
+  font-size: 34px;
+}
+
+.home-subtitle {
+  margin: 8px 0 18px;
+  font-size: 15px;
+}
+
+.home-title-line {
+  margin: 10px auto;
+}
+
+.home-actions {
+  gap: 10px;
+  margin: 20px auto 25px;
+}
+
+.home-action {
+  min-height: 65px;
+  padding: 10px 12px;
+  gap: 9px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.home-action-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+}
+
+.home-action-arrow {
+  font-size: 22px;
+}
+
+.home-terms h2 {
+  font-size: 24px;
+}
+
+.home-terms p {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.7;
+}
