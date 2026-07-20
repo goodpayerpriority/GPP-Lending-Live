@@ -3391,7 +3391,7 @@ async function viewDocs(id) {
 }
 async function reloan(id) {
   try {
-    const { data: application, error } = await supabase
+    cconst { data: application, error } = await sb
       .from("applications")
       .select("*")
       .eq("id", id)
