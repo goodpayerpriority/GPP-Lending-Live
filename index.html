@@ -77,59 +77,117 @@
   class="page active"
 >
 
-  <div class="card center">
+  <div class="card center home-card">
 
-    <h1>
+    <h1 class="home-title">
       GPP Lending
     </h1>
 
-    <p>
+    <div class="home-title-line">
+      <span></span>
+      <b></b>
+      <span></span>
+    </div>
+
+    <p class="home-subtitle">
       Personal Loan Application
     </p>
 
-    <button
-      type="button"
-      class="primary"
-      onclick="show('apply')"
-    >
-      Apply Now
-    </button>
-    
-<a
-  href="https://www.facebook.com/profile.php?id=61584177402527"
-  target="_blank"
-  rel="noopener noreferrer"
-  class="primary"
-  style="display:inline-block; text-decoration:none; margin-left:10px;"
->
-  Visit Our Facebook Page
-</a>
 
-    <a
-  href="payment-qr.jpg"
-  target="_blank"
-  class="primary"
-  style="display:inline-block; text-decoration:none; margin-left:10px;"
->
-  Mode of Payment
-</a>
-    
-    <h2>
-      Terms & Rates
-    </h2>
+    <!-- HOME ACTION BUTTONS -->
 
-    <p>
-      ₱100–₱500: 20% for 3 days
-      <br>
-      ₱501–₱1,000: 25% for 5 days
-      <br>
-      ₱1,001–₱2,000: 30% for 7 days
-    </p>
+    <div class="home-actions">
+
+      <button
+        type="button"
+        class="home-action home-action-main"
+        onclick="show('apply')"
+      >
+        <span class="home-action-icon">
+          ✎
+        </span>
+
+        <span>
+          Apply Now
+        </span>
+
+        <span class="home-action-arrow">
+          ›
+        </span>
+      </button>
+
+
+      <a
+        href="https://www.facebook.com/profile.php?id=61584177402527"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="home-action"
+      >
+        <span class="home-action-icon">
+          f
+        </span>
+
+        <span>
+          Visit Our<br>
+          Facebook Page
+        </span>
+
+        <span class="home-action-arrow">
+          ›
+        </span>
+      </a>
+
+
+      <a
+        href="payment-qr.jpg"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="home-action"
+      >
+        <span class="home-action-icon">
+          ▦
+        </span>
+
+        <span>
+          Mode of<br>
+          Payment
+        </span>
+
+        <span class="home-action-arrow">
+          ›
+        </span>
+      </a>
+
+    </div>
+
+
+    <!-- TERMS -->
+
+    <div class="home-terms">
+
+      <h2>
+        Terms & Rates
+      </h2>
+
+      <div class="home-title-line">
+        <span></span>
+        <b></b>
+        <span></span>
+      </div>
+
+      <p>
+        ₱100–₱500: 20% for 3 days
+        <br>
+        ₱501–₱1,000: 25% for 5 days
+        <br>
+        ₱1,001–₱2,000: 30% for 7 days
+      </p>
+
+    </div>
 
   </div>
 
 </section>
-
 
 <!-- =========================================
      APPLY
