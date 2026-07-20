@@ -1402,3 +1402,204 @@ header button {
   font-size: 20px;
   border-radius: 9px;
 }
+
+/* =========================================
+   GUIDE PAGE
+========================================= */
+
+.guide-card {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 40px;
+}
+
+.guide-header {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.guide-badge {
+  display: inline-block;
+  padding: 7px 14px;
+  background: #eaf3ff;
+  color: #075bd8;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.guide-header h1 {
+  margin: 5px 0 10px;
+  color: #10213d;
+  font-size: 38px;
+}
+
+.guide-header p {
+  margin: 0;
+  color: #667085;
+}
+
+
+/* GUIDE STEPS */
+
+.guide-steps {
+  position: relative;
+}
+
+.guide-step {
+  display: grid;
+  grid-template-columns: 55px 1fr;
+  gap: 20px;
+  position: relative;
+  padding-bottom: 35px;
+}
+
+.guide-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: 52px;
+  bottom: 0;
+  width: 2px;
+  background: #d5e5fa;
+}
+
+.guide-number {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #075bd8;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 5px 15px rgba(7, 91, 216, 0.22);
+}
+
+.guide-content {
+  padding: 24px;
+  background: #f8fbff;
+  border: 1px solid #dce8f7;
+  border-radius: 14px;
+}
+
+.guide-content h2 {
+  margin: 0 0 10px;
+  color: #063d91;
+  font-size: 22px;
+}
+
+.guide-content p {
+  margin: 8px 0;
+}
+
+
+/* EMAIL HIGHLIGHT */
+
+.guide-highlight {
+  margin: 15px 0;
+  padding: 13px 16px;
+  background: white;
+  border-left: 4px solid #075bd8;
+  border-radius: 8px;
+  color: #063d91;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+
+/* INQUIRY FORM */
+
+.inquiry-form {
+  margin-top: 18px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #dce8f7;
+  border-radius: 12px;
+}
+
+.inquiry-form h3 {
+  margin-top: 0;
+  color: #10213d;
+}
+
+.inquiry-form p {
+  line-height: 1.8;
+}
+
+
+/* NOTES */
+
+.guide-note {
+  margin-top: 16px !important;
+  padding: 14px;
+  background: #eef6ff;
+  border-radius: 9px;
+  color: #344054;
+  font-size: 14px;
+}
+
+
+/* GUIDE BUTTONS */
+
+.guide-button {
+  margin-top: 12px;
+  padding: 12px 20px;
+}
+
+
+/* =========================================
+   GUIDE MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .guide-card {
+    margin: 20px auto;
+    padding: 22px 16px;
+  }
+
+  .guide-header {
+    margin-bottom: 30px;
+  }
+
+  .guide-header h1 {
+    font-size: 29px;
+  }
+
+  .guide-step {
+    grid-template-columns: 42px 1fr;
+    gap: 12px;
+    padding-bottom: 25px;
+  }
+
+  .guide-number {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .guide-step:not(:last-child)::before {
+    left: 20px;
+    top: 42px;
+  }
+
+  .guide-content {
+    padding: 18px;
+  }
+
+  .guide-content h2 {
+    font-size: 19px;
+  }
+
+  .guide-button {
+    width: 100%;
+  }
+
+}
