@@ -1060,3 +1060,236 @@ footer {
   }
 
 }
+
+/* =========================================
+   MODERN HOME PAGE
+========================================= */
+
+.home-card {
+  max-width: 1100px;
+  margin: 70px auto;
+  padding: 60px 45px;
+  border-radius: 24px;
+}
+
+.home-title {
+  margin: 0;
+  font-size: 52px;
+  line-height: 1.2;
+  color: #10213d;
+}
+
+.home-subtitle {
+  margin: 15px 0 30px;
+  color: #52627a;
+  font-size: 22px;
+}
+
+.home-title-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 18px auto;
+}
+
+.home-title-line span {
+  width: 55px;
+  height: 3px;
+  border-radius: 10px;
+  background: #2495f2;
+}
+
+.home-title-line b {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #1688ed;
+}
+
+
+/* =========================================
+   HOME BUTTONS
+========================================= */
+
+.home-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin: 35px auto 50px;
+}
+
+.home-action {
+  min-height: 120px;
+  padding: 20px 22px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 18px;
+
+  background: white;
+  color: #075bd8;
+
+  border: 2px solid #075bd8;
+  border-radius: 18px;
+
+  text-decoration: none;
+  text-align: left;
+
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.25;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.home-action:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(7, 91, 216, 0.18);
+  background: #f7fbff;
+}
+
+.home-action-main {
+  background: linear-gradient(
+    135deg,
+    #1688ed,
+    #075bd8
+  );
+
+  color: white;
+  border-color: #075bd8;
+  box-shadow: 0 10px 25px rgba(7, 91, 216, 0.25);
+}
+
+.home-action-main:hover {
+  background: linear-gradient(
+    135deg,
+    #0f7fe4,
+    #064eb9
+  );
+
+  color: white;
+}
+
+.home-action-icon {
+  width: 55px;
+  height: 55px;
+  flex-shrink: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-right: 1px solid currentColor;
+
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.home-action-arrow {
+  margin-left: auto;
+  font-size: 36px;
+  font-weight: normal;
+}
+
+
+/* =========================================
+   HOME TERMS
+========================================= */
+
+.home-terms {
+  margin-top: 15px;
+}
+
+.home-terms h2 {
+  margin-bottom: 0;
+  font-size: 38px;
+  color: #10213d;
+}
+
+.home-terms p {
+  margin-top: 25px;
+  font-size: 20px;
+  line-height: 2.2;
+}
+
+
+/* =========================================
+   HOME TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+  .home-card {
+    padding: 45px 25px;
+  }
+
+  .home-actions {
+    grid-template-columns: 1fr;
+    max-width: 550px;
+  }
+
+  .home-action {
+    min-height: 95px;
+  }
+
+}
+
+
+/* =========================================
+   HOME MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .home-card {
+    margin: 25px auto;
+    padding: 35px 18px;
+  }
+
+  .home-title {
+    font-size: 38px;
+  }
+
+  .home-subtitle {
+    font-size: 18px;
+  }
+
+  .home-actions {
+    margin-top: 28px;
+    gap: 14px;
+  }
+
+  .home-action {
+    width: 100%;
+    min-height: 85px;
+    padding: 15px;
+    font-size: 17px;
+    border-radius: 14px;
+  }
+
+  .home-action-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 26px;
+  }
+
+  .home-action-arrow {
+    font-size: 30px;
+  }
+
+  .home-terms h2 {
+    font-size: 30px;
+  }
+
+  .home-terms p {
+    font-size: 17px;
+    line-height: 2;
+  }
+
+}
