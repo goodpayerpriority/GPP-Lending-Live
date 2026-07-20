@@ -2396,7 +2396,12 @@ async function renderClients() {
                 >
                   View Record
                 </button>
-
+<button
+  type="button"
+  onclick="reloan('${escapeJsString(application.id)}')"
+>
+  Re-loan
+</button>
                 ${
                   application.payment_status !== "Paid"
                     ? `
