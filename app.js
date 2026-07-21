@@ -3826,3 +3826,33 @@ sb.auth
 ========================================= */
 
 updateLoanDetails();
+
+/* =========================================
+   ACTIVE NAVIGATION BUTTON
+========================================= */
+
+const originalShow = show;
+
+show = function(pageId) {
+
+  originalShow(pageId);
+
+  document
+    .querySelectorAll("header nav button")
+    .forEach((button) => {
+
+      button.classList.remove("nav-active");
+
+      const clickAction =
+        button.getAttribute("onclick") || "";
+
+      if (
+        clickAction.includes(`show('${pageId}')`) ||
+        clickAction.includes(`show("${pageId}")`)
+      ) {
+        button.classList.add("nav-active");
+      }
+
+    });
+
+};
