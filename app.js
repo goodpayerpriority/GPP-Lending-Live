@@ -2891,52 +2891,35 @@ async function viewDocs(id) {
     ];
 
 
-    const documentLinks =
-      [];
-
-
-    for (
-      const document
-      of documentPaths
-    ) {
-
-      if (!document.path) {
-        continue;
-      }
-
-
-      const {
-        data:
-          signedData,
-
-        error:
-          signedError
-      } =
-        await sb.storage
-          .from(
-            "application-documents"
-          )
+    const documentLinks = (
+  await Promise.all(
+    documentPaths
+      .filter(document => document.path)
+      .map(async document => {
+        const {
+          data: signedData,
+          error: signedError
+        } = await sb.storage
+          .from("application-documents")
           .createSignedUrl(
             document.path,
             300
           );
 
+        if (
+          signedError ||
+          !signedData?.signedUrl
+        ) {
+          return null;
+        }
 
-      if (
-        !signedError &&
-        signedData?.signedUrl
-      ) {
-
-        documentLinks.push({
-          label:
-            document.label,
-
-          url:
-            signedData.signedUrl
-        });
-      }
-    }
-
+        return {
+          label: document.label,
+          url: signedData.signedUrl
+        };
+      })
+  )
+).filter(Boolean);
 
     const applicationStatus =
       application.status ||
