@@ -1841,3 +1841,43 @@ header nav button.nav-active {
     font-size: 13px;
   }
 }
+
+/* SMALL HOME FRIENDLY REMINDER */
+
+.home-reminder {
+  margin-top: 20px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: #f4f8ff;
+  border: 1px solid #d9e7ff;
+  border-radius: 12px;
+}
+
+.home-reminder-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b5ed7;
+  color: white;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.home-reminder h3 {
+  margin: 0 0 3px;
+  color: #0b3f91;
+  font-size: 14px;
+}
+
+.home-reminder p {
+  margin: 0;
+  color: #42526b;
+  font-size: 12px;
+  line-height: 1.45;
+}
