@@ -1603,3 +1603,91 @@ header button {
   }
 
 }
+
+/* =========================================
+   CLEAN TOP NAVIGATION
+========================================= */
+
+header nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+header nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 10px 15px;
+
+  background: transparent;
+  color: white;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+header nav button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+header nav button:active {
+  transform: translateY(0);
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 17px;
+  line-height: 1;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+
+  header nav {
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  header nav button {
+    padding: 9px 10px;
+    font-size: 13px;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .nav-icon {
+    font-size: 15px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  header nav {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  header nav button {
+    padding: 8px 9px;
+    font-size: 12px;
+  }
+
+}
