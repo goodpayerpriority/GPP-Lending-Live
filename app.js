@@ -1887,15 +1887,12 @@ async function render() {
 
               <select
 
-                onchange="setStatus(
-
-                  '${escapeJsString(
-                    application.id
-                  )}',
-
-                  this.value
-
-                )"
+                onchange="openStatusMessageModal(
+  '${escapeJsString(application.id)}',
+  this.value,
+  '${escapeJsString(application.status || "Pending Review")}',
+  this
+)"
 
               >
 
@@ -2101,6 +2098,116 @@ function updateDashboardCounts(
   }
 }
 
+/* =========================================
+   STATUS MESSAGE POPUP
+========================================= */
+
+let pendingStatusApplicationId = null;
+let pendingStatusValue = null;
+let previousStatusValue = null;
+let pendingStatusSelect = null;
+
+
+async function openStatusMessageModal(
+  applicationId,
+  newStatus,
+  oldStatus,
+  selectElement
+) {
+
+  pendingStatusApplicationId = applicationId;
+  pendingStatusValue = newStatus;
+  previousStatusValue = oldStatus;
+  pendingStatusSelect = selectElement;
+
+  const message = prompt(
+    "Message to Applicant (Optional)\n\n" +
+    "Enter a message for the applicant, or leave this blank:"
+  );
+
+  if (message === null) {
+
+    selectElement.value = oldStatus;
+
+    pendingStatusApplicationId = null;
+    pendingStatusValue = null;
+    previousStatusValue = null;
+    pendingStatusSelect = null;
+
+    return;
+  }
+
+  await saveStatusWithMessage(
+    applicationId,
+    newStatus,
+    message.trim()
+  );
+
+}
+
+
+async function saveStatusWithMessage(
+  applicationId,
+  status,
+  message
+) {
+
+  try {
+
+    const { error } = await sb
+      .from("applications")
+      .update({
+
+        status: status,
+
+        applicant_message:
+          message || null
+
+      })
+      .eq(
+        "id",
+        applicationId
+      );
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    alert(
+      "Application status and message saved successfully."
+    );
+
+    await render();
+
+
+  } catch (error) {
+
+    console.error(
+      "Status update error:",
+      error
+    );
+
+    if (pendingStatusSelect) {
+      pendingStatusSelect.value =
+        previousStatusValue;
+    }
+
+    alert(
+      error.message ||
+      "Unable to update the application status."
+    );
+
+  }
+
+
+  pendingStatusApplicationId = null;
+  pendingStatusValue = null;
+  previousStatusValue = null;
+  pendingStatusSelect = null;
+
+}
 
 /* =========================================
    UPDATE APPLICATION STATUS
