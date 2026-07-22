@@ -2497,7 +2497,7 @@ async function renderClients() {
 <button
   type="button"
   class="deactivate-button"
-  onclick="deactivateLoan('${escapeJsString(application.id)}')"
+  onclick="openDeactivateModal('${escapeJsString(application.id)}')"
 >
   Deactivate
 </button>
