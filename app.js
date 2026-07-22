@@ -1645,6 +1645,25 @@ async function track() {
 
       </p>
 
+${
+  application.applicant_message
+    ? `
+      <div class="applicant-message-box">
+
+        <b>
+          Message from GPP Lending:
+        </b>
+
+        <p>
+          ${escapeHtml(
+            application.applicant_message
+          )}
+        </p>
+
+      </div>
+    `
+    : ""
+}
 
       ${statusDetails}
 
