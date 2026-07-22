@@ -2454,12 +2454,20 @@ async function renderClients() {
 
               <td>
 
-                ${escapeHtml(
-                  application.payment_status ||
-                  "Unpaid"
-                )}
+  <span class="${
+    application.payment_status === "Paid"
+      ? "payment-badge payment-paid"
+      : "payment-badge payment-unpaid"
+  }">
 
-              </td>
+    ${escapeHtml(
+      application.payment_status ||
+      "Unpaid"
+    )}
+
+  </span>
+
+</td>
 
 
               <td>
