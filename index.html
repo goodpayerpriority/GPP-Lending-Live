@@ -1208,6 +1208,81 @@
 
 </section>
 
+  <!-- =========================================
+     DEACTIVATE LOAN MODAL
+========================================= -->
+
+<div id="deactivateModal" class="deactivate-modal hidden">
+
+  <div class="deactivate-modal-box">
+
+    <h2>Deactivate Loan</h2>
+
+    <p>
+      Remove this borrower from Active Clients and choose the application status.
+      The original application and documents will remain saved.
+    </p>
+
+    <label>
+      Application Status
+
+      <select id="deactivateStatus">
+        <option value="Pending Review">
+          Pending Review
+        </option>
+
+        <option value="Approved">
+          Approved
+        </option>
+
+        <option value="Declined">
+          Declined
+        </option>
+
+        <option value="More Documents Required">
+          More Documents Required
+        </option>
+
+        <option value="Other">
+          Other
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Message to Applicant (Optional)
+
+      <textarea
+        id="deactivateNote"
+        rows="4"
+        placeholder="Example: Please submit the additional required documents or contact the GPP Lending Facebook page for assistance."
+      ></textarea>
+    </label>
+
+    <div class="deactivate-modal-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        onclick="closeDeactivateModal()"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary"
+        onclick="confirmDeactivateLoan()"
+      >
+        Confirm Deactivation
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+  
 </main>
 
 
