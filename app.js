@@ -3964,13 +3964,16 @@ async function confirmDeactivateLoan() {
       .from("applications")
       .update({
 
-        status:
-          status,
+  status:
+    status,
 
-        applicant_message:
-          message || null
+  applicant_message:
+    message || null,
 
-      })
+  loan_status:
+    "Inactive"
+
+})
       .eq(
         "id",
         deactivateApplicationId
