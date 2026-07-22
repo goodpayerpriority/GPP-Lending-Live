@@ -1305,6 +1305,85 @@
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
+  <!-- APPLICATION STATUS MESSAGE MODAL -->
+
+<div id="statusMessageModal" class="deactivate-modal hidden">
+
+  <div class="deactivate-modal-box">
+
+    <h2>Update Application Status</h2>
+
+    <p>
+      Add an optional message for the applicant.
+    </p>
+
+    <label>
+      Message to Applicant (Optional)
+
+      <textarea
+        id="statusApplicantMessage"
+        rows="4"
+        placeholder="Type your message to the applicant..."
+      ></textarea>
+    </label>
+
+    <label style="
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:16px;
+      cursor:pointer;
+    ">
+
+      <input
+        type="checkbox"
+        id="sendApplicantEmail"
+        style="
+          width:auto;
+          margin:0;
+        "
+      >
+
+      <span>
+        Send email notification to applicant
+      </span>
+
+    </label>
+
+    <p style="
+      margin-top:8px;
+      font-size:13px;
+      color:#64748b;
+    ">
+      If checked, the applicant will receive an email
+      with their Application ID, updated status,
+      your message, and a button to track their application.
+    </p>
+
+    <div class="deactivate-modal-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        onclick="closeStatusMessageModal()"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary"
+        onclick="confirmStatusWithMessage()"
+      >
+        Save Status
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+  
 <script src="app.js"></script>
 
 </body>
