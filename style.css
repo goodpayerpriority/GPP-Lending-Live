@@ -1907,3 +1907,32 @@ header nav button.nav-active {
   color: #b91c1c;
   border: 1px solid #fecaca;
 }
+
+/* TRACK APPLICATION STATUS COLORS */
+
+.track-status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.track-status-approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.track-status-declined {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.track-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.track-status-documents {
+  background: #dbeafe;
+  color: #1e40af;
+}
