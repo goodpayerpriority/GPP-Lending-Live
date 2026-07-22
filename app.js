@@ -2493,6 +2493,14 @@ async function renderClients() {
 >
   Re-loan
 </button>
+
+<button
+  type="button"
+  class="deactivate-button"
+  onclick="deactivateLoan('${escapeJsString(application.id)}')"
+>
+  Deactivate
+</button>
                 ${
                   application.payment_status !== "Paid"
                     ? `
