@@ -2149,9 +2149,18 @@ function openStatusMessageModal(
     emailCheckbox.checked = false;
   }
 
-  if (modal) {
-    modal.classList.remove("hidden");
-  }
+ if (!modal) {
+  console.error("statusMessageModal was not found in the page.");
+
+  alert(
+    "The Message to Applicant popup could not be opened. Please refresh the page and try again."
+  );
+
+  return;
+}
+
+modal.classList.remove("hidden");
+modal.style.display = "flex";
 }
 
 
@@ -2166,8 +2175,9 @@ function closeStatusMessageModal() {
     $("statusMessageModal");
 
   if (modal) {
-    modal.classList.add("hidden");
-  }
+  modal.classList.add("hidden");
+  modal.style.display = "none";
+}
 
   pendingStatusApplicationId = null;
   pendingStatusValue = null;
@@ -2349,9 +2359,9 @@ async function saveStatusWithMessage(
       $("statusMessageModal");
 
     if (modal) {
-      modal.classList.add("hidden");
-    }
-
+  modal.classList.add("hidden");
+  modal.style.display = "none";
+}
 
     alert(
       sendEmail
