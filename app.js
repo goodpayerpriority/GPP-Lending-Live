@@ -2537,7 +2537,11 @@ async function activateLoan(id) {
   const endDate = formatDateForInput(dueDateObject);
 
   const totalDue =
-    Number(application.total_payment || 0);
+  Number(
+    application.total_payment ||
+    application.total_amount_to_pay ||
+    0
+  );
 
   const { error: updateError } =
     await sb
