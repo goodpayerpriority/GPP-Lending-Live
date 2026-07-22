@@ -1637,11 +1637,17 @@ async function track() {
 
         <b>Application Status:</b><br>
 
-        <strong>
-          ${escapeHtml(
-            applicationStatus
-          )}
-        </strong>
+        <span class="track-status-badge ${
+  applicationStatus === "Approved"
+    ? "track-status-approved"
+    : applicationStatus === "Declined"
+    ? "track-status-declined"
+    : applicationStatus === "More Documents Required"
+    ? "track-status-documents"
+    : "track-status-pending"
+}">
+  ${escapeHtml(applicationStatus)}
+</span>
 
       </p>
 
