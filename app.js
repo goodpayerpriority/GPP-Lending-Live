@@ -3911,3 +3911,82 @@ function closeDeactivateModal() {
     null;
 
 }
+
+async function confirmDeactivateLoan() {
+
+  if (!deactivateApplicationId) {
+    alert("No loan selected.");
+    return;
+  }
+
+  const status =
+    document.getElementById(
+      "deactivateStatus"
+    ).value;
+
+  const message =
+    document.getElementById(
+      "deactivateNote"
+    ).value.trim();
+
+
+  const confirmed = confirm(
+    `Deactivate this loan and change the application status to "${status}"?`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    const { error } = await sb
+      .from("applications")
+      .update({
+
+        status:
+          status,
+
+        applicant_message:
+          message || null
+
+      })
+      .eq(
+        "id",
+        deactivateApplicationId
+      );
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    closeDeactivateModal();
+
+    alert(
+      "Loan deactivated successfully. The application record and documents remain saved."
+    );
+
+
+    await render();
+
+    await renderClients();
+
+
+  } catch (error) {
+
+    console.error(
+      "Deactivate loan error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to deactivate the loan."
+    );
+
+  }
+
+}
