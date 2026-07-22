@@ -3855,3 +3855,59 @@ show = function(pageId) {
     });
 
 };
+
+/* =========================================
+   DEACTIVATE LOAN MODAL
+========================================= */
+
+let deactivateApplicationId = null;
+
+
+function openDeactivateModal(applicationId) {
+
+  deactivateApplicationId =
+    applicationId;
+
+  const modal =
+    document.getElementById(
+      "deactivateModal"
+    );
+
+  const status =
+    document.getElementById(
+      "deactivateStatus"
+    );
+
+  const note =
+    document.getElementById(
+      "deactivateNote"
+    );
+
+  status.value =
+    "Pending Review";
+
+  note.value =
+    "";
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+}
+
+
+function closeDeactivateModal() {
+
+  const modal =
+    document.getElementById(
+      "deactivateModal"
+    );
+
+  modal.classList.add(
+    "hidden"
+  );
+
+  deactivateApplicationId =
+    null;
+
+}
