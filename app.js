@@ -2114,76 +2114,257 @@ let previousStatusValue = null;
 let pendingStatusSelect = null;
 
 
-async function openStatusMessageModal(
+function openStatusMessageModal(
   applicationId,
   newStatus,
   oldStatus,
   selectElement
 ) {
+  pendingStatusApplicationId =
+    applicationId;
 
-  pendingStatusApplicationId = applicationId;
-  pendingStatusValue = newStatus;
-  previousStatusValue = oldStatus;
-  pendingStatusSelect = selectElement;
+  pendingStatusValue =
+    newStatus;
 
-  const message = prompt(
-    "Message to Applicant (Optional)\n\n" +
-    "Enter a message for the applicant, or leave this blank:"
-  );
+  previousStatusValue =
+    oldStatus;
 
-  if (message === null) {
+  pendingStatusSelect =
+    selectElement;
 
-    selectElement.value = oldStatus;
+  const messageInput =
+    $("statusApplicantMessage");
 
-    pendingStatusApplicationId = null;
-    pendingStatusValue = null;
-    previousStatusValue = null;
-    pendingStatusSelect = null;
+  const emailCheckbox =
+    $("sendApplicantEmail");
 
+  const modal =
+    $("statusMessageModal");
+
+  if (messageInput) {
+    messageInput.value = "";
+  }
+
+  if (emailCheckbox) {
+    emailCheckbox.checked = false;
+  }
+
+  if (modal) {
+    modal.classList.remove("hidden");
+  }
+}
+
+
+function closeStatusMessageModal() {
+
+  if (pendingStatusSelect) {
+    pendingStatusSelect.value =
+      previousStatusValue;
+  }
+
+  const modal =
+    $("statusMessageModal");
+
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+
+  pendingStatusApplicationId = null;
+  pendingStatusValue = null;
+  previousStatusValue = null;
+  pendingStatusSelect = null;
+}
+
+
+async function confirmStatusWithMessage() {
+
+  if (
+    !pendingStatusApplicationId ||
+    !pendingStatusValue
+  ) {
     return;
   }
 
-  await saveStatusWithMessage(
-    applicationId,
-    newStatus,
-    message.trim()
-  );
+  const message =
+    $("statusApplicantMessage")
+      ?.value
+      .trim() || "";
 
+  const sendEmail =
+    $("sendApplicantEmail")
+      ?.checked || false;
+
+  await saveStatusWithMessage(
+    pendingStatusApplicationId,
+    pendingStatusValue,
+    message,
+    sendEmail
+  );
 }
 
 
 async function saveStatusWithMessage(
   applicationId,
   status,
-  message
+  message,
+  sendEmail
 ) {
 
   try {
 
-    const { error } = await sb
-      .from("applications")
-      .update({
+    /*
+      Get the applicant details first.
+      We need these details if an email
+      notification is requested.
+    */
 
-        status: status,
+    const {
+      data: application,
+      error: fetchError
+    } =
+      await sb
+        .from("applications")
+        .select(
+          "id, application_id, full_name, email"
+        )
+        .eq(
+          "id",
+          applicationId
+        )
+        .single();
 
-        applicant_message:
-          message || null
 
-      })
-      .eq(
-        "id",
-        applicationId
-      );
+    if (fetchError) {
+      throw fetchError;
+    }
 
 
-    if (error) {
-      throw error;
+    /*
+      Save the new status and
+      applicant message.
+    */
+
+    const {
+      error: updateError
+    } =
+      await sb
+        .from("applications")
+        .update({
+
+          status: status,
+
+          applicant_message:
+            message || null
+
+        })
+        .eq(
+          "id",
+          applicationId
+        );
+
+
+    if (updateError) {
+      throw updateError;
+    }
+
+
+    /*
+      Send email only when the
+      checkbox is checked.
+    */
+
+    if (sendEmail) {
+
+      if (!application?.email) {
+
+        throw new Error(
+          "The status was saved, but this applicant does not have an email address."
+        );
+      }
+
+
+      const notificationUrl =
+        `${SUPABASE_URL}/functions/v1/send-applicant-notification`;
+
+
+      const response =
+        await fetch(
+          notificationUrl,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              apikey:
+                SUPABASE_KEY,
+
+              Authorization:
+                `Bearer ${SUPABASE_KEY}`
+            },
+
+            body:
+              JSON.stringify({
+
+                email:
+                  application.email,
+
+                full_name:
+                  application.full_name,
+
+                application_id:
+                  application.application_id,
+
+                status:
+                  status,
+
+                applicant_message:
+                  message
+
+              })
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          result?.error ||
+          "The status was saved, but the email notification could not be sent."
+        );
+      }
+    }
+
+
+    /*
+      Close the popup after success.
+    */
+
+    const modal =
+      $("statusMessageModal");
+
+    if (modal) {
+      modal.classList.add("hidden");
     }
 
 
     alert(
-      "Application status and message saved successfully."
+      sendEmail
+        ? "Application status saved and email notification sent successfully."
+        : "Application status and message saved successfully."
     );
+
+
+    pendingStatusApplicationId = null;
+    pendingStatusValue = null;
+    previousStatusValue = null;
+    pendingStatusSelect = null;
+
 
     await render();
 
@@ -2195,24 +2376,12 @@ async function saveStatusWithMessage(
       error
     );
 
-    if (pendingStatusSelect) {
-      pendingStatusSelect.value =
-        previousStatusValue;
-    }
 
     alert(
       error.message ||
       "Unable to update the application status."
     );
-
   }
-
-
-  pendingStatusApplicationId = null;
-  pendingStatusValue = null;
-  previousStatusValue = null;
-  pendingStatusSelect = null;
-
 }
 
 /* =========================================
