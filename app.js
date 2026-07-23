@@ -2846,7 +2846,7 @@ async function renderLoanHistory() {
     await sb
       .from("applications")
       .select("*")
-      .eq("loan_status", "Paid")
+      .eq("payment_status", "Paid")
       .order("paid_at", {
         ascending: false
       });
