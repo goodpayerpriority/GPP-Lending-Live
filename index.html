@@ -1063,6 +1063,15 @@
           Active Clients
         </button>
 
+        <button
+  id="historyTabButton"
+  type="button"
+  class="admin-tab"
+  onclick="showAdminTab('historyPanel')"
+>
+  Loan History
+</button>
+
       </div>
 
 
@@ -1196,6 +1205,61 @@
 
       </div>
 
+            <!-- LOAN HISTORY PANEL -->
+
+      <div
+        id="historyPanel"
+        class="admin-panel hidden"
+      >
+
+        <div class="admin-section-heading">
+
+          <div>
+            <h2>Loan History</h2>
+
+            <p>
+              View completed loans and borrower payment history.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onclick="renderLoanHistory()"
+          >
+            Refresh
+          </button>
+
+        </div>
+
+        <div class="scroll">
+
+          <table class="admin-table">
+
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Application ID</th>
+                <th>Loan Amount</th>
+                <th>Total Paid</th>
+                <th>Due Date</th>
+                <th>Payment Date</th>
+                <th>Payment Record</th>
+              </tr>
+            </thead>
+
+            <tbody id="loanHistoryList">
+              <tr>
+                <td colspan="7">
+                  No completed loans loaded.
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
 
       <!-- BORROWER / DOCUMENT DETAILS -->
 
