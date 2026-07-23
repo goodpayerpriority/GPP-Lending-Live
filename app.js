@@ -2438,85 +2438,62 @@ async function setStatus(
    ADMIN TAB SWITCHER
 ========================================= */
 
-function showAdminTab(
-  panelId
-) {
+function showAdminTab(panelId) {
+  const applicationsPanel = $("applicationsPanel");
+  const clientsPanel = $("clientsPanel");
+  const historyPanel = $("historyPanel");
 
-  const applicationsPanel =
-    $("applicationsPanel");
+  const applicationsButton = $("applicationsTabButton");
+  const clientsButton = $("clientsTabButton");
+  const historyButton = $("historyTabButton");
 
-  const clientsPanel =
-    $("clientsPanel");
-
-  const applicationsButton =
-    $("applicationsTabButton");
-
-  const clientsButton =
-    $("clientsTabButton");
-
-
-  if (
-    !applicationsPanel ||
-    !clientsPanel
-  ) {
+  if (!applicationsPanel || !clientsPanel || !historyPanel) {
     return;
   }
 
+  applicationsPanel.classList.toggle(
+    "hidden",
+    panelId !== "applicationsPanel"
+  );
 
-  applicationsPanel
-    .classList
-    .toggle(
-      "hidden",
-      panelId !==
-      "applicationsPanel"
-    );
+  clientsPanel.classList.toggle(
+    "hidden",
+    panelId !== "clientsPanel"
+  );
 
-
-  clientsPanel
-    .classList
-    .toggle(
-      "hidden",
-      panelId !==
-      "clientsPanel"
-    );
-
+  historyPanel.classList.toggle(
+    "hidden",
+    panelId !== "historyPanel"
+  );
 
   if (applicationsButton) {
-
-    applicationsButton
-      .classList
-      .toggle(
-        "active-admin-tab",
-        panelId ===
-        "applicationsPanel"
-      );
+    applicationsButton.classList.toggle(
+      "active-admin-tab",
+      panelId === "applicationsPanel"
+    );
   }
-
 
   if (clientsButton) {
-
-    clientsButton
-      .classList
-      .toggle(
-        "active-admin-tab",
-        panelId ===
-        "clientsPanel"
-      );
+    clientsButton.classList.toggle(
+      "active-admin-tab",
+      panelId === "clientsPanel"
+    );
   }
 
+  if (historyButton) {
+    historyButton.classList.toggle(
+      "active-admin-tab",
+      panelId === "historyPanel"
+    );
+  }
 
-  if (
-    panelId ===
-    "clientsPanel"
-  ) {
-
+  if (panelId === "clientsPanel") {
     renderClients();
   }
-  
+
   if (panelId === "historyPanel") {
-  renderLoanHistory();
-}
-  
+    renderLoanHistory();
+  }
 }
 
 
