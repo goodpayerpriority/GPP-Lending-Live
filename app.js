@@ -2439,63 +2439,50 @@ async function setStatus(
 ========================================= */
 
 function showAdminTab(panelId) {
-  const applicationsPanel = $("applicationsPanel");
-  const clientsPanel = $("clientsPanel");
-  const historyPanel = $("historyPanel");
+  const panels = document.querySelectorAll(".admin-panel");
+  const buttons = document.querySelectorAll(".admin-tab");
 
-  const applicationsButton = $("applicationsTabButton");
-  const clientsButton = $("clientsTabButton");
-  const historyButton = $("historyTabButton");
+  panels.forEach(panel => {
+    panel.classList.add("hidden");
+  });
 
-  if (!applicationsPanel || !clientsPanel || !historyPanel) {
+  buttons.forEach(button => {
+    button.classList.remove("active-admin-tab");
+  });
+
+  const selectedPanel = document.getElementById(panelId);
+
+  if (!selectedPanel) {
+    console.error("Admin panel not found:", panelId);
     return;
   }
 
-  applicationsPanel.classList.toggle(
-    "hidden",
-    panelId !== "applicationsPanel"
-  );
+  selectedPanel.classList.remove("hidden");
 
-  clientsPanel.classList.toggle(
-    "hidden",
-    panelId !== "clientsPanel"
-  );
+  if (panelId === "applicationsPanel") {
+    document
+      .getElementById("applicationsTabButton")
+      ?.classList.add("active-admin-tab");
 
-  historyPanel.classList.toggle(
-    "hidden",
-    panelId !== "historyPanel"
-  );
-
-  if (applicationsButton) {
-    applicationsButton.classList.toggle(
-      "active-admin-tab",
-      panelId === "applicationsPanel"
-    );
-  }
-
-  if (clientsButton) {
-    clientsButton.classList.toggle(
-      "active-admin-tab",
-      panelId === "clientsPanel"
-    );
-  }
-
-  if (historyButton) {
-    historyButton.classList.toggle(
-      "active-admin-tab",
-      panelId === "historyPanel"
-    );
+    render();
   }
 
   if (panelId === "clientsPanel") {
+    document
+      .getElementById("clientsTabButton")
+      ?.classList.add("active-admin-tab");
+
     renderClients();
   }
 
   if (panelId === "historyPanel") {
+    document
+      .getElementById("historyTabButton")
+      ?.classList.add("active-admin-tab");
+
     renderLoanHistory();
   }
 }
-
 
 /* =========================================
    ACTIVATE APPROVED LOAN
