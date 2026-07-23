@@ -2512,6 +2512,11 @@ function showAdminTab(
 
     renderClients();
   }
+  
+  if (panelId === "historyPanel") {
+  renderLoanHistory();
+}
+  
 }
 
 
