@@ -2865,71 +2865,75 @@ async function renderLoanHistory() {
   }
 
   loanHistoryList.innerHTML =
-    (data || [])
-      .map(application => `
-        <tr>
+  (data || [])
+    .map(application => `
+      <tr>
 
-          <td>
-            <b>
-              ${escapeHtml(application.full_name || "—")}
-            </b>
-            <br>
-            <small>
-              ${escapeHtml(application.application_id || "—")}
-            </small>
-          </td>
+        <td>
+          <b>
+            ${escapeHtml(application.full_name || "—")}
+          </b>
+        </td>
 
-          <td>
-            ${formatMoney(application.requested_amount)}
-          </td>
+        <td>
+          ${escapeHtml(application.application_id || "—")}
+        </td>
 
-          <td>
-            ${formatMoney(
-              application.total_payment ||
-              application.total_amount_to_pay
-            )}
-          </td>
+        <td>
+          ${formatMoney(application.requested_amount)}
+        </td>
 
-          <td>
-            ${escapeHtml(
-              formatDisplayDate(application.loan_start_date)
-            )}
-          </td>
+        <td>
+          ${formatMoney(
+            application.amount_paid ||
+            application.total_payment ||
+            application.total_amount_to_pay
+          )}
+        </td>
 
-          <td>
-            ${escapeHtml(
-              formatDisplayDate(application.loan_end_date)
-            )}
-          </td>
+        <td>
+          ${escapeHtml(
+            formatDisplayDate(application.loan_end_date)
+          )}
+        </td>
 
-          <td>
+        <td>
+          ${escapeHtml(
+            formatDisplayDate(
+              application.payment_date ||
+              application.paid_at
+            )
+          )}
+        </td>
+
+        <td>
+          <b>
             ${escapeHtml(
               application.due_status ||
-              application.payment_status ||
               "Paid"
             )}
-          </td>
+          </b>
 
-          <td>
-            <button
-              type="button"
-              onclick="viewDocs('${escapeJsString(application.id)}')"
-            >
-              View Record
-            </button>
+          <br><br>
 
-            <button
-              type="button"
-              onclick="reloan('${escapeJsString(application.id)}')"
-            >
-              Re-loan
-            </button>
-          </td>
+          <button
+            type="button"
+            onclick="viewDocs('${escapeJsString(application.id)}')"
+          >
+            View Record
+          </button>
 
-        </tr>
-      `)
-      .join("") ||
+          <button
+            type="button"
+            onclick="reloan('${escapeJsString(application.id)}')"
+          >
+            Re-loan
+          </button>
+        </td>
 
+      </tr>
+    `)
+    .join("") ||
     `
       <tr>
         <td colspan="7">
