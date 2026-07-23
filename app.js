@@ -2868,11 +2868,8 @@ async function renderLoanHistory() {
   (data || [])
     .map(application => `
       <tr>
-
         <td>
-          <b>
-            ${escapeHtml(application.full_name || "—")}
-          </b>
+          <b>${escapeHtml(application.full_name || "—")}</b>
         </td>
 
         <td>
@@ -2893,7 +2890,10 @@ async function renderLoanHistory() {
 
         <td>
           ${escapeHtml(
-            formatDisplayDate(application.loan_end_date)
+            formatDisplayDate(
+              application.official_due_date ||
+              application.loan_end_date
+            )
           )}
         </td>
 
@@ -2910,6 +2910,7 @@ async function renderLoanHistory() {
           <b>
             ${escapeHtml(
               application.due_status ||
+              application.payment_status ||
               "Paid"
             )}
           </b>
@@ -2930,17 +2931,16 @@ async function renderLoanHistory() {
             Re-loan
           </button>
         </td>
-
       </tr>
     `)
     .join("") ||
-    `
-      <tr>
-        <td colspan="7">
-          No completed loans found.
-        </td>
-      </tr>
-    `;
+  `
+    <tr>
+      <td colspan="7">
+        No completed loans found.
+      </td>
+    </tr>
+  `;
 }
 
 /* =========================================
