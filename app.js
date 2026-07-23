@@ -3273,6 +3273,58 @@ async function viewDocs(id) {
       );
     }
 
+    // =========================================
+// CLIENT PAYMENT STATISTICS
+// =========================================
+
+const borrowerName =
+  String(application.full_name || "").trim();
+
+const { data: borrowerLoans, error: borrowerLoansError } =
+  await sb
+    .from("applications")
+    .select("*")
+    .eq("full_name", borrowerName)
+    .eq("payment_status", "Paid");
+
+if (borrowerLoansError) {
+  console.error(
+    "Unable to load client payment statistics:",
+    borrowerLoansError
+  );
+}
+
+const successfulLoans =
+  borrowerLoans || [];
+
+const totalSuccessfulLoans =
+  successfulLoans.length;
+
+const earlyPayments =
+  successfulLoans.filter(loan =>
+    String(loan.due_status || "")
+      .toLowerCase()
+      .includes("early")
+  ).length;
+
+const onTimePayments =
+  successfulLoans.filter(loan =>
+    String(loan.due_status || "")
+      .toLowerCase()
+      .includes("on time")
+  ).length;
+
+const delayedLoans =
+  successfulLoans.filter(loan => {
+    const status =
+      String(loan.due_status || "")
+        .toLowerCase();
+
+    return (
+      status.includes("late") ||
+      status.includes("delayed")
+    );
+  }).length;
 
     const documentPaths = [
 
@@ -3693,6 +3745,37 @@ async function viewDocs(id) {
 
         </div>
 
+<div class="borrower-record-section">
+
+  <h3>
+    Client Payment Statistics
+  </h3>
+
+  <div class="borrower-record-grid">
+
+    ${recordField(
+      "Total Successful Loans",
+      totalSuccessfulLoans
+    )}
+
+    ${recordField(
+      "Early Payments",
+      earlyPayments
+    )}
+
+    ${recordField(
+      "On-Time Payments",
+      onTimePayments
+    )}
+
+    ${recordField(
+      "Delayed Loans",
+      delayedLoans
+    )}
+
+  </div>
+
+</div>
 
         <div class="borrower-record-section">
 
