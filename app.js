@@ -2853,6 +2853,122 @@ async function renderClients() {
     `;
 }
 
+/* =========================================
+   LOAD LOAN HISTORY
+========================================= */
+
+async function renderLoanHistory() {
+
+  const loanHistoryList = $("loanHistoryList");
+
+  if (!loanHistoryList) {
+    return;
+  }
+
+  loanHistoryList.innerHTML = `
+    <tr>
+      <td colspan="7">
+        Loading loan history...
+      </td>
+    </tr>
+  `;
+
+  const { data, error } =
+    await sb
+      .from("applications")
+      .select("*")
+      .eq("loan_status", "Paid")
+      .order("paid_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    loanHistoryList.innerHTML = `
+      <tr>
+        <td colspan="7">
+          ${escapeHtml(error.message)}
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  loanHistoryList.innerHTML =
+    (data || [])
+      .map(application => `
+        <tr>
+
+          <td>
+            <b>
+              ${escapeHtml(application.full_name || "—")}
+            </b>
+            <br>
+            <small>
+              ${escapeHtml(application.application_id || "—")}
+            </small>
+          </td>
+
+          <td>
+            ${formatMoney(application.requested_amount)}
+          </td>
+
+          <td>
+            ${formatMoney(
+              application.total_payment ||
+              application.total_amount_to_pay
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDisplayDate(application.loan_start_date)
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDisplayDate(application.loan_end_date)
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              application.due_status ||
+              application.payment_status ||
+              "Paid"
+            )}
+          </td>
+
+          <td>
+            <button
+              type="button"
+              onclick="viewDocs('${escapeJsString(application.id)}')"
+            >
+              View Record
+            </button>
+
+            <button
+              type="button"
+              onclick="reloan('${escapeJsString(application.id)}')"
+            >
+              Re-loan
+            </button>
+          </td>
+
+        </tr>
+      `)
+      .join("") ||
+
+    `
+      <tr>
+        <td colspan="7">
+          No completed loans found.
+        </td>
+      </tr>
+    `;
+}
 
 /* =========================================
    MARK LOAN AS PAID
