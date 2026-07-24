@@ -2980,6 +2980,15 @@ async function renderLoanHistory() {
           >
             Re-loan
           </button>
+
+<button
+    type="button"
+    class="secondary-button"
+    onclick="sendPaymentConfirmation('${escapeJsString(application.id)}')"
+>
+    📧 Send Payment Receipt
+</button>
+          
         </td>
       </tr>
     `)
@@ -4594,4 +4603,19 @@ async function generateReceipt(applicationId) {
 
   }
 
+}
+
+/* =========================================
+   SEND PAYMENT CONFIRMATION
+========================================= */
+
+async function sendPaymentConfirmation(id) {
+
+  const confirmed = confirm(
+    "Send a payment confirmation email to this borrower?"
+  );
+
+  if (!confirmed) return;
+
+  alert("This feature will be connected in the next step.");
 }
