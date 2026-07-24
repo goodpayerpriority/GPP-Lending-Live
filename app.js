@@ -1355,10 +1355,15 @@ if (isReloan) {
     $("address").value = application.full_address || "";
     $("brgyCaptain").value = application.brgy_captain || "";
     $("employment").value = application.employment_type || "";
-    $("income").value = application.monthly_income || "";
-    $("relativeFb1").value = application.relative_fb_1 || "";
-    $("relativeFb2").value = application.relative_fb_2 || "";
-    $("school").value = application.school_facebook_url || "";
+$("occupation").value = application.occupation || "";
+$("income").value = application.monthly_income || "";
+$("facebookProfile").value = application.facebook_profile_url || "";
+$("relativeFb1").value = application.relative_fb_1 || "";
+$("relativeFb2").value = application.relative_fb_2 || "";
+$("school").value = application.school_facebook_url || "";
+
+/* Refresh Employment-dependent fields */
+updateEmploymentFields();
 
     window.reloanExistingDocuments = {
   id_front_path: application.id_front_path || "",
