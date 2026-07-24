@@ -2077,44 +2077,36 @@ async function render() {
    DASHBOARD COUNTS
 ========================================= */
 
-function updateDashboardCounts(
-  applications
-) {
+function updateDashboardCounts(applications) {
 
-  const today =
-    formatDateForInput(
-      new Date()
-    );
+  const pending = applications.filter(
+    application =>
+      application.status === "Pending Review"
+  ).length;
 
+  const active = applications.filter(
+    application =>
+      application.loan_status === "Active"
+  ).length;
 
-  const pending =
-    applications.filter(
-      application =>
-        application.status ===
-        "Pending Review"
-    ).length;
+  const dueToday = applications.filter(application => {
 
+    if (application.loan_status !== "Active") {
+      return false;
+    }
 
-  const active =
-    applications.filter(
-      application =>
-        application.loan_status ===
-        "Active"
-    ).length;
+    const dueStatus =
+      getCalculatedDueStatus(application);
 
+    return dueStatus === "Due Today";
 
-  const dueToday =
-    applications.filter(
-      application =>
-        application.loan_status ===
-        "Active" &&
-        application.loan_end_date ===
-        today
-    ).length;
+  }).length;
 
+  const delayed = applications.filter(application => {
 
-  const delayed =
-  applications.filter(application => {
+    if (application.loan_status !== "Active") {
+      return false;
+    }
 
     const dueStatus =
       getCalculatedDueStatus(application);
@@ -2123,39 +2115,17 @@ function updateDashboardCounts(
 
   }).length;
 
+  const paid = applications.filter(
+    application =>
+      application.payment_status === "Paid"
+  ).length;
 
-  const paid =
-    applications.filter(
-      application =>
-        application.payment_status ===
-        "Paid"
-    ).length;
+  $("pendingCount").textContent = pending;
+  $("activeCount").textContent = active;
+  $("dueTodayCount").textContent = dueToday;
+  $("delayedCount").textContent = delayed;
+  $("paidCount").textContent = paid;
 
-
-  if ($("pendingCount")) {
-    $("pendingCount").textContent =
-      pending;
-  }
-
-  if ($("activeCount")) {
-    $("activeCount").textContent =
-      active;
-  }
-
-  if ($("dueTodayCount")) {
-    $("dueTodayCount").textContent =
-      dueToday;
-  }
-
-  if ($("delayedCount")) {
-    $("delayedCount").textContent =
-      delayed;
-  }
-
-  if ($("paidCount")) {
-    $("paidCount").textContent =
-      paid;
-  }
 }
 
 /* =========================================
