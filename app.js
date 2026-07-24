@@ -7,9 +7,6 @@ const SUBMIT_URL =
 const GENERATE_PDF_URL =
   `${SUPABASE_URL}/functions/v1/generate-application-pdf`;
 
-const GENERATE_RECEIPT_URL =
-  `${SUPABASE_URL}/functions/v1/generate-payment-receipt`;
-
 const TRACK_URL =
   `${SUPABASE_URL}/functions/v1/track-application`;
 
@@ -3142,41 +3139,6 @@ async function markAsPaid(id) {
     alert(updateError.message);
     return;
   }
-
-if (isFullyPaid) {
-  try {
-    const response = await fetch(GENERATE_RECEIPT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
-      },
-      body: JSON.stringify({
-        application_id: application.application_id
-      })
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.error ||
-        result.message ||
-        "Receipt generation failed."
-      );
-    }
-
-    console.log("Receipt generated:", result);
-  } catch (error) {
-    console.error("Receipt generation error:", error);
-
-    alert(
-      "Payment was saved successfully, but the payment receipt could not be generated.\n\n" +
-      (error.message || "Unknown error")
-    );
-  }
-}
   
   alert(
     isFullyPaid
