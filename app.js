@@ -2114,13 +2114,14 @@ function updateDashboardCounts(
 
 
   const delayed =
-    applications.filter(
-      application =>
-        application.due_status ===
-          "Delayed" ||
-        application.delay_status ===
-          "Delayed"
-    ).length;
+  applications.filter(application => {
+
+    const dueStatus =
+      getCalculatedDueStatus(application);
+
+    return dueStatus.startsWith("Delayed");
+
+  }).length;
 
 
   const paid =
