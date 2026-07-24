@@ -7,6 +7,9 @@ const SUBMIT_URL =
 const GENERATE_PDF_URL =
   `${SUPABASE_URL}/functions/v1/generate-application-pdf`;
 
+const SEND_PAYMENT_CONFIRMATION_URL =
+  `${SUPABASE_URL}/functions/v1/send-payment-confirmation`;
+
 const TRACK_URL =
   `${SUPABASE_URL}/functions/v1/track-application`;
 
@@ -4617,5 +4620,44 @@ async function sendPaymentConfirmation(id) {
 
   if (!confirmed) return;
 
-  alert("This feature will be connected in the next step.");
+  try {
+
+    const response = await fetch(
+      SEND_PAYMENT_CONFIRMATION_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        },
+
+        body: JSON.stringify({
+          id
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        "Unable to send payment confirmation."
+      );
+    }
+
+    alert("✅ Payment confirmation sent successfully.");
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      error.message ||
+      "Unable to send payment confirmation."
+    );
+  }
+
 }
