@@ -7,6 +7,9 @@ const SUBMIT_URL =
 const GENERATE_PDF_URL =
   `${SUPABASE_URL}/functions/v1/generate-application-pdf`;
 
+const GENERATE_RECEIPT_URL =
+  `${SUPABASE_URL}/functions/v1/generate-payment-receipt`;
+
 const TRACK_URL =
   `${SUPABASE_URL}/functions/v1/track-application`;
 
@@ -2830,6 +2833,13 @@ async function renderClients() {
 
 <button
   type="button"
+  onclick="generateReceipt('${escapeJsString(application.application_id)}')"
+>
+  Generate Receipt
+</button>
+
+<button
+  type="button"
   class="deactivate-button"
   onclick="openDeactivateModal('${escapeJsString(application.id)}')"
 >
@@ -4535,6 +4545,61 @@ async function confirmDeactivateLoan() {
     alert(
       error.message ||
       "Unable to deactivate the loan."
+    );
+
+  }
+
+}
+
+/* =========================================
+   GENERATE PAYMENT RECEIPT
+========================================= */
+
+async function generateReceipt(applicationId) {
+
+  try {
+
+    const response =
+      await fetch(
+        GENERATE_RECEIPT_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
+          },
+
+          body: JSON.stringify({
+            application_id: applicationId
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        "Unable to generate receipt."
+      );
+    }
+
+    alert(
+      "Payment receipt generated successfully."
+    );
+
+    await renderLoanHistory();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      error.message ||
+      "Unable to generate receipt."
     );
 
   }
