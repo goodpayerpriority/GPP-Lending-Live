@@ -348,26 +348,48 @@ if ($("employment")) {
       "change",
       function () {
 
-        const isStudent =
-          $("employment").value ===
-          "Student";
+  const employment =
+    $("employment").value;
 
-        if ($("schoolBox")) {
+  const isStudent =
+    employment === "Student";
 
-          $("schoolBox")
-            .classList
-            .toggle(
-              "hidden",
-              !isStudent
-            );
-        }
+  const needsOccupation =
+    employment === "Employed" ||
+    employment === "Self-employed";
 
-        if ($("school")) {
-          $("school").required =
-            isStudent;
-        }
-      }
-    );
+  if ($("schoolBox")) {
+    $("schoolBox")
+      .classList
+      .toggle(
+        "hidden",
+        !isStudent
+      );
+  }
+
+  if ($("school")) {
+    $("school").required =
+      isStudent;
+  }
+
+  if ($("occupationContainer")) {
+    $("occupationContainer")
+      .classList
+      .toggle(
+        "hidden",
+        !needsOccupation
+      );
+  }
+
+  if ($("occupation")) {
+    $("occupation").required =
+      needsOccupation;
+
+    if (!needsOccupation) {
+      $("occupation").value = "";
+    }
+  }
+
 }
 
 
@@ -1019,6 +1041,16 @@ if (!isReloan) {
           );
 
           formData.append(
+  "occupation",
+  $("occupation")?.value || ""
+);
+
+formData.append(
+  "facebook_profile_url",
+  $("facebookProfile").value
+);
+          
+          formData.append(
             "school_facebook_url",
             $("school").value || ""
           );
@@ -1255,6 +1287,14 @@ if (isReloan && window.reloanExistingDocuments) {
    START SIGNATURE PAD
 ========================================= */
 
+function updateEmploymentFields() {
+  if (!$("employment")) return;
+
+  $("employment").dispatchEvent(
+    new Event("change")
+  );
+}
+
 if (
   document.readyState ===
   "loading"
@@ -1262,12 +1302,16 @@ if (
 
   document.addEventListener(
     "DOMContentLoaded",
-    initializeSignaturePad
+    function () {
+      initializeSignaturePad();
+      updateEmploymentFields();
+    }
   );
 
 } else {
 
   initializeSignaturePad();
+  updateEmploymentFields();
 }
 /* =========================================
    RE-LOAN AUTO-FILL
