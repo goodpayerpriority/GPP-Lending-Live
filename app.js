@@ -381,15 +381,16 @@ if ($("employment")) {
       );
   }
 
-  if ($("occupation")) {
-    $("occupation").required =
-      needsOccupation;
+ if ($("occupation")) {
+  $("occupation").required = needsOccupation;
 
-    if (!needsOccupation) {
-      $("occupation").value = "";
-    }
+  if (!needsOccupation) {
+    $("occupation").value = "";
   }
+}
 
+      }
+    );
 }
 
 
