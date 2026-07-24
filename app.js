@@ -3683,21 +3683,31 @@ const delayedLoans =
           <div class="borrower-record-grid">
 
             ${recordField(
-              "Employment",
-              application.employment_type
-            )}
+  "Employment",
+  application.employment_type
+)}
 
-            ${recordField(
-              "Monthly Income",
-              formatMoney(
-                application.monthly_income
-              )
-            )}
+${recordField(
+  "Occupation / Job Title",
+  application.occupation || "—"
+)}
 
-            ${recordLinkField(
-              "School Facebook Page",
-              application.school_facebook_url
-            )}
+${recordField(
+  "Monthly Income",
+  formatMoney(
+    application.monthly_income
+  )
+)}
+
+${recordLinkField(
+  "Facebook Profile",
+  application.facebook_profile_url
+)}
+
+${recordLinkField(
+  "School Facebook Page",
+  application.school_facebook_url
+)}
 
           </div>
 
