@@ -2022,36 +2022,37 @@ async function render() {
 
             <td>
 
-              ${
-                application.status ===
-                "Approved"
+  ${
+    application.status ===
+    "Approved"
 
-                  ? `
+      ? `
 
-                    <button
+          <button
+            type="button"
+            onclick="activateLoan(
+              '${escapeJsString(application.id)}'
+            )"
+          >
+            Activate Loan
+          </button>
 
-                      type="button"
+      `
 
-                      onclick="activateLoan(
+      : "—"
+  }
 
-                        '${escapeJsString(
-                          application.id
-                        )}'
+  <br><br>
 
-                      )"
+  <button
+    type="button"
+    class="deactivate-button"
+    onclick="deleteApplication('${escapeJsString(application.id)}')"
+  >
+    Delete
+  </button>
 
-                    >
-
-                      Activate Loan
-
-                    </button>
-
-                  `
-
-                  : "—"
-              }
-
-            </td>
+</td>
 
           </tr>
 
@@ -2457,6 +2458,30 @@ async function setStatus(
   await render();
 }
 
+async function deleteApplication(id) {
+
+  const confirmed = confirm(
+    "Are you sure you want to permanently delete this application?"
+  );
+
+  if (!confirmed) return;
+
+  const { error } =
+    await sb
+      .from("applications")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Application deleted successfully.");
+
+  await render();
+
+}
 
 /* =========================================
    ADMIN TAB SWITCHER
