@@ -1161,23 +1161,6 @@ if (isReloan && window.reloanExistingDocuments) {
   );
 }
 
-  formData.append(
-    "id_back",
-    $("idBack").files[0]
-  );
-
-  formData.append(
-    "signature",
-    signatureFile
-  );
-
-  formData.append(
-    "verification_video",
-    $("video").files[0]
-  );
-}
-
-
           const response =
             await fetch(
               SUBMIT_URL,
