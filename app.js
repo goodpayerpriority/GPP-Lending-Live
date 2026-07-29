@@ -1122,10 +1122,44 @@ if (isReloan && window.reloanExistingDocuments) {
     window.reloanExistingDocuments.verification_video_path
   );
 } else {
+
+  console.log("ID Front:", $("idFront").files);
+  console.log("ID Back:", $("idBack").files);
+  console.log("Video:", $("video").files);
+  console.log("Signature:", signatureFile);
+
+  if (!$("idFront").files.length) {
+    throw new Error("ID Front file is missing.");
+  }
+
+  if (!$("idBack").files.length) {
+    throw new Error("ID Back file is missing.");
+  }
+
+  if (!$("video").files.length) {
+    throw new Error("Verification video is missing.");
+  }
+
   formData.append(
     "id_front",
     $("idFront").files[0]
   );
+
+  formData.append(
+    "id_back",
+    $("idBack").files[0]
+  );
+
+  formData.append(
+    "signature",
+    signatureFile
+  );
+
+  formData.append(
+    "verification_video",
+    $("video").files[0]
+  );
+}
 
   formData.append(
     "id_back",
