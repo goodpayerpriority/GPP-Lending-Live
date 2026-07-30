@@ -3368,6 +3368,9 @@ const verificationVideoUrl =
     ? `https://drive.google.com/file/d/${application.verification_video_path}/view`
     : "";
 
+const driveFolderUrl =
+  application.drive_folder_link || "";
+    
     // =========================================
 // CLIENT PAYMENT STATISTICS
 // =========================================
@@ -3625,6 +3628,34 @@ const delayedLoans =
 
           `;
 
+const folderHtml =
+  driveFolderUrl
+    ? `
+      <div class="borrower-record-section">
+        <h3>Application Folder</h3>
+
+        <div class="pdf-record-box">
+          <div>
+            <strong>Google Drive Folder</strong>
+            <div class="record-small-text">
+              Open the complete application folder in Google Drive.
+            </div>
+          </div>
+
+          <a
+            href="${driveFolderUrl}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="record-link-button"
+          >
+            Open Folder
+          </a>
+        </div>
+      </div>
+    `
+    : "";
+
+    
     const pdfHtml =
 
       pdfLink
@@ -4033,9 +4064,24 @@ ${recordLinkField(
 
         <div class="borrower-record-section">
 
-          <h3>
-            Uploaded Documents
-          </h3>
+          <div class="borrower-record-header">
+  <h3>Uploaded Documents</h3>
+
+  ${
+    driveFolderUrl
+      ? `
+        <a
+          href="${driveFolderUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="record-link-button"
+        >
+          Open Folder
+        </a>
+      `
+      : ""
+  }
+</div>
 
           <p class="record-small-text">
             Private document links expire
