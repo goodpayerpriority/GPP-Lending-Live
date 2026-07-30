@@ -3549,84 +3549,81 @@ const delayedLoans =
             )
             .join("")
 
-        : `
+               : `
 
-            `
-<div class="pdf-record-box">
+            <div class="pdf-record-box">
 
-  ${
-    idFrontUrl
-      ? `
-      <div>
-        <b>🪪 ID Front</b><br>
-        <a
-          href="${idFrontUrl}"
-          target="_blank"
-          class="record-link-button"
-        >
-          Open
-        </a>
-      </div>
-      `
-      : ""
-  }
+              ${
+                idFrontUrl
+                  ? `
+                    <div class="borrower-document-item">
+                      <span>ID Front</span>
+                      <a
+                        href="${idFrontUrl}"
+                        target="_blank"
+                        class="record-link-button"
+                      >
+                        Open
+                      </a>
+                    </div>
+                  `
+                  : ""
+              }
 
-  ${
-    idBackUrl
-      ? `
-      <div>
-        <b>🪪 ID Back</b><br>
-        <a
-          href="${idBackUrl}"
-          target="_blank"
-          class="record-link-button"
-        >
-          Open
-        </a>
-      </div>
-      `
-      : ""
-  }
+              ${
+                idBackUrl
+                  ? `
+                    <div class="borrower-document-item">
+                      <span>ID Back</span>
+                      <a
+                        href="${idBackUrl}"
+                        target="_blank"
+                        class="record-link-button"
+                      >
+                        Open
+                      </a>
+                    </div>
+                  `
+                  : ""
+              }
 
-  ${
-    signatureUrl
-      ? `
-      <div>
-        <b>✍ Signature</b><br>
-        <a
-          href="${signatureUrl}"
-          target="_blank"
-          class="record-link-button"
-        >
-          Open
-        </a>
-      </div>
-      `
-      : ""
-  }
+              ${
+                signatureUrl
+                  ? `
+                    <div class="borrower-document-item">
+                      <span>Signature</span>
+                      <a
+                        href="${signatureUrl}"
+                        target="_blank"
+                        class="record-link-button"
+                      >
+                        Open
+                      </a>
+                    </div>
+                  `
+                  : ""
+              }
 
-  ${
-    verificationVideoUrl
-      ? `
-      <div>
-        <b>🎥 Verification Video</b><br>
-        <a
-          href="${verificationVideoUrl}"
-          target="_blank"
-          class="record-link-button"
-        >
-          Open
-        </a>
-      </div>
-      `
-      : ""
-  }
+              ${
+                verificationVideoUrl
+                  ? `
+                    <div class="borrower-document-item">
+                      <span>Verification Video</span>
+                      <a
+                        href="${verificationVideoUrl}"
+                        target="_blank"
+                        class="record-link-button"
+                      >
+                        Open
+                      </a>
+                    </div>
+                  `
+                  : ""
+              }
 
-</div>
-`
+            </div>
 
           `;
-
 
     const pdfHtml =
 
