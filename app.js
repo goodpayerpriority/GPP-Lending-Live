@@ -3643,13 +3643,13 @@ const folderHtml =
           </div>
 
           <a
-            href="${driveFolderUrl}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="record-link-button"
-          >
-            Open Folder
-          </a>
+  href="${driveFolderUrl}"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="record-link-button"
+>
+  <span style="color:#fff;">Open Folder</span>
+</a>
         </div>
       </div>
     `
