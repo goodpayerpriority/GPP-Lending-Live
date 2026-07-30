@@ -3348,6 +3348,26 @@ async function viewDocs(id) {
       );
     }
 
+const idFrontUrl =
+  application.id_front_path
+    ? `https://drive.google.com/file/d/${application.id_front_path}/view`
+    : "";
+
+const idBackUrl =
+  application.id_back_path
+    ? `https://drive.google.com/file/d/${application.id_back_path}/view`
+    : "";
+
+const signatureUrl =
+  application.signature_path
+    ? `https://drive.google.com/file/d/${application.signature_path}/view`
+    : "";
+
+const verificationVideoUrl =
+  application.verification_video_path
+    ? `https://drive.google.com/file/d/${application.verification_video_path}/view`
+    : "";
+
     // =========================================
 // CLIENT PAYMENT STATISTICS
 // =========================================
@@ -3531,9 +3551,79 @@ const delayedLoans =
 
         : `
 
-            <p>
-              No private documents available.
-            </p>
+            `
+<div class="pdf-record-box">
+
+  ${
+    idFrontUrl
+      ? `
+      <div>
+        <b>🪪 ID Front</b><br>
+        <a
+          href="${idFrontUrl}"
+          target="_blank"
+          class="record-link-button"
+        >
+          Open
+        </a>
+      </div>
+      `
+      : ""
+  }
+
+  ${
+    idBackUrl
+      ? `
+      <div>
+        <b>🪪 ID Back</b><br>
+        <a
+          href="${idBackUrl}"
+          target="_blank"
+          class="record-link-button"
+        >
+          Open
+        </a>
+      </div>
+      `
+      : ""
+  }
+
+  ${
+    signatureUrl
+      ? `
+      <div>
+        <b>✍ Signature</b><br>
+        <a
+          href="${signatureUrl}"
+          target="_blank"
+          class="record-link-button"
+        >
+          Open
+        </a>
+      </div>
+      `
+      : ""
+  }
+
+  ${
+    verificationVideoUrl
+      ? `
+      <div>
+        <b>🎥 Verification Video</b><br>
+        <a
+          href="${verificationVideoUrl}"
+          target="_blank"
+          class="record-link-button"
+        >
+          Open
+        </a>
+      </div>
+      `
+      : ""
+  }
+
+</div>
+`
 
           `;
 
