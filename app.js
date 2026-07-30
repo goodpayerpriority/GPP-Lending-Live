@@ -2737,6 +2737,27 @@ async function renderClients() {
               application
             );
 
+          let penalty = 0;
+
+if (dueStatus.startsWith("Delayed")) {
+  const match =
+    dueStatus.match(/(\d+)/);
+
+  const delayedDays =
+    match
+      ? Number(match[1])
+      : 0;
+
+  penalty = delayedDays * 50;
+}
+
+const totalDue =
+  Number(
+    application.total_due ??
+    application.total_payment ??
+    0
+  ) + penalty;
+
 
           return `
 
@@ -2772,12 +2793,9 @@ async function renderClients() {
 
               <td>
 
-                ${formatMoney(
-                  application.total_payment ||
-                  application.total_amount_to_pay
-                )}
+  ${formatMoney(totalDue)}
 
-              </td>
+</td>
 
 
               <td>
