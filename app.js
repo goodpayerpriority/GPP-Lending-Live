@@ -3647,8 +3647,17 @@ const folderHtml =
   target="_blank"
   rel="noopener noreferrer"
   class="record-link-button"
+  style="
+    min-width:160px;
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff !important;
+    font-weight:bold;
+    text-decoration:none;
+  "
 >
-  <span style="color:#fff;">Open Folder</span>
+  <span style="color:#fff !important;">Open Folder</span>
 </a>
         </div>
       </div>
