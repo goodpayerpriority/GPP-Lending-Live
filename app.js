@@ -3083,11 +3083,7 @@ const totalDue =
 
   const currentBalance =
     Math.max(
-      Number(
-        application.remaining_balance != null
-          ? application.remaining_balance
-          : totalDue - alreadyPaid
-      ),
+      totalDue - alreadyPaid,
       0
     );
 
