@@ -3559,12 +3559,12 @@ const delayedLoans =
                     <div class="borrower-document-item">
                       <span>ID Front</span>
                       <a
-                        href="${idFrontUrl}"
-                        target="_blank"
-                        class="record-link-button"
-                      >
-                        Open
-                      </a>
+  href="${idFrontUrl}"
+  target="_blank"
+  class="record-link-button"
+>
+  <span style="color:#fff;">Open</span>
+</a>
                     </div>
                   `
                   : ""
@@ -3576,12 +3576,12 @@ const delayedLoans =
                     <div class="borrower-document-item">
                       <span>ID Back</span>
                       <a
-                        href="${idBackUrl}"
-                        target="_blank"
-                        class="record-link-button"
-                      >
-                        Open
-                      </a>
+  href="${idBackUrl}"
+  target="_blank"
+  class="record-link-button"
+>
+  <span style="color:#fff;">Open</span>
+</a>
                     </div>
                   `
                   : ""
@@ -3593,12 +3593,12 @@ const delayedLoans =
                     <div class="borrower-document-item">
                       <span>Signature</span>
                       <a
-                        href="${signatureUrl}"
-                        target="_blank"
-                        class="record-link-button"
-                      >
-                        Open
-                      </a>
+  href="${signatureUrl}"
+  target="_blank"
+  class="record-link-button"
+>
+  <span style="color:#fff;">Open</span>
+</a>
                     </div>
                   `
                   : ""
@@ -3610,12 +3610,12 @@ const delayedLoans =
                     <div class="borrower-document-item">
                       <span>Verification Video</span>
                       <a
-                        href="${verificationVideoUrl}"
-                        target="_blank"
-                        class="record-link-button"
-                      >
-                        Open
-                      </a>
+  href="${verificationVideoUrl}"
+  target="_blank"
+  class="record-link-button"
+>
+  <span style="color:#fff;">Open</span>
+</a>
                     </div>
                   `
                   : ""
