@@ -3054,8 +3054,29 @@ async function markAsPaid(id) {
     return;
   }
 
-  const totalDue =
-    Number(application.total_payment || 0);
+  const dueStatus =
+  getCalculatedDueStatus(application);
+
+let penalty = 0;
+
+if (dueStatus.startsWith("Delayed")) {
+  const match =
+    dueStatus.match(/(\d+)/);
+
+  const delayedDays =
+    match
+      ? Number(match[1])
+      : 0;
+
+  penalty = delayedDays * 50;
+}
+
+const totalDue =
+  Number(
+    application.total_payment ||
+    application.total_amount_to_pay ||
+    0
+  ) + penalty;
 
   const alreadyPaid =
     Number(application.amount_paid || 0);
@@ -3120,10 +3141,13 @@ async function markAsPaid(id) {
   if (paymentReference === null) return;
 
   const newAmountPaid =
-    alreadyPaid + paymentAmount;
+  alreadyPaid + paymentAmount;
 
-  const newBalance =
-    Math.max(totalDue - newAmountPaid, 0);
+const newBalance =
+  Math.max(
+    totalDue - newAmountPaid,
+    0
+  );
 
   const isFullyPaid =
     newBalance <= 0.009;
