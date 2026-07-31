@@ -3054,29 +3054,38 @@ async function markAsPaid(id) {
     return;
   }
 
-  const dueStatus =
-  getCalculatedDueStatus(application);
+  let penalty = 0;
 
-let penalty = 0;
+if (application.loan_end_date) {
 
-if (dueStatus.startsWith("Delayed")) {
-  const match =
-    dueStatus.match(/(\d+)/);
+  const due =
+    new Date(`${application.loan_end_date}T00:00:00`);
 
-  const delayedDays =
-    match
-      ? Number(match[1])
-      : 0;
+  const paid =
+    new Date(`${paymentDate}T00:00:00`);
 
-  penalty = delayedDays * 50;
+  if (paid > due) {
+
+    const delayedDays =
+      Math.floor(
+        (paid - due) /
+        (1000 * 60 * 60 * 24)
+      );
+
+    penalty = delayedDays * 50;
+  }
+
 }
 
-const totalDue =
+const originalTotalDue =
   Number(
     application.total_payment ||
     application.total_amount_to_pay ||
     0
-  ) + penalty;
+  );
+
+const totalDue =
+  originalTotalDue + penalty;
 
   const alreadyPaid =
     Number(application.amount_paid || 0);
@@ -3148,8 +3157,17 @@ const newBalance =
   const isFullyPaid =
     newBalance <= 0.009;
 
-  const paymentDate =
-    formatDateForInput(new Date());
+  const paymentDateInput =
+  prompt(
+    "Actual payment date (YYYY-MM-DD):",
+    application.payment_date ||
+    formatDateForInput(new Date())
+  );
+
+if (paymentDateInput === null) return;
+
+const paymentDate =
+  paymentDateInput.trim();
 
   const finalDueStatus =
     isFullyPaid
@@ -3187,6 +3205,9 @@ const newBalance =
         amount_paid:
           newAmountPaid,
 
+        penalty_amount:
+          penalty,
+        
         payment_method:
           paymentMethod.trim() || null,
 
