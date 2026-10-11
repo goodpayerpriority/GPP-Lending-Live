@@ -5028,8 +5028,6 @@ async function customerLogin() {
  
 await loadCustomerProfile();
 
-const { data: { user } } = await sb.auth.getUser();
-
 if (user) {
   $("siteHeader").classList.remove("hidden");
   $("siteFooter").classList.remove("hidden");
