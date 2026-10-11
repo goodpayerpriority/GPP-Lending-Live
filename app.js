@@ -5212,11 +5212,16 @@ async function loadCustomerProfile() {
     await sb.rpc("is_admin");
 
   if (roleError || isAdmin === true) {
-    showCustomerLogin();
-    $("customerAuthMessage").textContent =
+  showCustomerLogin();
+
+  const authMessage = $("customerAuthMessage");
+  if (authMessage) {
+    authMessage.textContent =
       "This account cannot access the customer profile.";
-    return;
   }
+
+  return;
+}
 
   const { data: profile, error } = await sb
     .from("customer_profiles")
