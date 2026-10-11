@@ -5115,7 +5115,8 @@ async function customerForgotPassword() {
    LOGIN-FIRST STARTUP
 ========================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+
+(function initializeLoginFirst() {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
@@ -5128,4 +5129,4 @@ document.addEventListener("DOMContentLoaded", function () {
   $("customerAuth").classList.remove("hidden");
   $("customerRegister").classList.add("hidden");
   $("customerProfile").classList.add("hidden");
-});
+})();
