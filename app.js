@@ -4977,6 +4977,61 @@ async function customerRegister() {
     "Registration submitted. Please check your email.";
 }
 
+async function verifyCustomerOtp() {
+  const email = $("customerOtpEmail").value.trim();
+  const token = $("customerOtp").value.trim();
+  const message = $("customerVerifyMessage");
+
+  message.textContent = "";
+
+  if (!email || !/^\d{6}$/.test(token)) {
+    message.textContent = "Please enter your 6-digit verification code.";
+    return;
+  }
+
+  const { data, error } = await sb.auth.verifyOtp({
+    email,
+    token,
+    type: "signup"
+  });
+
+  if (error) {
+    message.textContent =
+      "Verification failed: " + error.message;
+    return;
+  }
+
+  const user = data.user;
+
+  if (!user) {
+    message.textContent =
+      "Verification could not be completed. Please try logging in.";
+    return;
+  }
+
+  const fullName = user.user_metadata?.full_name || "";
+  const mobile = user.user_metadata?.mobile_number || "";
+
+  const { error: profileError } = await sb
+    .from("customer_profiles")
+    .upsert({
+      user_id: user.id,
+      full_name: fullName,
+      mobile_number: mobile
+    });
+
+  if (profileError) {
+    message.textContent =
+      "Email verified, but profile setup failed. Please log in and contact support if the problem continues.";
+    return;
+  }
+
+  $("customerVerify").classList.add("hidden");
+  $("customerAuth").classList.remove("hidden");
+  $("customerEmail").value = email;
+  $("customerAuthMessage").textContent =
+    "Email verified successfully! You can now log in.";
+}
 
 async function customerLogin() {
   const email = $("customerEmail").value.trim();
