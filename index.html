@@ -67,6 +67,16 @@
     <span>Track</span>
   </button>
 
+
+  <button
+    type="button"
+    onclick="show('account')"
+  >
+    <span class="nav-icon">♙</span>
+    <span>My Account</span>
+  </button>
+
+  
   <button
     type="button"
     onclick="show('admin')"
@@ -937,6 +947,93 @@
 
 </section>
 
+
+<!-- CUSTOMER ACCOUNT -->
+<section id="account" class="page">
+  <div class="card">
+    <h1>My Account</h1>
+    <p>Log in or create your GPP Lending customer account.</p>
+
+    <div id="customerAuth">
+      <h2>Customer Login</h2>
+
+      <label>
+        Email Address
+        <input id="customerEmail" type="email" autocomplete="email">
+      </label>
+
+      <label>
+        Password
+        <input id="customerPassword" type="password" autocomplete="current-password">
+      </label>
+
+      <button type="button" class="primary" onclick="customerLogin()">
+        Log In
+      </button>
+
+      <button type="button" onclick="customerRegisterForm()">
+        Create Account
+      </button>
+
+      <button type="button" onclick="customerForgotPassword()">
+        Forgot Password?
+      </button>
+
+      <p id="customerAuthMessage" role="status"></p>
+    </div>
+
+    <div id="customerRegister" class="hidden">
+      <h2>Create Customer Account</h2>
+
+      <label>
+        Full Name
+        <input id="customerFullName" type="text" autocomplete="name">
+      </label>
+
+      <label>
+        Mobile Number
+        <input id="customerMobile" type="tel" autocomplete="tel">
+      </label>
+
+      <label>
+        Email Address
+        <input id="registerEmail" type="email" autocomplete="email">
+      </label>
+
+      <label>
+        Password
+        <input id="registerPassword" type="password" minlength="6" autocomplete="new-password">
+      </label>
+
+      <button type="button" class="primary" onclick="customerRegister()">
+        Register
+      </button>
+
+      <button type="button" onclick="showCustomerLogin()">
+        Back to Login
+      </button>
+
+      <p id="customerRegisterMessage" role="status"></p>
+    </div>
+
+    <div id="customerProfile" class="hidden">
+      <h2>Welcome!</h2>
+      <p id="customerProfileDetails"></p>
+
+      <button type="button" class="primary" onclick="show('apply')">
+        Apply for a Loan
+      </button>
+
+      <button type="button" onclick="show('track')">
+        Track Application
+      </button>
+
+      <button type="button" onclick="customerLogout()">
+        Log Out
+      </button>
+    </div>
+  </div>
+</section>
 
 <!-- =========================================
      ADMIN
