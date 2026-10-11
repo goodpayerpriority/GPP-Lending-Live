@@ -2634,6 +2634,15 @@ function showAdminTab(panelId) {
 
     renderLoanHistory();
   }
+  
+  if (panelId === "customerAccountsPanel") {
+    document
+      .getElementById("customerAccountsTabButton")
+      ?.classList.add("active-admin-tab");
+
+    loadCustomerAccounts();
+  }
+
 }
 
 /* =========================================
@@ -5427,3 +5436,84 @@ async function customerSaveNewPassword() {
   message.textContent = "";
 }
 
+
+/* =========================================
+   ADMIN CUSTOMER ACCOUNTS
+========================================= */
+
+let customerAccountsCache = [];
+
+async function loadCustomerAccounts() {
+  const tbody = document.getElementById("customerAccountsList");
+
+  if (!tbody) {
+    console.error("customerAccountsList not found in index.html");
+    return;
+  }
+
+  tbody.innerHTML =
+    '<tr><td colspan="5">Loading customer accounts...</td></tr>';
+
+  try {
+    const { data: isAdmin, error: adminError } =
+      await sb.rpc("is_admin");
+
+    if (adminError || isAdmin !== true) {
+      throw new Error("Admin access required.");
+    }
+
+    const { data, error } = await sb.rpc(
+      "admin_get_customer_accounts"
+    );
+
+    if (error) throw error;
+
+    customerAccountsCache = data || [];
+    filterCustomerAccounts();
+  } catch (error) {
+    console.error("Customer Accounts error:", error);
+
+    tbody.innerHTML =
+      '<tr><td colspan="5">Unable to load customer accounts. Check the browser console.</td></tr>';
+  }
+}
+
+function filterCustomerAccounts() {
+  const tbody = document.getElementById("customerAccountsList");
+  const search = (
+    document.getElementById("customerAccountsSearch")?.value || ""
+  ).trim().toLowerCase();
+
+  if (!tbody) return;
+
+  const customers = customerAccountsCache.filter(customer =>
+    [
+      customer.full_name,
+      customer.email,
+      customer.mobile_number
+    ].some(value =>
+      String(value || "").toLowerCase().includes(search)
+    )
+  );
+
+  if (customers.length === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="5">No customer accounts found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = customers.map(customer => `
+    <tr>
+      <td>${escapeHtml(String(customer.full_name || "—"))}</td>
+      <td>${escapeHtml(String(customer.email || "—"))}</td>
+      <td>${escapeHtml(String(customer.mobile_number || "—"))}</td>
+      <td>${Number(customer.availed_loans || 0)}</td>
+      <td>
+        <button type="button"
+          onclick="alert('Customer editing will be added next.')">
+          View
+        </button>
+      </td>
+    </tr>
+  `).join("");
+}
