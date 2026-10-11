@@ -5508,12 +5508,145 @@ function filterCustomerAccounts() {
       <td>${escapeHtml(String(customer.email || "—"))}</td>
       <td>${escapeHtml(String(customer.mobile_number || "—"))}</td>
       <td>${Number(customer.availed_loans || 0)}</td>
-      <td>
-        <button type="button"
-          onclick="alert('Customer editing will be added next.')">
-          View
-        </button>
-      </td>
+      
+<td>
+  <button
+    type="button"
+    onclick="editCustomerAccount('${escapeHtml(String(customer.user_id || ""))}')"
+  >
+    Edit
+  </button>
+</td>
+
     </tr>
   `).join("");
+}
+
+
+/* =========================================
+   EDIT CUSTOMER ACCOUNT
+========================================= */
+
+function editCustomerAccount(userId) {
+  const customer = customerAccountsCache.find(
+    item => String(item.user_id) === String(userId)
+  );
+
+  if (!customer) {
+    alert("Customer account not found. Please refresh.");
+    return;
+  }
+
+  const editor = document.getElementById("customerAccountEditor");
+  const fields = document.getElementById("customerAccountEditorFields");
+  const message = document.getElementById("customerAccountEditorMessage");
+
+  if (!editor || !fields) {
+    alert("Customer editor is missing from index.html.");
+    return;
+  }
+
+  message.textContent = "";
+
+  fields.innerHTML = `
+    <label for="editCustomerName">Full Name</label>
+    <input
+      id="editCustomerName"
+      type="text"
+      maxlength="150"
+      required
+      value="${escapeHtml(String(customer.full_name || ""))}"
+    >
+
+    <label for="editCustomerEmail">Email (read-only)</label>
+    <input
+      id="editCustomerEmail"
+      type="email"
+      readonly
+      value="${escapeHtml(String(customer.email || ""))}"
+    >
+
+    <label for="editCustomerMobile">Mobile Number</label>
+    <input
+      id="editCustomerMobile"
+      type="tel"
+      maxlength="20"
+      value="${escapeHtml(String(customer.mobile_number || ""))}"
+    >
+
+    <button type="button" onclick="saveCustomerAccount('${escapeHtml(String(customer.user_id))}')">
+      Save Changes
+    </button>
+
+    <button type="button" onclick="document.getElementById('customerAccountEditor').classList.add('hidden')">
+      Cancel
+    </button>
+  `;
+
+  editor.classList.remove("hidden");
+  editor.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function saveCustomerAccount(userId) {
+  const nameInput = document.getElementById("editCustomerName");
+  const mobileInput = document.getElementById("editCustomerMobile");
+  const message = document.getElementById("customerAccountEditorMessage");
+
+  const fullName = nameInput?.value.trim() || "";
+  const mobileNumber = mobileInput?.value.trim() || "";
+
+  if (!fullName) {
+    message.textContent = "Full name is required.";
+    return;
+  }
+
+  if (fullName.length > 150 || mobileNumber.length > 20) {
+    message.textContent = "Please check the length of the details.";
+    return;
+  }
+
+  const confirmed = confirm(
+    "Save the changes to this customer account?"
+  );
+
+  if (!confirmed) return;
+
+  message.textContent = "Saving...";
+
+  try {
+    const { data: isAdmin, error: adminError } =
+      await sb.rpc("is_admin");
+
+    if (adminError || isAdmin !== true) {
+      throw new Error("Admin access required.");
+    }
+
+    const { data, error } = await sb
+      .from("customer_profiles")
+      .update({
+        full_name: fullName,
+        mobile_number: mobileNumber || null
+      })
+      .eq("user_id", userId)
+      .select("user_id");
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      throw new Error(
+        "No changes were saved. Check the admin update policy."
+      );
+    }
+
+    message.textContent = "Customer details saved successfully.";
+
+    await loadCustomerAccounts();
+    document.getElementById("customerAccountEditor")?.classList.add("hidden");
+
+    alert("Customer details updated successfully.");
+  } catch (error) {
+    console.error("Save customer error:", error);
+    message.textContent =
+      error.message || "Unable to save customer details.";
+  }
 }
