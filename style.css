@@ -2369,3 +2369,279 @@ header nav button.nav-active {
   }
 }
 
+
+/* ==========================================
+   GPP LENDING - LANDSCAPE LOGIN DESIGN
+   ADD THIS AT THE END OF style.css
+========================================== */
+
+#account.page.active {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: 35px 3%;
+  background:
+    radial-gradient(circle at 10% 15%, #d7e8ff, transparent 35%),
+    linear-gradient(120deg, #f5f9ff, #e5efff, #f8fbff);
+}
+
+#account > .card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1450px;
+  min-height: 650px;
+  margin: 0 auto;
+  padding: 40px 30px;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr)
+                         minmax(420px, 540px)
+                         minmax(190px, 1fr);
+  align-content: center;
+  align-items: center;
+  column-gap: clamp(20px, 3vw, 45px);
+  background: transparent;
+  border: 0;
+  border-radius: 24px;
+  box-shadow: none;
+}
+
+/* Center login content */
+#account > .card > h1,
+#account > .card > p,
+#account > .card > #customerAuth,
+#account > .card > #customerRegister,
+#account > .card > #customerVerify,
+#account > .card > #customerProfile {
+  grid-column: 2;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Main heading */
+#account > .card > h1 {
+  margin: 0 0 8px;
+  color: #12346b;
+  font-size: 35px;
+  font-weight: 800;
+  text-align: center;
+}
+
+#account > .card > p {
+  margin: 0 0 24px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Left information panel */
+#account > .card::before {
+  content: "GPP LENDING\A\A GOOD PAYER PRIORITY\A\A Easy account access\A\A Track your application\A\A Manage your loan journey";
+  grid-column: 1;
+  grid-row: 1 / span 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 390px;
+  padding: 28px;
+  box-sizing: border-box;
+  white-space: pre-line;
+  line-height: 2;
+  font-size: 15px;
+  font-weight: 600;
+  color: #284b78;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid #dbe7f8;
+  border-radius: 24px;
+}
+
+/* Right information panel */
+#account > .card::after {
+  content: "WELCOME BACK\A\A Your next step starts here.\A\A Sign in to continue or create an account to get started.\A\A NEED HELP?\A\A Use Forgot Password if you cannot access your account.";
+  grid-column: 3;
+  grid-row: 1 / span 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 390px;
+  padding: 28px;
+  box-sizing: border-box;
+  white-space: pre-line;
+  line-height: 2;
+  font-size: 15px;
+  font-weight: 600;
+  color: #284b78;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid #dbe7f8;
+  border-radius: 24px;
+}
+
+/* GPP logo */
+#account .login-brand {
+  margin: 0 auto 22px;
+  text-align: center;
+}
+
+#account .login-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2878f0, #12346b);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+  box-shadow: 0 10px 25px #2563eb35;
+}
+
+#account .login-brand-name {
+  margin: 0;
+  color: #12346b;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+#account .login-brand-tagline {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Customer and Admin login buttons */
+#account .login-role-switch {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+#account .login-role-switch button {
+  flex: 1;
+  min-height: 48px;
+  border: 1px solid #d6e3f7;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #173b70;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#account .login-role-switch button.primary,
+#account button.primary {
+  background: linear-gradient(135deg, #2878f0, #1556c7);
+  border-color: #2563eb;
+  color: #fff;
+}
+
+/* Form fields */
+#account label {
+  display: block;
+  margin-bottom: 16px;
+  color: #243b5a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+#account input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 8px;
+  padding: 13px 15px;
+  border: 1px solid #d5dfed;
+  border-radius: 12px;
+  background: #f8faff;
+  color: #172b4d;
+}
+
+#account input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px #2563eb20;
+}
+
+/* Login actions */
+#account .login-submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+#account .card button {
+  min-height: 45px;
+  padding: 11px 15px;
+  border: 1px solid #d6e3f7;
+  border-radius: 11px;
+  background: #f8fbff;
+  color: #173b70;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#account .card button:hover {
+  box-shadow: 0 5px 15px #1e40af18;
+}
+
+/* Tablet and mobile */
+@media (max-width: 1050px) {
+  #account > .card {
+    max-width: 650px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    padding: 20px 12px;
+  }
+
+  #account > .card > h1,
+  #account > .card > p,
+  #account > .card > #customerAuth,
+  #account > .card > #customerRegister,
+  #account > .card > #customerVerify,
+  #account > .card > #customerProfile {
+    grid-column: 1;
+  }
+
+  #account > .card::before,
+  #account > .card::after {
+    grid-column: 1;
+    grid-row: auto;
+    min-height: 150px;
+  }
+
+  #account > .card::before {
+    order: 10;
+  }
+
+  #account > .card::after {
+    order: 11;
+  }
+}
+
+@media (max-width: 600px) {
+  #account.page.active {
+    padding: 15px 10px;
+  }
+
+  #account > .card {
+    padding: 18px 8px;
+  }
+
+  #account > .card > h1 {
+    font-size: 28px;
+  }
+
+  #account .login-submit-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  #account .login-submit-row button {
+    width: 100%;
+  }
+
+  #account .login-role-switch button {
+    min-width: 0;
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+}
