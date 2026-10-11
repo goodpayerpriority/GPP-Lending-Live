@@ -362,3 +362,28 @@
     margin: 5px 0;
   }
 }
+
+
+/* REMOVE EXTRA OUTER WHITE RECTANGLE */
+#account > .card {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Keep only the three intended glass panels */
+#account #customerAuth,
+#account #adminLoginPanel {
+  background: rgba(239, 247, 255, 0.40) !important;
+  border: 1px solid rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 22px 55px rgba(19, 57, 113, 0.16) !important;
+}
+
+/* Remove any old decorative white overlay */
+#account > .card::before,
+#account > .card::after {
+  content: none !important;
+  display: none !important;
+}
