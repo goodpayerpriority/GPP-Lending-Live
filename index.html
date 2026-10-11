@@ -1437,6 +1437,15 @@
   Loan History
 </button>
 
+<button
+    id="customerAccountsTabButton"
+    type="button"
+    class="admin-tab"
+    onclick="showAdminTab('customerAccountsPanel')"
+>
+    Customer Accounts
+</button>
+
       </div>
 
 
@@ -1625,6 +1634,59 @@
         </div>
 
       </div>
+
+      <!-- CUSTOMER ACCOUNTS PANEL -->
+      <div
+        id="customerAccountsPanel"
+        class="admin-panel hidden"
+      >
+        <div class="admin-section-heading">
+          <div>
+            <h2>Customer Accounts</h2>
+            <p>Search and manage customer profile and loan records.</p>
+          </div>
+
+          <button type="button" onclick="loadCustomerAccounts()">
+            Refresh
+          </button>
+        </div>
+
+        <label>
+          Search Customer
+          <input
+            id="customerAccountsSearch"
+            type="search"
+            placeholder="Search by name or email"
+            oninput="filterCustomerAccounts()"
+          >
+        </label>
+
+        <div class="scroll">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Email</th>
+                <th>Mobile Number</th>
+                <th>Number of Availed Loans</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="customerAccountsList">
+              <tr>
+                <td colspan="5">Customer records will appear here.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="customerAccountEditor" class="hidden">
+          <h3>Edit Customer Account</h3>
+          <p id="customerAccountEditorMessage" role="status"></p>
+          <div id="customerAccountEditorFields"></div>
+        </div>
+      </div>
+      <!-- END CUSTOMER ACCOUNTS PANEL -->
 
       <!-- BORROWER / DOCUMENT DETAILS -->
 
