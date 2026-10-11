@@ -526,3 +526,21 @@
     }
 }
 
+
+/* CUSTOMER DETAILS FONT */
+#customerProfile .gppcd-welcome-copy > p {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.6;
+}
+
+#customerProfile .gppcd-welcome-copy > p strong {
+  font-weight: 800 !important;
+}
+
+@media (max-width: 520px) {
+  #customerProfile .gppcd-welcome-copy > p {
+    font-size: 15px !important;
+  }
+}
+
