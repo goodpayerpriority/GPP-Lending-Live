@@ -84,6 +84,8 @@
   }
 
   function installMarkup() {
+     const leftPanel = document.querySelector(".login-side-panel");
+if (leftPanel) leftPanel.style.display = "none";
     const profile = $("customerProfile");
     if (!profile || profile.dataset.gppcdInstalled === "yes") return;
     profile.innerHTML = dashboardMarkup();
