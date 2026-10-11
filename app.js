@@ -5022,8 +5022,9 @@ async function verifyCustomerOtp() {
 
   if (profileError) {
     message.textContent =
-      "Email verified, but profile setup failed. Please log in and contact support if the problem continues.";
-    return;
+  "Profile setup failed: " +
+  profileError.message +
+  " (" + (profileError.code || "no code") + ")";
   }
 
   $("customerVerify").classList.add("hidden");
