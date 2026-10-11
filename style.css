@@ -2639,12 +2639,13 @@ header nav button.nav-active {
     width: 100%;
   }
 
+ 
   #account .login-role-switch button {
     min-width: 0;
     padding: 10px 6px;
     font-size: 13px;
   }
-
+}
 
 /* =====================================
    GPP LENDING - TRANSPARENT PHOTO BG
@@ -2659,7 +2660,6 @@ header nav button.nav-active {
     url("gpp-background.png") center center / cover no-repeat fixed !important;
 }
 
-/* Keep login content readable */
 #account.page.active > .card {
   background: rgba(255, 255, 255, 0.82) !important;
   backdrop-filter: blur(10px);
