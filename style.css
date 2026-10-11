@@ -2653,18 +2653,15 @@ header nav button.nav-active {
 #account.page.active {
   background:
     linear-gradient(
-      rgba(239, 246, 255, 0.72),
-      rgba(239, 246, 255, 0.78)
+      rgba(239, 246, 255, 0.45),
+      rgba(239, 246, 255, 0.55)
     ),
-    url("gpp-background.png") center / cover no-repeat fixed;
+    url("gpp-background.png") center center / cover no-repeat fixed !important;
 }
 
-/* Clear white glass login card */
+/* Keep login content readable */
 #account.page.active > .card {
-  background: rgba(255, 255, 255, 0.92) !important;
+  background: rgba(255, 255, 255, 0.82) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-}
-
-   
 }
