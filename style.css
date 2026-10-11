@@ -2644,4 +2644,27 @@ header nav button.nav-active {
     padding: 10px 6px;
     font-size: 13px;
   }
+
+
+/* =====================================
+   GPP LENDING - TRANSPARENT PHOTO BG
+===================================== */
+
+#account.page.active {
+  background:
+    linear-gradient(
+      rgba(239, 246, 255, 0.72),
+      rgba(239, 246, 255, 0.78)
+    ),
+    url("gpp-background.png") center / cover no-repeat fixed;
+}
+
+/* Clear white glass login card */
+#account.page.active > .card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+   
 }
