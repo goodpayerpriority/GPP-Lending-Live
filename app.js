@@ -5240,10 +5240,14 @@ async function loadCustomerProfile() {
   return;
 }
 
-  $("customerProfileDetails").textContent =
+ const profileDetails = $("customerProfileDetails");
+
+if (profileDetails) {
+  profileDetails.textContent =
     "Name: " + profile.full_name +
     " | Mobile: " + (profile.mobile_number || "Not provided") +
     " | Email: " + (user.email || "");
+}
 
   $("customerAuth").classList.add("hidden");
   $("customerRegister").classList.add("hidden");
