@@ -39,10 +39,17 @@ function show(id) {
 
   if (protectedPages.includes(id)) {
     const accountSection = $("account");
-    const isLoggedIn =
-      accountSection &&
-      $("customerProfile") &&
-      !$("customerProfile").classList.contains("hidden");
+    const isCustomerLoggedIn =
+  accountSection &&
+  $("customerProfile") &&
+  !$("customerProfile").classList.contains("hidden");
+
+const isAdminLoggedIn =
+  $("dashboard") &&
+  !$("dashboard").classList.contains("hidden");
+
+const isLoggedIn =
+  isCustomerLoggedIn || isAdminLoggedIn;
 
     if (!isLoggedIn) {
       document.querySelectorAll(".page").forEach(page => {
