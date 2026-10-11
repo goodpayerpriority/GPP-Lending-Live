@@ -356,3 +356,62 @@
     padding: 16px 13px;
   }
 }
+
+/* FIX: CUSTOMER DASHBOARD WIDTH AND PLACEMENT */
+
+#account > .card:has(#customerProfile.gppcd-profile-shell) {
+  width: min(1100px, calc(100% - 40px));
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+#customerProfile .gppcd-dashboard {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  gap: 20px;
+}
+
+#customerProfile .gppcd-welcome,
+#customerProfile .gppcd-panel,
+#customerProfile .gppcd-reminders {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#customerProfile .gppcd-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+#customerProfile .gppcd-stat {
+  min-width: 0;
+  padding: 20px 16px;
+  gap: 12px;
+}
+
+#customerProfile .gppcd-stat > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+#customerProfile .gppcd-stat h3,
+#customerProfile .gppcd-stat strong,
+#customerProfile .gppcd-stat p {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+@media (max-width: 760px) {
+  #account > .card:has(#customerProfile.gppcd-profile-shell) {
+    width: calc(100% - 20px);
+    padding: 12px;
+  }
+
+  #customerProfile .gppcd-summary {
+    grid-template-columns: 1fr;
+  }
+}
