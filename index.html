@@ -1005,6 +1005,65 @@
       <p id="customerAuthMessage" role="status"></p>
     </div>
 
+<!-- ADMIN LOGIN PANEL -->
+<div id="adminLoginPanel" class="hidden">
+
+  <div class="login-brand">
+    <div class="login-brand-icon">GPP</div>
+    <p class="login-brand-name">GPP Lending</p>
+    <p class="login-brand-tagline">Administrator Access</p>
+  </div>
+
+  <div class="login-role-switch">
+    <button
+      type="button"
+      onclick="showCustomerLogin()"
+    >
+      Customer Login
+    </button>
+
+    <button
+      type="button"
+      class="primary"
+      onclick="showAdminLogin()"
+    >
+      Admin Login
+    </button>
+  </div>
+
+  <h2>Admin Login</h2>
+
+  <label>
+    Email Address
+    <input
+      id="adminPanelEmail"
+      type="email"
+      autocomplete="username"
+    >
+  </label>
+
+  <label>
+    Password
+    <input
+      id="adminPanelPassword"
+      type="password"
+      autocomplete="current-password"
+    >
+  </label>
+
+  <button
+    type="button"
+    class="primary"
+    onclick="adminPanelLogin()"
+  >
+    Log In
+  </button>
+
+  <p id="adminPanelMessage" role="status"></p>
+
+</div>
+<!-- END ADMIN LOGIN PANEL -->
+
     <div id="customerRegister" class="hidden">
       <h2>Create Customer Account</h2>
 
