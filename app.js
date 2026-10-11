@@ -27,13 +27,41 @@ const $ =
    PAGE NAVIGATION
 ========================================= */
 
-function show(id) {
 
-  document
-    .querySelectorAll(".page")
-    .forEach(page => {
-      page.classList.remove("active");
-    });
+function show(id) {
+  const protectedPages = [
+    "home",
+    "guide",
+    "apply",
+    "track",
+    "account"
+  ];
+
+  if (protectedPages.includes(id)) {
+    const accountSection = $("account");
+    const isLoggedIn =
+      accountSection &&
+      $("customerProfile") &&
+      !$("customerProfile").classList.contains("hidden");
+
+    if (!isLoggedIn) {
+      document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+      });
+
+      $("account").classList.add("active");
+      $("siteHeader").classList.add("hidden");
+      $("siteFooter").classList.add("hidden");
+      $("customerAuth").classList.remove("hidden");
+      $("customerRegister").classList.add("hidden");
+      $("customerProfile").classList.add("hidden");
+      return;
+    }
+  }
+
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
 
   const target = $(id);
 
@@ -49,6 +77,7 @@ function show(id) {
     }, 100);
   }
 }
+
 
 
 /* =========================================
