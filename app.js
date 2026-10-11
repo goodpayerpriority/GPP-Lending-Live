@@ -5012,13 +5012,35 @@ async function verifyCustomerOtp() {
   const fullName = user.user_metadata?.full_name || "";
   const mobile = user.user_metadata?.mobile_number || "";
 
-  const { error: profileError } = await sb
-    .from("customer_profiles")
-    .upsert({
+  
+const { error: profileError } = await sb
+  .from("customer_profiles")
+  .upsert(
+    {
       user_id: user.id,
       full_name: fullName,
       mobile_number: mobile
-    });
+    },
+    { onConflict: "user_id" }
+  );
+
+if (profileError) {
+  console.error("Customer profile setup failed:", {
+    code: profileError.code,
+    message: profileError.message,
+    details: profileError.details,
+    hint: profileError.hint
+  });
+
+  message.textContent =
+    "Profile setup failed (" +
+    (profileError.code || "unknown") +
+    "): " +
+    profileError.message;
+
+  return;
+}
+
 
   
 if (profileError) {
