@@ -5348,3 +5348,54 @@ function showAdminLogin() {
 
   $("adminLoginPanel").classList.remove("hidden");
 }
+
+
+/* CUSTOMER PASSWORD RESET */
+
+async function customerSaveNewPassword() {
+  const password = $("newCustomerPassword").value;
+  const confirmPassword = $("confirmCustomerPassword").value;
+  const message = $("customerResetMessage");
+
+  if (!password || !confirmPassword) {
+    message.textContent = "Please fill in both password fields.";
+    return;
+  }
+
+  if (password.length < 6) {
+    message.textContent =
+      "Your password must be at least 6 characters.";
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    message.textContent = "Passwords do not match.";
+    return;
+  }
+
+  message.textContent = "Updating your password...";
+
+  const { error } = await sb.auth.updateUser({
+    password: password
+  });
+
+  if (error) {
+    message.textContent =
+      "Password update failed: " + error.message;
+    return;
+  }
+
+  await sb.auth.signOut();
+
+  $("newCustomerPassword").value = "";
+  $("confirmCustomerPassword").value = "";
+
+  $("customerResetPassword").classList.add("hidden");
+  $("customerAuth").classList.remove("hidden");
+
+  $("customerAuthMessage").textContent =
+    "Password updated successfully! Please log in with your new password.";
+
+  message.textContent = "";
+}
+
