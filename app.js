@@ -5020,12 +5020,15 @@ async function verifyCustomerOtp() {
       mobile_number: mobile
     });
 
-  if (profileError) {
-    message.textContent =
-  "Profile setup failed: " +
-  profileError.message +
-  " (" + (profileError.code || "no code") + ")";
-  }
+  
+if (profileError) {
+  console.error("Customer profile setup failed:", profileError);
+  message.textContent =
+    "Email verified, but profile setup failed: " +
+    profileError.message;
+  return;
+}
+
 
   $("customerVerify").classList.add("hidden");
   $("customerAuth").classList.remove("hidden");
