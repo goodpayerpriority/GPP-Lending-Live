@@ -501,3 +501,21 @@
     padding: 16px 13px;
   }
 }
+
+
+/* CUSTOMER PROFILE DETAILS - MOBILE AND DESKTOP */
+#customerProfile .gppcd-profile-shell h1,
+#customerProfile .gppcd-profile-shell h2 {
+    display: none !important;
+}
+
+#customerProfile .gppcd-profile-shell {
+    font-size: 1.08em;
+}
+
+#customerProfile .gppcd-profile-shell p,
+#customerProfile .gppcd-profile-shell .profile-detail {
+    font-size: 1.08em;
+    font-weight: 700;
+    line-height: 1.7;
+}
