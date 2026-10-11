@@ -1212,6 +1212,47 @@
   Resend Verification Code
 </button>
 </div>
+    
+<!-- CUSTOMER RESET PASSWORD -->
+<div id="customerResetPassword" class="hidden">
+  <h2>Reset Your Password</h2>
+
+  <p>Enter your new password below.</p>
+
+  <label>
+    New Password
+    <input
+      id="newCustomerPassword"
+      type="password"
+      minlength="6"
+      autocomplete="new-password"
+      placeholder="Enter new password"
+    >
+  </label>
+
+  <label>
+    Confirm New Password
+    <input
+      id="confirmCustomerPassword"
+      type="password"
+      minlength="6"
+      autocomplete="new-password"
+      placeholder="Confirm new password"
+    >
+  </label>
+
+  <button
+    type="button"
+    class="primary"
+    onclick="customerSaveNewPassword()"
+  >
+    Save New Password
+  </button>
+
+  <p id="customerResetMessage" role="status"></p>
+</div>
+<!-- END CUSTOMER RESET PASSWORD -->
+
     <div id="customerProfile" class="hidden">
       <p id="customerProfileDetails"></p>
 
