@@ -5033,6 +5033,32 @@ async function verifyCustomerOtp() {
     "Email verified successfully! You can now log in.";
 }
 
+async function resendCustomerOtp() {
+  const email = $("customerOtpEmail").value.trim();
+  const message = $("customerVerifyMessage");
+
+  message.textContent = "";
+
+  if (!email) {
+    message.textContent = "Email address is required.";
+    return;
+  }
+
+  const { error } = await sb.auth.resend({
+    type: "signup",
+    email
+  });
+
+  if (error) {
+    message.textContent =
+      "Unable to resend code: " + error.message;
+    return;
+  }
+
+  message.textContent =
+    "A new verification code has been requested. Check your inbox and spam folder.";
+}
+
 async function customerLogin() {
   const email = $("customerEmail").value.trim();
   const password = $("customerPassword").value;
