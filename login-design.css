@@ -387,3 +387,43 @@
   content: none !important;
   display: none !important;
 }
+
+
+/* REMOVE THE LARGE WHITE OUTER RECTANGLE */
+#account > .card {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* REMOVE WHITE BACKGROUND FROM ACCOUNT WRAPPERS */
+#account,
+#account.page,
+#account.page.active,
+#account .container,
+#account .account-container,
+#account .auth-container {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* KEEP THE CENTER LOGIN AS FROSTED GLASS */
+#account #customerAuth,
+#account #adminLoginPanel {
+  background: rgba(235, 245, 255, 0.38) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 20px 50px rgba(20, 55, 100, 0.12) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* KEEP THE SIDE PANELS TRANSPARENT */
+#account .login-side-panel {
+  background: rgba(220, 238, 255, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;
+  box-shadow: 0 16px 38px rgba(20, 55, 100, 0.10) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
