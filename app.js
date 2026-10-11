@@ -5129,6 +5129,22 @@ async function customerForgotPassword() {
   $("customerProfile").classList.add("hidden");
 })();
 
+
+function showMainLogin() {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  $("account").classList.add("active");
+  $("siteHeader").classList.add("hidden");
+  $("siteFooter").classList.add("hidden");
+
+  $("customerAuth").classList.remove("hidden");
+  $("customerRegister").classList.add("hidden");
+  $("customerProfile").classList.add("hidden");
+}
+
+
 function showAdminLogin() {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
