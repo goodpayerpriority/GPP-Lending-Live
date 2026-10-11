@@ -5071,3 +5071,22 @@ async function customerForgotPassword() {
     : "If this email is registered, a password reset link will be sent. Please check your inbox.";
 }
 
+
+/* =========================================
+   LOGIN-FIRST STARTUP
+========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  $("account").classList.add("active");
+
+  $("siteHeader").classList.add("hidden");
+  $("siteFooter").classList.add("hidden");
+
+  $("customerAuth").classList.remove("hidden");
+  $("customerRegister").classList.add("hidden");
+  $("customerProfile").classList.add("hidden");
+});
