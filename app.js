@@ -5281,6 +5281,7 @@ async function customerLogout() {
   $("customerAuthMessage").textContent = "You have logged out.";
 }
 
+
 async function customerForgotPassword() {
   const email = $("customerEmail").value.trim();
 
@@ -5290,14 +5291,18 @@ async function customerForgotPassword() {
     return;
   }
 
+  $("customerAuthMessage").textContent =
+    "Sending password reset email...";
+
   const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin
+    redirectTo: window.location.origin + "/?resetPassword=1"
   });
 
   $("customerAuthMessage").textContent = error
     ? error.message
-    : "If this email is registered, a password reset link will be sent. Please check your inbox.";
+    : "Password reset email sent. Please check your Gmail and click Reset Password.";
 }
+
 
 
 /* =========================================
