@@ -4854,3 +4854,220 @@ async function sendPaymentConfirmation(id) {
   }
 
 }
+
+
+/* =========================
+   CUSTOMER ACCOUNT
+========================= */
+
+function customerRegisterForm() {
+  $("customerAuth").classList.add("hidden");
+  $("customerRegister").classList.remove("hidden");
+  $("customerProfile").classList.add("hidden");
+}
+
+function showCustomerLogin() {
+  $("customerRegister").classList.add("hidden");
+  $("customerProfile").classList.add("hidden");
+  $("customerAuth").classList.remove("hidden");
+}
+
+async function customerRegister() {
+  const fullName = $("customerFullName").value.trim();
+  const mobile = $("customerMobile").value.trim();
+  const email = $("registerEmail").value.trim();
+  const password = $("registerPassword").value;
+
+  $("customerRegisterMessage").textContent = "";
+
+  if (!fullName || !mobile || !email || !password) {
+    $("customerRegisterMessage").textContent =
+      "Please complete all fields.";
+    return;
+  }
+
+  if (password.length < 6) {
+    $("customerRegisterMessage").textContent =
+      "Password must be at least 6 characters.";
+    return;
+  }
+
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        mobile_number: mobile
+      }
+    }
+  });
+
+  if (error) {
+    $("customerRegisterMessage").textContent = error.message;
+    return;
+  }
+
+  if (data.session) {
+    const { error: profileError } = await sb
+      .from("customer_profiles")
+      .upsert({
+        user_id: data.user.id,
+        full_name: fullName,
+        mobile_number: mobile
+      });
+
+    if (profileError) {
+      $("customerRegisterMessage").textContent =
+        "Account created, but profile setup failed. Please log in and try again.";
+      return;
+    }
+
+    $("customerRegisterMessage").textContent =
+      "Registration successful! You can now log in.";
+  } else {
+    $("customerRegisterMessage").textContent =
+      "Registration submitted. Please check your email to confirm your account, then log in.";
+  }
+
+  $("customerEmail").value = email;
+  $("registerPassword").value = "";
+}
+
+async function customerLogin() {
+  const email = $("customerEmail").value.trim();
+  const password = $("customerPassword").value;
+
+  $("customerAuthMessage").textContent = "";
+
+  if (!email || !password) {
+    $("customerAuthMessage").textContent =
+      "Please enter your email and password.";
+    return;
+  }
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    $("customerAuthMessage").textContent = error.message;
+    return;
+  }
+
+  const { data: isAdmin, error: roleError } =
+    await sb.rpc("is_admin");
+
+  if (roleError || isAdmin === true) {
+    await sb.auth.signOut();
+    $("customerAuthMessage").textContent =
+      "Please use the appropriate login page for this account.";
+    return;
+  }
+
+  const user = data.user;
+
+  const { data: profile, error: profileError } = await sb
+    .from("customer_profiles")
+    .select("user_id, full_name, mobile_number")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    $("customerAuthMessage").textContent =
+      "Unable to load your profile. Please try again.";
+    return;
+  }
+
+  if (!profile) {
+    const { error: insertError } = await sb
+      .from("customer_profiles")
+      .insert({
+        user_id: user.id,
+        full_name: user.user_metadata?.full_name || "",
+        mobile_number: user.user_metadata?.mobile_number || ""
+      });
+
+    if (insertError) {
+      $("customerAuthMessage").textContent =
+        "Login successful, but profile setup failed. Please contact support.";
+      return;
+    }
+  }
+
+  await loadCustomerProfile();
+}
+
+async function loadCustomerProfile() {
+  const { data: { user }, error: userError } =
+    await sb.auth.getUser();
+
+  if (userError || !user) {
+    showCustomerLogin();
+    return;
+  }
+
+  const { data: isAdmin, error: roleError } =
+    await sb.rpc("is_admin");
+
+  if (roleError || isAdmin === true) {
+    showCustomerLogin();
+    $("customerAuthMessage").textContent =
+      "This account cannot access the customer profile.";
+    return;
+  }
+
+  const { data: profile, error } = await sb
+    .from("customer_profiles")
+    .select("full_name, mobile_number")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error || !profile) {
+    $("customerAuthMessage").textContent =
+      "Unable to load your customer profile.";
+    return;
+  }
+
+  $("customerProfileDetails").textContent =
+    "Name: " + profile.full_name +
+    " | Mobile: " + (profile.mobile_number || "Not provided") +
+    " | Email: " + (user.email || "");
+
+  $("customerAuth").classList.add("hidden");
+  $("customerRegister").classList.add("hidden");
+  $("customerProfile").classList.remove("hidden");
+}
+
+async function customerLogout() {
+  const { error } = await sb.auth.signOut();
+
+  if (error) {
+    $("customerAuthMessage").textContent = error.message;
+    return;
+  }
+
+  $("customerPassword").value = "";
+  showCustomerLogin();
+  $("customerAuthMessage").textContent = "You have logged out.";
+}
+
+async function customerForgotPassword() {
+  const email = $("customerEmail").value.trim();
+
+  if (!email) {
+    $("customerAuthMessage").textContent =
+      "Please enter your email address first.";
+    return;
+  }
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin
+  });
+
+  $("customerAuthMessage").textContent = error
+    ? error.message
+    : "If this email is registered, a password reset link will be sent. Please check your inbox.";
+}
+
