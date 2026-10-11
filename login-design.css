@@ -1,1 +1,133 @@
 
+/* =========================================
+   GPP LENDING — GLASSMORPHISM REDESIGN
+========================================= */
+
+#account.page.active {
+  min-height: 100vh !important;
+  padding: 30px 3% !important;
+  box-sizing: border-box;
+  background:
+    linear-gradient(
+      rgba(180, 213, 250, 0.10),
+      rgba(180, 213, 250, 0.16)
+    ),
+    url("gpp-background.png") center / cover no-repeat fixed !important;
+}
+
+/* Transparent outer layout */
+#account > .card {
+  display: grid !important;
+  grid-template-columns:
+    minmax(200px, 0.9fr)
+    minmax(430px, 1.65fr)
+    minmax(200px, 0.9fr) !important;
+  align-items: center;
+  gap: 24px;
+  max-width: 1450px !important;
+  min-height: 680px;
+  margin: 0 auto !important;
+  padding: 20px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Left and right frosted panels */
+#account > .card::before,
+#account > .card::after {
+  box-sizing: border-box;
+  align-self: center;
+  min-height: 420px;
+  padding: 28px 22px;
+  border: 1px solid rgba(255,255,255,0.72);
+  border-radius: 26px;
+  background: rgba(218, 237, 255, 0.32);
+  box-shadow: 0 12px 36px rgba(18, 55, 110, 0.10);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  color: #123b75;
+  line-height: 2;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Left brand panel */
+#account > .card::before {
+  grid-column: 1;
+  grid-row: 1;
+  content:
+    "GPP LENDING\A\A"
+    "GOOD PAYER PRIORITY\A\A"
+    "✦  Fast Application\A\A"
+    "✦  Secure and Reliable\A\A"
+    "✦  Support When You Need It";
+}
+
+/* Right information panel */
+#account > .card::after {
+  grid-column: 3;
+  grid-row: 1;
+  content:
+    "YOUR LOAN JOURNEY\A\A"
+    "▣  Track Your Application\A"
+    "Check your application status.\A\A"
+    "▥  Manage Your Loan\A"
+    "Keep your account information organized.\A\A"
+    "?  Need Help?\A"
+    "Use Forgot Password if needed.";
+}
+
+/* Center glass login panel */
+#account #customerAuth,
+#account #adminLoginPanel {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 30px;
+  border: 1px solid rgba(255,255,255,0.82);
+  border-radius: 28px;
+  background: rgba(238, 246, 255, 0.38) !important;
+  box-shadow: 0 18px 48px rgba(18, 55, 110, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Keep input fields readable */
+#account input {
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(175, 202, 238, 0.9);
+}
+
+/* Tablet and mobile layout */
+@media (max-width: 1050px) {
+  #account.page.active {
+    padding: 16px !important;
+    background-attachment: scroll !important;
+  }
+
+  #account > .card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: auto;
+    gap: 16px;
+    padding: 8px !important;
+  }
+
+  #account > .card::before,
+  #account > .card::after {
+    display: none;
+  }
+
+  #account #customerAuth,
+  #account #adminLoginPanel {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 24px 18px;
+  }
+}
+
