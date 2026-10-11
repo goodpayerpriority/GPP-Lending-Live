@@ -4913,6 +4913,7 @@ function showCustomerLogin() {
   $("customerAuth").classList.remove("hidden");
 }
 
+
 async function customerRegister() {
   const fullName = $("customerFullName").value.trim();
   const mobile = $("customerMobile").value.trim();
@@ -4949,31 +4950,33 @@ async function customerRegister() {
     return;
   }
 
-  if (data.session) {
-    const { error: profileError } = await sb
-      .from("customer_profiles")
-      .upsert({
-        user_id: data.user.id,
-        full_name: fullName,
-        mobile_number: mobile
-      });
-
-    if (profileError) {
-      $("customerRegisterMessage").textContent =
-        "Account created, but profile setup failed. Please log in and try again.";
-      return;
-    }
-
-    $("customerRegisterMessage").textContent =
-      "Registration successful! You can now log in.";
-  } else {
-    $("customerRegisterMessage").textContent =
-      "Registration submitted. Please check your email to confirm your account, then log in.";
-  }
-
   $("customerEmail").value = email;
   $("registerPassword").value = "";
+
+  if (data.user && !data.session) {
+    $("customerRegisterMessage").textContent =
+      "A verification code has been requested. Please check your email.";
+
+    $("customerRegister").classList.add("hidden");
+    $("customerAuth").classList.add("hidden");
+
+    $("customerOtpEmail").value = email;
+    $("customerOtp").value = "";
+    $("customerVerifyMessage").textContent = "";
+    $("customerVerify").classList.remove("hidden");
+    return;
+  }
+
+  if (data.user && data.session) {
+    $("customerRegisterMessage").textContent =
+      "Account created. Please check your email verification settings.";
+    return;
+  }
+
+  $("customerRegisterMessage").textContent =
+    "Registration submitted. Please check your email.";
 }
+
 
 async function customerLogin() {
   const email = $("customerEmail").value.trim();
