@@ -1776,58 +1776,41 @@ ${
    ADMIN LOGIN
 ========================================= */
 
+
 async function login() {
+  const email = $("adminEmail").value.trim();
+  const password = $("adminPassword").value;
 
-  const email =
-    $("adminEmail")
-      .value
-      .trim();
+  $("loginError").textContent = "";
 
-
-  const password =
-    $("adminPassword")
-      .value;
-
-
-  $("loginError").textContent =
-    "";
-
-
-  const {
-    error
-  } =
-    await sb.auth
-      .signInWithPassword({
-        email,
-        password
-      });
-
+  const { data, error } = await sb.auth.signInWithPassword({
+    email,
+    password
+  });
 
   if (error) {
+    $("loginError").textContent = error.message;
+    return;
+  }
+
+  // Verify that the signed-in user is an authorized admin.
+  const { data: isAdmin, error: adminError } = await sb.rpc("is_admin");
+
+  if (adminError || isAdmin !== true) {
+    await sb.auth.signOut();
 
     $("loginError").textContent =
-      error.message;
+      "Access denied. This account is not authorized as an admin.";
 
     return;
   }
 
-
-  $("login")
-    .classList
-    .add(
-      "hidden"
-    );
-
-
-  $("dashboard")
-    .classList
-    .remove(
-      "hidden"
-    );
-
+  $("login").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
 
   render();
 }
+
 
 
 /* =========================================
