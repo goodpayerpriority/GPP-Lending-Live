@@ -503,19 +503,26 @@
 }
 
 
-/* CUSTOMER PROFILE DETAILS - MOBILE AND DESKTOP */
-#customerProfile .gppcd-profile-shell h1,
-#customerProfile .gppcd-profile-shell h2 {
+
+/* CUSTOMER PROFILE DETAILS - FIX */
+#account #customerProfile .gppcd-welcome h1 {
     display: none !important;
 }
 
-#customerProfile .gppcd-profile-shell {
-    font-size: 1.08em;
+#account #customerProfile .gppcd-welcome-copy > p {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    line-height: 1.6;
+    margin: 8px 0;
 }
 
-#customerProfile .gppcd-profile-shell p,
-#customerProfile .gppcd-profile-shell .profile-detail {
-    font-size: 1.08em;
-    font-weight: 700;
-    line-height: 1.7;
+#account #customerProfile .gppcd-welcome-copy > p strong {
+    font-weight: 800 !important;
 }
+
+@media (max-width: 520px) {
+    #account #customerProfile .gppcd-welcome-copy > p {
+        font-size: 15px !important;
+    }
+}
+
