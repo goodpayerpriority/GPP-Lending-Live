@@ -1849,7 +1849,13 @@ $("dashboard").classList.remove("hidden");
 
 $("siteHeader").classList.remove("hidden");
 $("siteFooter").classList.remove("hidden");
+const adminNavButton = document.querySelector(
+  'header nav button[onclick="show(\'admin\')"]'
+);
 
+if (adminNavButton) {
+  adminNavButton.classList.remove("hidden");
+}
 render();
 
 }
@@ -5195,6 +5201,14 @@ if (user) {
   $("siteHeader").classList.remove("hidden");
   $("siteFooter").classList.remove("hidden");
   show("home");
+
+  const adminNavButton = document.querySelector(
+    'header nav button[onclick="show(\'admin\')"]'
+  );
+
+  if (adminNavButton) {
+    adminNavButton.classList.add("hidden");
+  }
 }
 
 }
