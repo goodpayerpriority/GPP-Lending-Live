@@ -105,8 +105,8 @@ function installMarkup() {
     }
 
     if (rightPanel) {
-      rightPanel.style.display = "none";
-    }
+  rightPanel.style.display = loggedIn ? "none" : "";
+}
   };
 
   updatePanels();
