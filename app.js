@@ -1841,10 +1841,15 @@ async function login() {
     return;
   }
 
-  $("login").classList.add("hidden");
-  $("dashboard").classList.remove("hidden");
+  
+$("login").classList.add("hidden");
+$("dashboard").classList.remove("hidden");
 
-  render();
+$("siteHeader").classList.remove("hidden");
+$("siteFooter").classList.remove("hidden");
+
+render();
+
 }
 
 
