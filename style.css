@@ -2700,3 +2700,255 @@ header nav button.nav-active {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
+
+
+/* ============================================
+   GPP LENDING - PREMIUM GLASS LOGIN DESIGN
+   Add at the VERY END of style.css
+============================================ */
+
+/* FULL OFFICE PHOTO BACKGROUND */
+#account.page.active {
+  display: block !important;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 35px 3% !important;
+
+  background:
+    linear-gradient(
+      rgba(216, 234, 255, 0.20),
+      rgba(216, 234, 255, 0.28)
+    ),
+    url("gpp-background.png") center center / cover no-repeat fixed !important;
+}
+
+/* OUTER WRAPPER: REMOVE THE BIG WHITE BOX */
+#account > .card {
+  display: grid !important;
+  grid-template-columns:
+    minmax(210px, 0.85fr)
+    minmax(440px, 1.65fr)
+    minmax(210px, 0.85fr);
+  align-items: center;
+  align-content: center;
+  gap: clamp(18px, 2vw, 30px);
+
+  width: 100% !important;
+  max-width: 1450px !important;
+  min-height: 680px;
+  margin: 0 auto !important;
+  padding: 25px !important;
+  box-sizing: border-box;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* LEFT GLASS PANEL */
+#account > .card::before {
+  content:
+    "G P P   L E N D I N G\A"
+    "━━━━━━━━━━━━━━\A"
+    "GOOD PAYER PRIORITY\A\A"
+    "✦  Fast Application\A\A"
+    "✦  Secure and Reliable\A\A"
+    "✦  Support When You Need It";
+
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  min-width: 0;
+  min-height: 420px;
+  padding: 32px 24px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  line-height: 2;
+  font-size: 15px;
+  font-weight: 650;
+  color: #123b75;
+
+  background: rgba(230, 242, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 26px;
+  box-shadow: 0 15px 40px rgba(20, 66, 125, 0.12);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* RIGHT GLASS PANEL */
+#account > .card::after {
+  content:
+    "YOUR LOAN JOURNEY\A\A"
+    "▣  Track Your Application\A"
+    "Check your application status.\A\A"
+    "▥  Manage Your Loan\A"
+    "Keep your account information organized.\A\A"
+    "?  Need Help?\A"
+    "Use Forgot Password if needed.";
+
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+  min-width: 0;
+  min-height: 420px;
+  padding: 30px 22px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  line-height: 1.9;
+  font-size: 14px;
+  font-weight: 600;
+  color: #123b75;
+
+  background: rgba(230, 242, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 26px;
+  box-shadow: 0 15px 40px rgba(20, 66, 125, 0.12);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* CENTER LOGIN GLASS CARD */
+#account #customerAuth,
+#account #adminLoginPanel {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: clamp(24px, 3vw, 38px);
+
+  background: rgba(244, 249, 255, 0.60) !important;
+  border: 1px solid rgba(255, 255, 255, 0.90);
+  border-radius: 28px;
+  box-shadow: 0 22px 60px rgba(18, 55, 110, 0.16);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* BRAND */
+#account .login-brand {
+  margin: 0 auto 24px !important;
+  text-align: center;
+}
+
+#account .login-brand-icon {
+  margin: 0 auto 12px;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
+}
+
+#account .login-brand-name {
+  color: #10366f !important;
+  font-size: 28px !important;
+  font-weight: 800;
+}
+
+#account .login-brand-tagline {
+  color: #3f5f86 !important;
+}
+
+/* CUSTOMER / ADMIN SWITCH */
+#account .login-role-switch {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+#account .login-role-switch button {
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+}
+
+/* INPUTS: TRANSPARENT WHITE */
+#account #customerAuth input,
+#account #adminLoginPanel input {
+  width: 100%;
+  min-height: 49px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(181, 204, 236, 0.95);
+  border-radius: 12px;
+}
+
+/* BUTTONS */
+#account #customerAuth button,
+#account #adminLoginPanel button {
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#account #customerAuth button:hover,
+#account #adminLoginPanel button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.13);
+}
+
+/* TABLET: KEEP THE FORM COMFORTABLE */
+@media (max-width: 1050px) {
+  #account.page.active {
+    padding: 24px 16px !important;
+    background-attachment: scroll !important;
+  }
+
+  #account > .card {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 650px !important;
+    min-height: auto;
+    padding: 12px !important;
+  }
+
+  #account > .card::before,
+  #account > .card::after {
+    display: none;
+  }
+
+  #account #customerAuth,
+  #account #adminLoginPanel {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  #account.page.active {
+    padding: 12px !important;
+  }
+
+  #account > .card {
+    padding: 4px !important;
+  }
+
+  #account #customerAuth,
+  #account #adminLoginPanel {
+    padding: 24px 18px;
+    border-radius: 22px;
+  }
+
+  #account .login-role-switch {
+    flex-direction: row;
+  }
+
+  #account .login-role-switch button {
+    width: auto;
+    font-size: 13px;
+  }
+}
