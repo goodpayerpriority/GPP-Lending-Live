@@ -1,125 +1,322 @@
 
 /* =========================================
-   GPP LENDING — GLASSMORPHISM REDESIGN
+   GPP LENDING | PREMIUM GLASS LOGIN
 ========================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 #account.page.active {
-  min-height: 100vh !important;
+  display: block !important;
+  min-height: 100vh;
   padding: 30px 3% !important;
   box-sizing: border-box;
+  font-family: 'Inter', Arial, sans-serif !important;
+
   background:
     linear-gradient(
-      rgba(180, 213, 250, 0.10),
-      rgba(180, 213, 250, 0.16)
+      135deg,
+      rgba(160, 202, 255, 0.12),
+      rgba(222, 239, 255, 0.10)
     ),
-    url("gpp-background.png") center / cover no-repeat fixed !important;
+    url("gpp-background.png") center center / cover no-repeat fixed !important;
 }
 
-/* Transparent outer layout */
+/* THREE-COLUMN LAYOUT */
 #account > .card {
   display: grid !important;
   grid-template-columns:
-    minmax(200px, 0.9fr)
-    minmax(430px, 1.65fr)
-    minmax(200px, 0.9fr) !important;
+    minmax(250px, 0.9fr)
+    minmax(440px, 1.55fr)
+    minmax(250px, 0.9fr);
   align-items: center;
   gap: 24px;
+
+  width: 100% !important;
   max-width: 1450px !important;
-  min-height: 680px;
+  min-height: 690px;
   margin: 0 auto !important;
   padding: 20px !important;
+  box-sizing: border-box;
+
   background: transparent !important;
-  border: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
 }
 
-/* Left and right frosted panels */
+/* Hide old title above the login form */
+#account > .card > h1,
+#account > .card > p {
+  display: none !important;
+}
+
+/* Disable old text-only side panels */
 #account > .card::before,
 #account > .card::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* LEFT AND RIGHT GLASS PANELS */
+#account .login-side-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+
+  min-width: 0;
+  padding: 25px 20px;
   box-sizing: border-box;
-  align-self: center;
-  min-height: 420px;
-  padding: 28px 22px;
-  border: 1px solid rgba(255,255,255,0.72);
+
+  border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 26px;
-  background: rgba(218, 237, 255, 0.32);
-  box-shadow: 0 12px 36px rgba(18, 55, 110, 0.10);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  color: #123b75;
-  line-height: 2;
-  white-space: pre-line;
-  overflow-wrap: anywhere;
-  font-size: 14px;
-  font-weight: 600;
+  background: rgba(224, 240, 255, 0.32);
+  box-shadow: 0 18px 45px rgba(20, 61, 120, 0.13);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* Left brand panel */
-#account > .card::before {
-  grid-column: 1;
-  grid-row: 1;
-  content:
-    "GPP LENDING\A\A"
-    "GOOD PAYER PRIORITY\A\A"
-    "✦  Fast Application\A\A"
-    "✦  Secure and Reliable\A\A"
-    "✦  Support When You Need It";
+#account .login-side-panel h2 {
+  margin: 0 0 7px;
+  color: #11366d;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
 }
 
-/* Right information panel */
-#account > .card::after {
-  grid-column: 3;
-  grid-row: 1;
-  content:
-    "YOUR LOAN JOURNEY\A\A"
-    "▣  Track Your Application\A"
-    "Check your application status.\A\A"
-    "▥  Manage Your Loan\A"
-    "Keep your account information organized.\A\A"
-    "?  Need Help?\A"
-    "Use Forgot Password if needed.";
+#account .login-side-panel p {
+  margin: 0;
+  color: #45658f;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
-/* Center glass login panel */
+#account .login-side-brand {
+  margin-bottom: 7px;
+  padding: 8px 0 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.8);
+}
+
+#account .login-side-brand .eyebrow {
+  margin-bottom: 10px;
+  color: #3976d7;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+#account .login-side-brand h2 {
+  margin: 0 0 12px;
+  font-size: clamp(23px, 2vw, 30px);
+  line-height: 1.12;
+  letter-spacing: -0.8px;
+}
+
+#account .login-side-brand p {
+  font-size: 13px;
+}
+
+/* INDIVIDUAL GLASS FEATURE CARDS */
+#account .login-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 12px;
+
+  border: 1px solid rgba(255,255,255,0.72);
+  border-radius: 20px;
+  background: rgba(255,255,255,0.28);
+
+  transition: background 0.2s, transform 0.2s;
+}
+
+#account .login-feature:hover {
+  background: rgba(255,255,255,0.48);
+  transform: translateY(-2px);
+}
+
+#account .login-feature-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.72);
+  color: #1769df;
+  font-size: 21px;
+  font-weight: 700;
+  box-shadow: 0 5px 14px rgba(37,99,235,0.10);
+}
+
+#account .login-feature h3 {
+  margin: 2px 0 5px;
+  color: #12366e;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+#account .login-feature p {
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* CENTER LOGIN PANEL */
 #account #customerAuth,
 #account #adminLoginPanel {
   grid-column: 2;
   grid-row: 1;
+  align-self: center;
+
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 30px;
-  border: 1px solid rgba(255,255,255,0.82);
-  border-radius: 28px;
-  background: rgba(238, 246, 255, 0.38) !important;
-  box-shadow: 0 18px 48px rgba(18, 55, 110, 0.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: clamp(24px, 3vw, 38px);
+
+  border: 1px solid rgba(255,255,255,0.88);
+  border-radius: 30px;
+  background: rgba(239, 247, 255, 0.40) !important;
+  box-shadow: 0 22px 55px rgba(19, 57, 113, 0.16);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* Keep input fields readable */
-#account input {
-  background: rgba(255,255,255,0.82) !important;
-  border-color: rgba(175, 202, 238, 0.9);
+/* LOGO AND BRAND */
+#account .login-brand {
+  margin: 0 auto 24px !important;
+  text-align: center;
 }
 
-/* Tablet and mobile layout */
-@media (max-width: 1050px) {
+#account .login-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 13px;
+  border-radius: 21px;
+  background: linear-gradient(140deg, #3188ff, #1046a5);
+  color: white;
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: 0 12px 26px rgba(37,99,235,0.25);
+}
+
+#account .login-brand-name {
+  margin: 0;
+  color: #10366f !important;
+  font-size: 29px !important;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+#account .login-brand-tagline {
+  margin: 8px 0 0;
+  color: #52709a !important;
+  font-size: 13px;
+}
+
+/* CUSTOMER / ADMIN TABS */
+#account .login-role-switch {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 24px;
+}
+
+#account .login-role-switch button {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  border-radius: 13px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#account #customerAuth h2,
+#account #adminLoginPanel h2 {
+  margin: 0 0 20px;
+  color: #153d78;
+  font-size: 22px;
+  letter-spacing: -0.4px;
+}
+
+/* FORM LABELS AND INPUTS */
+#account #customerAuth label,
+#account #adminLoginPanel label {
+  display: block;
+  margin: 0 0 16px;
+  color: #173a6c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#account #customerAuth input,
+#account #adminLoginPanel input {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(179, 204, 238, 0.95);
+  border-radius: 13px;
+  background: rgba(255,255,255,0.86) !important;
+  color: #18365f;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+#account #customerAuth input:focus,
+#account #adminLoginPanel input:focus {
+  outline: none;
+  border-color: #3984f6;
+  box-shadow: 0 0 0 3px rgba(57,132,246,0.13);
+}
+
+/* FORM BUTTONS */
+#account #customerAuth > button,
+#account #adminLoginPanel > button {
+  min-height: 46px;
+  margin: 4px 4px 0 0;
+  padding: 11px 15px;
+  border-radius: 13px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#account #customerAuth button.primary,
+#account #adminLoginPanel button.primary {
+  border: 1px solid #1763da;
+  background: linear-gradient(135deg, #2e80f5, #1456cc);
+  color: white;
+  box-shadow: 0 8px 18px rgba(37,99,235,0.19);
+}
+
+/* RESPONSIVE TABLET */
+@media (max-width: 1100px) {
   #account.page.active {
-    padding: 16px !important;
+    padding: 18px !important;
     background-attachment: scroll !important;
   }
 
   #account > .card {
-    display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 620px !important;
     min-height: auto;
     gap: 16px;
-    padding: 8px !important;
   }
 
-  #account > .card::before,
-  #account > .card::after {
+  #account .login-side-panel {
     display: none;
   }
 
@@ -127,7 +324,41 @@
   #account #adminLoginPanel {
     grid-column: 1;
     grid-row: 1;
-    padding: 24px 18px;
   }
 }
 
+/* MOBILE */
+@media (max-width: 600px) {
+  #account.page.active {
+    padding: 10px !important;
+  }
+
+  #account > .card {
+    padding: 4px !important;
+  }
+
+  #account #customerAuth,
+  #account #adminLoginPanel {
+    padding: 23px 17px;
+    border-radius: 23px;
+  }
+
+  #account .login-brand-name {
+    font-size: 25px !important;
+  }
+
+  #account .login-role-switch {
+    gap: 8px;
+  }
+
+  #account .login-role-switch button {
+    padding: 9px 5px;
+    font-size: 12px;
+  }
+
+  #account #customerAuth > button,
+  #account #adminLoginPanel > button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
