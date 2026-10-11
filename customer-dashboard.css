@@ -358,60 +358,146 @@
 }
 
 /* FIX: CUSTOMER DASHBOARD WIDTH AND PLACEMENT */
-
-#account > .card:has(#customerProfile.gppcd-profile-shell) {
-  width: min(1100px, calc(100% - 40px));
-  max-width: 1100px;
+#account .card:has(#customerProfile.gppcd-profile-shell) {
+  width: min(1320px, calc(100% - 48px));
+  max-width: 1320px;
   margin: 24px auto;
   padding: 24px;
   box-sizing: border-box;
 }
 
-#customerProfile .gppcd-dashboard {
+#account #customerProfile.gppcd-profile-shell {
+  display: block;
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+}
+
+#account #customerProfile .gppcd-dashboard {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
   gap: 20px;
 }
 
-#customerProfile .gppcd-welcome,
-#customerProfile .gppcd-panel,
-#customerProfile .gppcd-reminders {
+#account #customerProfile .gppcd-welcome,
+#account #customerProfile .gppcd-panel,
+#account #customerProfile .gppcd-reminders {
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 
-#customerProfile .gppcd-summary {
+#account #customerProfile .gppcd-welcome {
+  padding: 22px 26px;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+#account #customerProfile .gppcd-welcome h1 {
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+
+#account #customerProfile .gppcd-welcome-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#account #customerProfile .gppcd-welcome-copy > p {
+  margin: 5px 0;
+  line-height: 1.4;
+}
+
+#account #customerProfile .gppcd-actions {
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+#account #customerProfile .gppcd-actions button {
+  min-width: 0;
+  overflow-wrap: normal;
+}
+
+#account #customerProfile .gppcd-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   gap: 16px;
 }
 
-#customerProfile .gppcd-stat {
+#account #customerProfile .gppcd-stat {
   min-width: 0;
   padding: 20px 16px;
   gap: 12px;
 }
 
-#customerProfile .gppcd-stat > div:last-child {
-  flex: 1;
+#account #customerProfile .gppcd-stat > div:last-child {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-#customerProfile .gppcd-stat h3,
-#customerProfile .gppcd-stat strong,
-#customerProfile .gppcd-stat p {
-  overflow-wrap: normal;
+#account #customerProfile .gppcd-stat h3,
+#account #customerProfile .gppcd-stat strong,
+#account #customerProfile .gppcd-stat p {
+  overflow-wrap: anywhere;
   word-break: normal;
 }
 
-@media (max-width: 760px) {
-  #account > .card:has(#customerProfile.gppcd-profile-shell) {
-    width: calc(100% - 20px);
-    padding: 12px;
+@media (max-width: 900px) {
+  #account .card:has(#customerProfile.gppcd-profile-shell) {
+    width: calc(100% - 24px);
+    padding: 16px;
   }
 
-  #customerProfile .gppcd-summary {
+  #account #customerProfile .gppcd-summary {
     grid-template-columns: 1fr;
+  }
+
+  #account #customerProfile .gppcd-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  #account .card:has(#customerProfile.gppcd-profile-shell) {
+    width: calc(100% - 12px);
+    padding: 8px;
+  }
+
+  #account #customerProfile .gppcd-dashboard {
+    gap: 14px;
+  }
+
+  #account #customerProfile .gppcd-welcome {
+    padding: 18px 14px;
+    gap: 10px;
+  }
+
+  #account #customerProfile .gppcd-actions {
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  #account #customerProfile .gppcd-summary {
+    gap: 12px;
+  }
+
+  #account #customerProfile .gppcd-stat {
+    padding: 15px 12px;
+    gap: 10px;
+  }
+
+  #account #customerProfile .gppcd-panel {
+    padding: 16px 12px;
+  }
+
+  #account #customerProfile .gppcd-reminders {
+    padding: 16px 13px;
   }
 }
