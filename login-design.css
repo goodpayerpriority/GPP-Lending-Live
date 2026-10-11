@@ -731,3 +731,42 @@ html body main #account.page.active > .card > #customerRegister textarea {
     border-radius: 22px;
   }
 }
+
+
+/* FORCE GLASS EFFECT ON PASSWORD RESET FORM */
+
+#account #customerResetPassword:not(.hidden) {
+  display: block !important;
+  position: relative;
+  z-index: 5;
+
+  width: min(100%, 620px) !important;
+  margin: 20px auto !important;
+  padding: 28px !important;
+  box-sizing: border-box !important;
+
+  background: rgba(220, 238, 255, 0.30) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 20px 55px rgba(15, 55, 110, 0.20) !important;
+
+  -webkit-backdrop-filter: blur(22px) saturate(160%) !important;
+  backdrop-filter: blur(22px) saturate(160%) !important;
+}
+
+#account #customerResetPassword h2,
+#account #customerResetPassword label,
+#account #customerResetPassword p {
+  color: #123b75 !important;
+}
+
+#account #customerResetPassword input {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  border-radius: 15px !important;
+}
+
+#account #customerResetPassword button {
+  width: 100% !important;
+  border-radius: 14px !important;
+}
