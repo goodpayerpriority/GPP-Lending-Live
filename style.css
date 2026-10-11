@@ -2665,3 +2665,38 @@ header nav button.nav-active {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+
+
+/* GPP LENDING - GLASS EFFECT FOR MAIN PANEL */
+
+#account > .card {
+  background: rgba(255, 255, 255, 0.38) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 12px 40px rgba(25, 70, 140, 0.10) !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Make the login area more transparent */
+#account #customerAuth,
+#account #adminLoginPanel {
+  background: transparent !important;
+}
+
+/* Keep input fields readable */
+#account input {
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* Keep side panels softly transparent */
+#account.page.active::before {
+  background: rgba(255, 255, 255, 0.48) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+#account.page.active::after {
+  background: rgba(255, 255, 255, 0.48) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
