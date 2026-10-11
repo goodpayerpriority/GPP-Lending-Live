@@ -84,6 +84,7 @@
   }
 
   
+
 function installMarkup() {
   const profile = $("customerProfile");
   if (!profile || profile.dataset.gppcdInstalled === "yes") return;
@@ -98,8 +99,14 @@ function installMarkup() {
 
   const updatePanels = () => {
     const loggedIn = !profile.classList.contains("hidden");
-    if (leftPanel) leftPanel.style.display = loggedIn ? "none" : "";
-    if (rightPanel) rightPanel.style.display = loggedIn ? "none" : "";
+
+    if (leftPanel) {
+      leftPanel.style.display = loggedIn ? "none" : "";
+    }
+
+    if (rightPanel) {
+      rightPanel.style.display = "none";
+    }
   };
 
   updatePanels();
