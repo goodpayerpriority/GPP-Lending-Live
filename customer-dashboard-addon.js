@@ -83,15 +83,34 @@
       </div>`;
   }
 
-  function installMarkup() {
-     const leftPanel = document.querySelector(".login-side-panel");
-if (leftPanel) leftPanel.style.display = "none";
-    const profile = $("customerProfile");
-    if (!profile || profile.dataset.gppcdInstalled === "yes") return;
-    profile.innerHTML = dashboardMarkup();
-    profile.dataset.gppcdInstalled = "yes";
-    profile.classList.add("gppcd-profile-shell");
-  }
+  
+function installMarkup() {
+  const profile = $("customerProfile");
+  if (!profile || profile.dataset.gppcdInstalled === "yes") return;
+
+  profile.innerHTML = dashboardMarkup();
+  profile.dataset.gppcdInstalled = "yes";
+  profile.classList.add("gppcd-profile-shell");
+
+  const account = $("account");
+  const leftPanel = account?.querySelector(".login-left-panel");
+  const rightPanel = account?.querySelector(".login-right-panel");
+
+  const updatePanels = () => {
+    const loggedIn = !profile.classList.contains("hidden");
+    if (leftPanel) leftPanel.style.display = loggedIn ? "none" : "";
+    if (rightPanel) rightPanel.style.display = loggedIn ? "none" : "";
+  };
+
+  updatePanels();
+
+  const observer = new MutationObserver(updatePanels);
+  observer.observe(profile, {
+    attributes: true,
+    attributeFilter: ["class"]
+  });
+}
+
 
   function isActiveLoan(row) {
     const loan = String(row.loan_status || "").toLowerCase();
