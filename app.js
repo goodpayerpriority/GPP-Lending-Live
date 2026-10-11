@@ -60,6 +60,8 @@ const isLoggedIn =
       $("siteHeader").classList.add("hidden");
       $("siteFooter").classList.add("hidden");
       $("customerAuth").classList.remove("hidden");
+      $("adminLoginPanel").classList.add("hidden");
+$("customerVerify").classList.add("hidden");
       $("customerRegister").classList.add("hidden");
       $("customerProfile").classList.add("hidden");
       return;
@@ -1853,6 +1855,32 @@ render();
 }
 
 
+async function adminPanelLogin() {
+  $("adminPanelMessage").textContent = "";
+
+  $("adminEmail").value = $("adminPanelEmail").value.trim();
+  $("adminPassword").value = $("adminPanelPassword").value;
+  $("loginError").textContent = "";
+
+  await login();
+
+  const error = $("loginError").textContent;
+
+  if (error) {
+    $("adminPanelMessage").textContent = error;
+    return;
+  }
+
+  if (!$("dashboard").classList.contains("hidden")) {
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
+
+    $("admin").classList.add("active");
+    $("siteHeader").classList.remove("hidden");
+    $("siteFooter").classList.remove("hidden");
+  }
+}
 
 /* =========================================
    ADMIN LOGOUT
@@ -4907,11 +4935,24 @@ function customerRegisterForm() {
   $("customerProfile").classList.add("hidden");
 }
 
+
 function showCustomerLogin() {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  $("account").classList.add("active");
+  $("siteHeader").classList.add("hidden");
+  $("siteFooter").classList.add("hidden");
+
+  $("adminLoginPanel").classList.add("hidden");
   $("customerRegister").classList.add("hidden");
+  $("customerVerify").classList.add("hidden");
   $("customerProfile").classList.add("hidden");
+
   $("customerAuth").classList.remove("hidden");
 }
+
 
 
 async function customerRegister() {
@@ -5253,6 +5294,12 @@ async function customerForgotPassword() {
 
 
 function showMainLogin() {
+  showCustomerLogin();
+}
+
+
+
+function showAdminLogin() {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
@@ -5261,23 +5308,10 @@ function showMainLogin() {
   $("siteHeader").classList.add("hidden");
   $("siteFooter").classList.add("hidden");
 
-  $("customerAuth").classList.remove("hidden");
+  $("customerAuth").classList.add("hidden");
   $("customerRegister").classList.add("hidden");
+  $("customerVerify").classList.add("hidden");
   $("customerProfile").classList.add("hidden");
+
+  $("adminLoginPanel").classList.remove("hidden");
 }
-
-
-function showAdminLogin() {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
-
-  $("admin").classList.add("active");
-
-  $("siteHeader").classList.add("hidden");
-  $("siteFooter").classList.add("hidden");
-
-  $("login").classList.remove("hidden");
-  $("dashboard").classList.add("hidden");
-}
-
