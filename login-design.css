@@ -550,3 +550,37 @@ html body main #account.page.active > .card > #customerRegister textarea {
     border-radius: 20px !important;
   }
 }
+
+
+/* CREATE ACCOUNT VIEW: HIDE SIDE PANELS */
+#account:has(#customerRegister:not(.hidden)) > .card > .login-side-panel {
+  display: none !important;
+}
+
+/* Center the registration form */
+#account:has(#customerRegister:not(.hidden)) > .card {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  min-height: 100vh !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Registration form glass card */
+#account #customerRegister {
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 20px auto !important;
+  padding: 32px !important;
+  box-sizing: border-box !important;
+
+  background: rgba(220, 238, 255, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;
+  border-radius: 26px !important;
+  box-shadow: 0 18px 45px rgba(20, 55, 100, 0.12) !important;
+
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+}
