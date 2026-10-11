@@ -5230,10 +5230,15 @@ async function loadCustomerProfile() {
     .maybeSingle();
 
   if (error || !profile) {
-    $("customerAuthMessage").textContent =
+  const authMessage = $("customerAuthMessage");
+
+  if (authMessage) {
+    authMessage.textContent =
       "Unable to load your customer profile.";
-    return;
   }
+
+  return;
+}
 
   $("customerProfileDetails").textContent =
     "Name: " + profile.full_name +
