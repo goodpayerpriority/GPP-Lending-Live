@@ -22,6 +22,34 @@ const sb =
 const $ =
   id => document.getElementById(id);
 
+/* CUSTOMER PASSWORD RECOVERY LISTENER */
+
+sb.auth.onAuthStateChange((event, session) => {
+  if (event !== "PASSWORD_RECOVERY") {
+    return;
+  }
+
+  // Open the Customer Account page
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  $("account").classList.add("active");
+
+  // Hide other account forms
+  $("customerAuth").classList.add("hidden");
+  $("customerRegister").classList.add("hidden");
+  $("customerVerify").classList.add("hidden");
+  $("customerProfile").classList.add("hidden");
+  $("adminLoginPanel").classList.add("hidden");
+
+  // Show the reset password form
+  $("customerResetPassword").classList.remove("hidden");
+
+  $("customerResetMessage").textContent =
+    "Enter and confirm your new password.";
+});
+
 
 /* =========================================
    PAGE NAVIGATION
