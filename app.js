@@ -5530,24 +5530,31 @@ function filterCustomerAccounts() {
     return;
   }
 
+  
   tbody.innerHTML = customers.map(customer => `
     <tr>
       <td>${escapeHtml(String(customer.full_name || "—"))}</td>
       <td>${escapeHtml(String(customer.email || "—"))}</td>
       <td>${escapeHtml(String(customer.mobile_number || "—"))}</td>
       <td>${Number(customer.availed_loans || 0)}</td>
-      
-<td>
-  <button
-    type="button"
-    onclick="editCustomerAccount('${escapeHtml(String(customer.user_id || ""))}')"
-  >
-    Edit
-  </button>
-</td>
+      <td>
+        <button
+          type="button"
+          onclick="viewCustomerAccountDetails('${escapeJsString(customer.user_id || "")}')"
+        >
+          View Details
+        </button>
 
+        <button
+          type="button"
+          onclick="editCustomerAccount('${escapeJsString(customer.user_id || "")}')"
+        >
+          Edit
+        </button>
+      </td>
     </tr>
   `).join("");
+
 }
 
 
