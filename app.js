@@ -5017,7 +5017,6 @@ async function customerRegister() {
       "Password must be at least 6 characters.";
     return;
   }
-const email = $("registerEmail").value.trim().toLowerCase();
 
 // Check existing full name BEFORE sending a verification code.
 const { data: nameExists, error: nameCheckError } = await sb.rpc(
