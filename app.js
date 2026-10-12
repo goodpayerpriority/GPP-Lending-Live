@@ -5861,14 +5861,21 @@ async function viewCustomerAccountDetails(userId) {
 }
 
 
+/* =========================================
+   VIEW CUSTOMER MY ACCOUNT
+========================================= */
+
 async function viewCustomerMyAccount(userId) {
   if (!userId) {
     alert("Customer account ID is missing.");
     return;
   }
 
+  // Reuse the existing admin-only customer account viewer.
+  // This keeps View Details and Edit unchanged.
   await viewCustomerAccountDetails(userId);
 
+  // Change the panel title after the customer information loads.
   const panel = document.getElementById(
     "customerAccountDetailsPanel"
   );
@@ -5877,7 +5884,7 @@ async function viewCustomerMyAccount(userId) {
     const heading = panel.querySelector("h2");
 
     if (heading) {
-      heading.textContent = "Customer My Account";
+      heading.textContent = "My Account Preview";
     }
   }
 }
