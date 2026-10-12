@@ -5865,29 +5865,415 @@ async function viewCustomerAccountDetails(userId) {
    VIEW CUSTOMER MY ACCOUNT
 ========================================= */
 
+
 async function viewCustomerMyAccount(userId) {
   if (!userId) {
     alert("Customer account ID is missing.");
     return;
   }
 
-  // Reuse the existing admin-only customer account viewer.
-  // This keeps View Details and Edit unchanged.
-  await viewCustomerAccountDetails(userId);
+  const tbody = document.getElementById("customerAccountsList");
+  const table = tbody?.closest("table");
 
-  // Change the panel title after the customer information loads.
-  const panel = document.getElementById(
-    "customerAccountDetailsPanel"
-  );
+  if (!table) {
+    alert("Customer Accounts table was not found.");
+    return;
+  }
 
-  if (panel && panel.style.display !== "none") {
-    const heading = panel.querySelector("h2");
+  let panel = document.getElementById("customerMyAccountPreviewPanel");
 
-    if (heading) {
-      heading.textContent = "My Account Preview";
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "customerMyAccountPreviewPanel";
+
+    panel.style.cssText = `
+      margin-top:24px;
+      padding:24px;
+      border:1px solid #dbeafe;
+      border-radius:22px;
+      background:linear-gradient(145deg,#f8fbff,#eaf4ff);
+      box-shadow:0 12px 35px rgba(30,64,175,.10);
+      color:#172554;
+      overflow-x:auto;
+    `;
+
+    table.insertAdjacentElement("afterend", panel);
+  }
+
+  panel.style.display = "block";
+  panel.innerHTML = `
+    <h2>My Account</h2>
+    <p>Loading the selected customer's dashboard...</p>
+  `;
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  try {
+    const { data: admin, error: adminError } =
+      await sb.rpc("is_admin");
+
+    if (adminError) throw adminError;
+    if (admin !== true) throw new Error("Admin access required.");
+
+    const { data, error } = await sb.rpc(
+      "admin_get_customer_account_details",
+      { p_user_id: userId }
+    );
+
+    if (error) throw error;
+    if (!data) throw new Error("No customer records were returned.");
+
+    const profile = data.profile || {};
+    const applications = Array.isArray(data.applications)
+      ? data.applications
+      : [];
+
+    const esc = value => escapeHtml(
+      value === null || value === undefined || value === ""
+        ? "—"
+        : String(value)
+    );
+
+    const money = value => {
+      const n = Number(value);
+      return Number.isFinite(n)
+        ? "₱" + n.toLocaleString("en-PH", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+          })
+        : "₱0";
+    };
+
+    const dateLabel = value => {
+      if (!value) return "—";
+      const d = new Date(value);
+      return Number.isNaN(d.getTime())
+        ? esc(value)
+        : d.toLocaleDateString("en-PH", {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          });
+    };
+
+    const daysLate = value => {
+      if (!value) return 0;
+
+      const due = new Date(value);
+      if (Number.isNaN(due.getTime())) return 0;
+
+      due.setHours(0, 0, 0, 0);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      return Math.max(
+        0,
+        Math.floor((today - due) / 86400000)
+      );
+    };
+
+    const isActiveLoan = row =>
+      String(row.loan_status || "").toLowerCase() === "active" &&
+      String(row.payment_status || "").toLowerCase() !== "paid";
+
+    const rowStatus = row => {
+      const payment = String(row.payment_status || "").toLowerCase();
+      const loan = String(row.loan_status || "").toLowerCase();
+      const status = String(row.status || "Pending Review");
+      const due = row.official_due_date ||
+        row.loan_end_date || row.due_date;
+      const late = isActiveLoan(row) ? daysLate(due) : 0;
+
+      if (
+        payment === "paid" ||
+        loan === "paid" ||
+        /fully paid|paid/i.test(status)
+      ) {
+        return { label: "Fully Paid", cls: "paid", detail: "" };
+      }
+
+      if (late > 0) {
+        return {
+          label: "Delayed",
+          cls: "delayed",
+          detail: `${late} day(s) overdue`
+        };
+      }
+
+      if (payment === "partial" || Number(row.amount_paid || 0) > 0) {
+        return { label: "Partial Payment", cls: "partial", detail: "" };
+      }
+
+      if (/declined/i.test(status)) {
+        return { label: "Declined", cls: "declined", detail: "" };
+      }
+
+      if (/approved/i.test(status) || loan === "active") {
+        return { label: "Approved", cls: "approved", detail: "" };
+      }
+
+      if (/documents required/i.test(status)) {
+        return {
+          label: "More Documents Required",
+          cls: "pending",
+          detail: ""
+        };
+      }
+
+      return { label: status, cls: "pending", detail: "" };
+    };
+
+    // Use the same eligibility and summary logic as the customer dashboard.
+    const eligible = applications
+      .filter(row => {
+        const status = String(row.status || "").toLowerCase();
+        const loan = String(row.loan_status || "").toLowerCase();
+        const payment = String(row.payment_status || "").toLowerCase();
+
+        return loan === "active" ||
+          loan === "paid" ||
+          payment === "paid" ||
+          payment === "partial" ||
+          status === "approved" ||
+          status === "declined" ||
+          status.includes("pending") ||
+          status.includes("documents required");
+      })
+      .sort((a, b) =>
+        String(b.created_at || b.application_date || "")
+          .localeCompare(String(a.created_at || a.application_date || ""))
+      );
+
+    const active = eligible.filter(isActiveLoan);
+
+    const overdue = active
+      .map(row => daysLate(
+        row.official_due_date || row.loan_end_date || row.due_date
+      ))
+      .filter(days => days > 0);
+
+    const balance = active.reduce((sum, row) => {
+      const remaining = Number(row.remaining_balance);
+
+      if (
+        Number.isFinite(remaining) &&
+        row.remaining_balance !== null &&
+        row.remaining_balance !== ""
+      ) {
+        return sum + Math.max(0, remaining);
+      }
+
+      const total = Number(
+        row.total_payment ??
+        row.total_amount_to_pay ??
+        row.total_amount ??
+        row.requested_amount ??
+        row.loan_amount ??
+        0
+      );
+
+      return sum + Math.max(0, total - Number(row.amount_paid || 0));
+    }, 0);
+
+    const card = (label, value) => `
+      <div style="
+        min-width:0;padding:16px;border:1px solid #dbeafe;
+        border-radius:15px;background:rgba(255,255,255,.82);
+        overflow-wrap:anywhere;
+      ">
+        <div style="font-size:13px;color:#64748b;margin-bottom:8px;">
+          ${label}
+        </div>
+        <div style="font-size:17px;font-weight:700;color:#172554;">
+          ${value}
+        </div>
+      </div>
+    `;
+
+    const section = (title, content) => `
+      <section style="margin-top:26px;">
+        <h3 style="font-size:21px;margin:0 0 15px;color:#172554;">
+          ${title}
+        </h3>
+        ${content}
+      </section>
+    `;
+
+    const summaryGrid = items => `
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(175px,1fr));
+        gap:12px;
+      ">
+        ${items.map(item => card(item[0], item[1])).join("")}
+      </div>
+    `;
+
+    let statusTitle = "You have no active loan at the moment.";
+    let statusNote = "You can apply for a new loan anytime.";
+    let statusColor = "#15803d";
+
+    if (overdue.length) {
+      statusTitle = "Your loan payment is delayed.";
+      statusNote = `${overdue.length} loan(s) overdue. Please check your due date.`;
+      statusColor = "#b91c1c";
+    } else if (active.length) {
+      const nextDue = active
+        .map(row => row.official_due_date || row.loan_end_date || row.due_date)
+        .filter(Boolean)
+        .sort()[0];
+
+      statusTitle = "Your active loan is up to date.";
+      statusNote = nextDue
+        ? `Due date: ${dateLabel(nextDue)}.`
+        : "You have no overdue payment.";
+    } else {
+      const latest = applications[0];
+      if (latest && /pending|documents required/i.test(String(latest.status || ""))) {
+        statusNote = `Your latest application status is ${esc(latest.status)}.`;
+      }
     }
+
+    const historyRows = eligible.length
+      ? eligible.map((row, index) => {
+          const st = rowStatus(row);
+          const amount = row.requested_amount ??
+            row.loan_amount ?? row.amount ?? 0;
+          const paidAt = row.payment_date || row.paid_at || row.date_paid;
+
+          return `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${dateLabel(row.created_at || row.application_date)}</td>
+              <td>${money(amount)}</td>
+              <td>${dateLabel(
+                row.official_due_date || row.loan_end_date || row.due_date
+              )}</td>
+              <td>${dateLabel(paidAt)}</td>
+              <td>
+                <strong style="color:${
+                  st.cls === "delayed" ? "#b91c1c" :
+                  st.cls === "paid" ? "#15803d" : "#1d4ed8"
+                }">${esc(st.label)}</strong>
+                ${st.detail
+                  ? `<div style="font-size:12px;color:#b91c1c;">${esc(st.detail)}</div>`
+                  : ""}
+              </td>
+            </tr>
+          `;
+        }).join("")
+      : `<tr><td colspan="6" style="padding:18px;text-align:center;">
+          No loan records were found for this account yet.
+        </td></tr>`;
+
+    panel.innerHTML = `
+      <div style="
+        display:flex;align-items:center;justify-content:space-between;
+        gap:12px;flex-wrap:wrap;
+      ">
+        <div>
+          <h2 style="margin:0;color:#172554;font-size:28px;">
+            My Account
+          </h2>
+          <p style="margin:7px 0 0;color:#64748b;">
+            Admin preview of the selected customer's dashboard
+          </p>
+        </div>
+        <button id="closeCustomerMyAccountPreview" type="button"
+          style="padding:12px 20px;border:0;border-radius:12px;
+          background:#e5e7eb;font-weight:700;cursor:pointer;">
+          Close
+        </button>
+      </div>
+
+      ${section("Customer Profile", summaryGrid([
+        ["Full Name", esc(profile.full_name)],
+        ["Email", esc(profile.email || applications[0]?.email)],
+        ["Mobile Number", esc(profile.mobile_number)],
+        ["Account Created", dateLabel(profile.created_at)]
+      ]))}
+
+      ${section("Account Summary", summaryGrid([
+        ["Active Loan", money(balance)],
+        ["Active Loan Count", String(active.length)],
+        ["Payment Status", overdue.length ? "Payment overdue" : "Up to date"],
+        ["Total Loans", String(eligible.length)]
+      ]))}
+
+      ${section("Loan Status", `
+        <div style="
+          padding:22px;border:1px solid #bfdbfe;border-radius:18px;
+          background:rgba(255,255,255,.8);
+        ">
+          <div style="font-size:20px;font-weight:700;color:${statusColor};">
+            ${statusTitle}
+          </div>
+          <p style="margin:10px 0 0;color:#475569;">
+            ${statusNote}
+          </p>
+        </div>
+      `)}
+
+      ${section("Loan History", `
+        <p style="color:#64748b;margin-top:-5px;">
+          This shows the customer's past and current loan transactions.
+        </p>
+        <div style="overflow-x:auto;border:1px solid #dbe3ef;border-radius:14px;">
+          <table style="width:100%;min-width:720px;border-collapse:collapse;">
+            <thead>
+              <tr>
+                ${["#", "Date Applied", "Amount", "Due Date", "Payment Date", "Status"]
+                  .map(label => `
+                    <th style="padding:13px;text-align:left;background:#eff6ff;
+                    border-bottom:1px solid #dbe3ef;">${label}</th>
+                  `).join("")}
+              </tr>
+            </thead>
+            <tbody>
+              ${historyRows}
+            </tbody>
+          </table>
+        </div>
+      `)}
+
+      ${section("Reminders", `
+        <div style="padding:18px;border-radius:15px;background:rgba(255,255,255,.75);">
+          <ul style="padding-left:22px;line-height:1.9;margin:0;">
+            <li>Loan history shows records associated with this customer account.</li>
+            <li>For concerns, contact GPP Lending support.</li>
+            <li>Keep payments on time to maintain a good borrowing record.</li>
+          </ul>
+          <p style="margin:14px 0 0;color:#64748b;">
+            Last updated: ${new Date().toLocaleTimeString("en-PH", {
+              hour: "numeric",
+              minute: "2-digit"
+            })}
+          </p>
+        </div>
+      `)}
+    `;
+
+    document.getElementById("closeCustomerMyAccountPreview")
+      .addEventListener("click", () => {
+        panel.style.display = "none";
+      });
+
+  } catch (error) {
+    console.error("View customer My Account error:", error);
+
+    panel.innerHTML = `
+      <h2>Unable to Load My Account</h2>
+      <p>${escapeHtml(error.message || "An unexpected error occurred.")}</p>
+      <button id="closeCustomerMyAccountPreview" type="button">Close</button>
+    `;
+
+    document.getElementById("closeCustomerMyAccountPreview")
+      .addEventListener("click", () => {
+        panel.style.display = "none";
+      });
   }
 }
+
 
 
 /* =========================================
