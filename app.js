@@ -5538,19 +5538,28 @@ function filterCustomerAccounts() {
       <td>${escapeHtml(String(customer.mobile_number || "—"))}</td>
       <td>${Number(customer.availed_loans || 0)}</td>
       <td>
-        <button
-          type="button"
-          onclick="viewCustomerAccountDetails('${escapeJsString(customer.user_id || "")}')"
-        >
-          View Details
-        </button>
+        
+<button
+  type="button"
+  onclick="viewCustomerAccountDetails('${escapeJsString(customer.user_id || "")}')"
+>
+  View Details
+</button>
 
-        <button
-          type="button"
-          onclick="editCustomerAccount('${escapeJsString(customer.user_id || "")}')"
-        >
-          Edit
-        </button>
+<button
+  type="button"
+  onclick="viewCustomerMyAccount('${escapeJsString(customer.user_id || "")}')"
+>
+  View My Account
+</button>
+
+<button
+  type="button"
+  onclick="editCustomerAccount('${escapeJsString(customer.user_id || "")}')"
+>
+  Edit
+</button>
+
       </td>
     </tr>
   `).join("");
@@ -5848,6 +5857,28 @@ async function viewCustomerAccountDetails(userId) {
       .addEventListener("click", () => {
         panel.style.display = "none";
       });
+  }
+}
+
+
+async function viewCustomerMyAccount(userId) {
+  if (!userId) {
+    alert("Customer account ID is missing.");
+    return;
+  }
+
+  await viewCustomerAccountDetails(userId);
+
+  const panel = document.getElementById(
+    "customerAccountDetailsPanel"
+  );
+
+  if (panel && panel.style.display !== "none") {
+    const heading = panel.querySelector("h2");
+
+    if (heading) {
+      heading.textContent = "Customer My Account";
+    }
   }
 }
 
