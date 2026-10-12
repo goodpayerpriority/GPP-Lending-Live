@@ -5017,7 +5017,26 @@ async function customerRegister() {
       "Password must be at least 6 characters.";
     return;
   }
+const email = $("registerEmail").value.trim().toLowerCase();
 
+// Check existing full name BEFORE sending a verification code.
+const { data: nameExists, error: nameCheckError } = await sb.rpc(
+  "customer_name_exists",
+  { p_full_name: fullName }
+);
+
+if (nameCheckError) {
+  console.error("Name check failed:", nameCheckError);
+  $("customerRegisterMessage").textContent =
+    "Unable to verify your details. Please try again.";
+  return;
+}
+
+if (nameExists) {
+  $("customerRegisterMessage").textContent =
+    "This name already exists. Please use a different name or log in to your existing account.";
+  return;
+}
   const { data, error } = await sb.auth.signUp({
     email,
     password,
@@ -5033,6 +5052,16 @@ async function customerRegister() {
     $("customerRegisterMessage").textContent = error.message;
     return;
   }
+
+if (
+  data.user &&
+  Array.isArray(data.user.identities) &&
+  data.user.identities.length === 0
+) {
+  $("customerRegisterMessage").textContent =
+    "This Gmail is already registered. Please log in to your existing account.";
+  return;
+}
 
   $("customerEmail").value = email;
   $("registerPassword").value = "";
