@@ -5558,6 +5558,300 @@ function filterCustomerAccounts() {
 }
 
 
+async function viewCustomerAccountDetails(userId) {
+  if (!userId) {
+    alert("Customer account ID is missing.");
+    return;
+  }
+
+  const tbody = document.getElementById("customerAccountsList");
+  const table = tbody?.closest("table");
+
+  if (!table) {
+    alert("Customer Accounts table was not found.");
+    return;
+  }
+
+  let panel = document.getElementById("customerAccountDetailsPanel");
+
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "customerAccountDetailsPanel";
+
+    panel.style.cssText = `
+      margin-top: 24px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 8px 30px rgba(15,23,42,0.08);
+      overflow-x: auto;
+    `;
+
+    table.insertAdjacentElement("afterend", panel);
+  }
+
+  panel.style.display = "block";
+  panel.innerHTML = `
+    <h2>Customer Account Details</h2>
+    <p>Loading customer information...</p>
+  `;
+
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  try {
+    const { data: admin, error: adminError } =
+      await sb.rpc("is_admin");
+
+    if (adminError) throw adminError;
+
+    if (admin !== true) {
+      throw new Error("Admin access required.");
+    }
+
+    const { data, error } = await sb.rpc(
+      "admin_get_customer_account_details",
+      { p_user_id: userId }
+    );
+
+    if (error) throw error;
+
+    if (!data) {
+      throw new Error("No customer details were returned.");
+    }
+
+    const profile = data.profile || {};
+    const applications = Array.isArray(data.applications)
+      ? data.applications
+      : [];
+    const payments = Array.isArray(data.payments)
+      ? data.payments
+      : [];
+    const receipts = Array.isArray(data.receipts)
+      ? data.receipts
+      : [];
+
+    const safe = value =>
+      escapeHtml(
+        value === null || value === undefined || value === ""
+          ? "—"
+          : String(value)
+      );
+
+    const money = value => {
+      const number = Number(value);
+      return Number.isFinite(number)
+        ? "₱" + number.toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })
+        : "—";
+    };
+
+    const date = value => {
+      if (!value) return "—";
+
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime())
+        ? safe(value)
+        : parsed.toLocaleDateString("en-PH", {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          });
+    };
+
+    const section = (title, content) => `
+      <section style="margin-top:22px;">
+        <h3 style="margin-bottom:12px;">${title}</h3>
+        ${content}
+      </section>
+    `;
+
+    const fields = items => `
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+        gap:12px;
+      ">
+        ${items.map(([label, value]) => `
+          <div style="
+            padding:14px;
+            border:1px solid #dbe3ef;
+            border-radius:12px;
+            background:rgba(255,255,255,0.7);
+            overflow-wrap:anywhere;
+          ">
+            <div style="font-size:12px;color:#64748b;margin-bottom:5px;">
+              ${label}
+            </div>
+            <div style="font-weight:600;color:#172554;">
+              ${safe(value)}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    const tableHtml = (headers, rows) => `
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:600px;">
+          <thead>
+            <tr>
+              ${headers.map(h => `
+                <th style="
+                  padding:12px;
+                  text-align:left;
+                  background:#f1f5f9;
+                  border:1px solid #dbe3ef;
+                ">${h}</th>
+              `).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.length
+              ? rows.map(row => `
+                <tr>
+                  ${row.map(value => `
+                    <td style="
+                      padding:12px;
+                      border:1px solid #dbe3ef;
+                      overflow-wrap:anywhere;
+                    ">${safe(value)}</td>
+                  `).join("")}
+                </tr>
+              `).join("")
+              : `<tr><td colspan="${headers.length}"
+                  style="padding:16px;border:1px solid #dbe3ef;">
+                  No records found.
+                </td></tr>`
+            }
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const loanContent = applications.map((loan, index) =>
+      section(
+        `Loan ${index + 1} — ${safe(loan.application_id)}`,
+        fields([
+          ["Borrower", loan.full_name],
+          ["Email", loan.email],
+          ["Mobile Number", loan.mobile_number],
+          ["Requested Amount", money(loan.requested_amount)],
+          ["Interest Rate", loan.interest_rate],
+          ["Duration (Days)", loan.duration_days],
+          ["Total Payment", money(loan.total_payment)],
+          ["Loan Status", loan.loan_status || loan.status],
+          ["Payment Status", loan.payment_status],
+          ["Amount Paid", money(loan.amount_paid)],
+          ["Remaining Balance", money(loan.remaining_balance)],
+          ["Loan Start Date", date(
+            loan.official_start_date || loan.loan_start_date
+          )],
+          ["Due Date", date(
+            loan.official_due_date || loan.loan_end_date
+          )],
+          ["Due Status", loan.due_status],
+          ["Penalty Amount", money(loan.penalty_amount)],
+          ["Last Payment Date", date(loan.payment_date)],
+          ["Payment Method", loan.payment_method],
+          ["Payment Reference", loan.payment_reference]
+        ])
+      )
+    ).join("");
+
+    panel.innerHTML = `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        flex-wrap:wrap;
+      ">
+        <h2 style="margin:0;color:#172554;">
+          Customer Account Details
+        </h2>
+        <button id="closeCustomerAccountDetails"
+          type="button"
+          style="padding:10px 18px;border:0;border-radius:10px;cursor:pointer;">
+          Close
+        </button>
+      </div>
+
+      ${section("Customer Profile", fields([
+        ["Full Name", profile.full_name],
+        ["Email", applications[0]?.email],
+        ["Mobile Number", profile.mobile_number],
+        ["Account Created", date(profile.created_at)],
+        ["Number of Loan Records", applications.length]
+      ]))}
+
+      ${section(
+        "Loan Details & Due Dates",
+        loanContent || "<p>No loan applications found.</p>"
+      )}
+
+      ${section(
+        "Payment History",
+        tableHtml(
+          ["Application ID", "Payment Date", "Amount", "Method", "Reference"],
+          payments.map(p => [
+            p.application_id,
+            date(p.payment_date || p.created_at),
+            money(p.amount),
+            p.payment_method,
+            p.reference_number
+          ])
+        )
+      )}
+
+      ${section(
+        "Payment Receipts",
+        tableHtml(
+          ["Receipt Number", "Application ID", "Total Paid",
+           "Payment Date", "Payment Status", "Remaining Balance"],
+          receipts.map(r => [
+            r.receipt_number,
+            r.application_id,
+            money(r.total_paid),
+            date(r.payment_date),
+            r.payment_status,
+            money(r.remaining_balance)
+          ])
+        )
+      )}
+    `;
+
+    document.getElementById("closeCustomerAccountDetails")
+      .addEventListener("click", () => {
+        panel.style.display = "none";
+      });
+
+  } catch (error) {
+    console.error("View customer details error:", error);
+
+    panel.innerHTML = `
+      <h2>Unable to Load Customer Details</h2>
+      <p>Please check the Supabase RPC function and admin permissions.</p>
+      <p style="color:#b91c1c;overflow-wrap:anywhere;">
+        ${escapeHtml(error.message || "An unexpected error occurred.")}
+      </p>
+      <button type="button" id="closeCustomerAccountDetails">
+        Close
+      </button>
+    `;
+
+    document.getElementById("closeCustomerAccountDetails")
+      .addEventListener("click", () => {
+        panel.style.display = "none";
+      });
+  }
+}
+
+
 /* =========================================
    EDIT CUSTOMER ACCOUNT
 ========================================= */
