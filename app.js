@@ -5001,7 +5001,7 @@ function showCustomerLogin() {
 async function customerRegister() {
   const fullName = $("customerFullName").value.trim();
   const mobile = $("customerMobile").value.trim();
-  const email = $("registerEmail").value.trim();
+  const email = $("registerEmail").value.trim().toLowerCase();
   const password = $("registerPassword").value;
 
   $("customerRegisterMessage").textContent = "";
@@ -5170,7 +5170,7 @@ async function resendCustomerOtp() {
 }
 
 async function customerLogin() {
-  const email = $("customerEmail").value.trim();
+  const email = $("customerEmail").value.trim().toLowerCase();
   const password = $("customerPassword").value;
 
   $("customerAuthMessage").textContent = "";
