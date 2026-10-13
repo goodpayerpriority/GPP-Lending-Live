@@ -6197,7 +6197,13 @@ async function viewCustomerMyAccount(userId) {
         ["Active Loan", money(balance)],
         ["Active Loan Count", String(active.length)],
         ["Payment Status", overdue.length ? "Payment overdue" : "Up to date"],
-        ["Total Loans", String(eligible.length)]
+        ["Total Loans", String(
+  applications.filter(row =>
+    ["active", "completed", "paid"].includes(
+      String(row.loan_status || "").trim().toLowerCase()
+    )
+  ).length
+)]
       ]))}
 
       ${section("Loan Status", `
