@@ -2952,3 +2952,85 @@ header nav button.nav-active {
     font-size: 13px;
   }
 }
+
+
+/* ACTIVE CLIENTS SUMMARY CARDS */
+.active-clients-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 24px 0;
+}
+
+.active-summary-card {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.07);
+}
+
+.loan-amount-card {
+  border-left: 5px solid #2563eb;
+}
+
+.total-due-card {
+  border-left: 5px solid #16a34a;
+}
+
+.active-summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 14px;
+  border-radius: 13px;
+  background: rgba(37, 99, 235, 0.10);
+  color: #2563eb;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.total-due-card .active-summary-icon {
+  background: rgba(22, 163, 74, 0.10);
+  color: #15803d;
+}
+
+.active-summary-label {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.active-summary-value {
+  color: #172554;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.total-due-card .active-summary-value {
+  color: #15803d;
+}
+
+.active-summary-note {
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .active-clients-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .active-summary-card {
+    padding: 20px;
+  }
+}
