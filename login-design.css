@@ -777,11 +777,11 @@ html body main #account.page.active > .card > #customerRegister textarea {
 .login-brand-image {
   display: block;
   width: 136px;
-  height: 76px;
+  height: 85px;
   max-width: 100%;
   object-fit: contain;
   object-position: center bottom;
-  margin: 0 auto -4px;
+  margin: 0 auto 0px;
   padding: 0;
   background: transparent;
   border: none;
