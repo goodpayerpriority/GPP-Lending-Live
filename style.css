@@ -3051,3 +3051,18 @@ header nav button.nav-active {
     font-size: 25px;
   }
 }
+
+
+/* GPP BRAND LOGO — IMAGE ONLY */
+.login-brand-image {
+  display: block;
+  width: 180px;
+  height: 110px;
+  max-width: 75%;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
