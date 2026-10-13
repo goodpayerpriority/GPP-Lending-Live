@@ -770,3 +770,20 @@ html body main #account.page.active > .card > #customerRegister textarea {
   width: 100% !important;
   border-radius: 14px !important;
 }
+
+
+/* GPP BRAND LOGO — ORIGINAL-SIZE DISPLAY */
+.login-brand-image {
+  display: block;
+  width: 136px;
+  height: 136px;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 0 0 auto;
+}
