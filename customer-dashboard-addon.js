@@ -163,8 +163,13 @@ function installMarkup() {
     $("gppcdPaymentStatus").textContent = overdue.length ? "Payment overdue" : "Up to date";
     $("gppcdPaymentStatus").className = overdue.length ? "gppcd-payment-overdue" : "gppcd-payment-current";
     $("gppcdPaymentNote").textContent = overdue.length ? `${overdue.length} loan(s) overdue. Please check your due date.` : "You have no overdue payment.";
-    $("gppcdTotal").textContent = String(eligible.length);
+    const availedLoans = rows.filter(row =>
+  ["active", "completed", "paid"].includes(
+    String(row.loan_status || "").trim().toLowerCase()
+  )
+).length;
 
+$("gppcdTotal").textContent = String(availedLoans);
     const statusBox = $("gppcdStatusBox");
     if (!active.length) {
       const latest = rows[0];
