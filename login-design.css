@@ -781,7 +781,7 @@ html body main #account.page.active > .card > #customerRegister textarea {
   max-width: 100%;
   object-fit: contain;
   object-position: center bottom;
-  margin: 0 auto 0px;
+  margin: 0 auto 1px;
   padding: 0;
   background: transparent;
   border: none;
