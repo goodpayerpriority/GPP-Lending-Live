@@ -772,14 +772,16 @@ html body main #account.page.active > .card > #customerRegister textarea {
 }
 
 
-/* GPP BRAND LOGO — MATCH ORIGINAL SPACING */
+
+/* GPP BRAND LOGO — TIGHT SPACING */
 .login-brand-image {
   display: block;
   width: 136px;
-  height: 90px;
+  height: 76px;
   max-width: 100%;
   object-fit: contain;
-  margin: 0 auto 2px;
+  object-position: center bottom;
+  margin: 0 auto -4px;
   padding: 0;
   background: transparent;
   border: none;
@@ -787,3 +789,4 @@ html body main #account.page.active > .card > #customerRegister textarea {
   box-shadow: none;
   flex: 0 0 auto;
 }
+
