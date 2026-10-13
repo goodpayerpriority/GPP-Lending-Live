@@ -2820,6 +2820,61 @@ async function renderClients() {
     return;
   }
 
+  
+  // UPDATE ACTIVE CLIENTS SUMMARY TOTALS
+  const activeClientRows = data || [];
+
+  const totalLoanAmount = activeClientRows.reduce(
+    (sum, application) => {
+      return sum + Number(application.requested_amount || 0);
+    },
+    0
+  );
+
+  const totalDueAmount = activeClientRows.reduce(
+    (sum, application) => {
+      // Fully paid loans should not add to outstanding due.
+      if (
+        String(application.payment_status || "").toLowerCase() === "paid" ||
+        String(application.loan_status || "").toLowerCase() === "paid"
+      ) {
+        return sum;
+      }
+
+      const dueStatus = getCalculatedDueStatus(application);
+
+      let penalty = 0;
+
+      if (dueStatus.startsWith("Delayed")) {
+        const match = dueStatus.match(/(\d+)/);
+        const delayedDays = match ? Number(match[1]) : 0;
+        penalty = delayedDays * 50;
+      }
+
+      const remainingBalance = Number(
+        application.remaining_balance ??
+        application.total_due ??
+        application.total_payment ??
+        application.total_amount_to_pay ??
+        0
+      );
+
+      return sum + Math.max(0, remainingBalance + penalty);
+    },
+    0
+  );
+
+  const totalLoanElement = $("activeTotalLoanAmount");
+  const totalDueElement = $("activeTotalDue");
+
+  if (totalLoanElement) {
+    totalLoanElement.textContent = formatMoney(totalLoanAmount);
+  }
+
+  if (totalDueElement) {
+    totalDueElement.textContent = formatMoney(totalDueAmount);
+  }
+
 
   clientList.innerHTML =
 
