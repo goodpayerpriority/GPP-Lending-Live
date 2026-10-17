@@ -1404,7 +1404,7 @@ if (
    RE-LOAN AUTO-FILL
 ========================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const params = new URLSearchParams(window.location.search);
 
   const isReloan = params.get("reloan") === "true";
@@ -1458,7 +1458,35 @@ updateEmploymentFields();
   verification_video_path: application.verification_video_path || ""
 };
     
-    show("apply");
+    // Restore the authorized admin interface before opening the re-loan form
+const {
+  data: { user },
+  error: userError
+} = await sb.auth.getUser();
+
+if (!userError && user) {
+  const { data: isAdmin, error: adminError } =
+    await sb.rpc("is_admin");
+
+  if (!adminError && isAdmin === true) {
+    $("login").classList.add("hidden");
+    $("dashboard").classList.remove("hidden");
+
+    $("siteHeader").classList.remove("hidden");
+    $("siteFooter").classList.remove("hidden");
+
+    const adminNavButton = document.querySelector(
+      'header nav button[onclick="show(\'admin\')"]'
+    );
+
+    if (adminNavButton) {
+      adminNavButton.classList.remove("hidden");
+    }
+  }
+}
+
+// Open the re-loan application without removing the navigation
+show("apply");
 
     if (typeof updateTerms === "function") {
       updateTerms();
