@@ -4737,7 +4737,7 @@ const originalShow = show;
 show = function(pageId) {
 
   originalShow(pageId);
-
+  
   document
     .querySelectorAll("header nav button")
     .forEach((button) => {
@@ -5569,6 +5569,7 @@ function showAdminLogin() {
   $("customerProfile").classList.add("hidden");
 
   $("adminLoginPanel").classList.remove("hidden");
+  $("myAccountNav")?.classList.add("hidden");
 }
 
 
