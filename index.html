@@ -8,7 +8,18 @@
     name="viewport"
     content="width=device-width, initial-scale=1"
   >
+  
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const isPasswordRecovery =
+    params.has("resetPassword") ||
+    window.location.hash.includes("type=recovery");
 
+  if (!isPasswordRecovery) {
+    document.documentElement.classList.add("session-pending");
+  }
+</script>
+  
   <title>
     GPP Lending
   </title>
