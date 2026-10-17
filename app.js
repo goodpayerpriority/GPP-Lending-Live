@@ -4719,52 +4719,7 @@ function escapeHtml(
 }
 
 
-/* =========================================
-   CHECK EXISTING ADMIN SESSION
-========================================= */
 
-sb.auth
-
-  .getSession()
-
-  .then(
-
-    ({
-      data
-    }) => {
-
-      if (
-        data.session
-      ) {
-
-        if (
-          $("login")
-        ) {
-
-          $("login")
-            .classList
-            .add(
-              "hidden"
-            );
-        }
-
-
-        if (
-          $("dashboard")
-        ) {
-
-          $("dashboard")
-            .classList
-            .remove(
-              "hidden"
-            );
-        }
-
-
-        render();
-      }
-    }
-  );
 
 
 /* =========================================
@@ -5458,20 +5413,129 @@ async function customerForgotPassword() {
 ========================================= */
 
 
-(function initializeLoginFirst() {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
 
-  $("account").classList.add("active");
+/* =========================================
+   LOGIN-FIRST STARTUP / SESSION RESTORE
+========================================= */
 
-  $("siteHeader").classList.add("hidden");
-  $("siteFooter").classList.add("hidden");
+(async function initializeLoginFirst() {
+  const setActivePage = pageId => {
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
 
-  $("customerAuth").classList.remove("hidden");
-  $("customerRegister").classList.add("hidden");
-  $("customerProfile").classList.add("hidden");
+    if ($(pageId)) {
+      $(pageId).classList.add("active");
+    }
+  };
+
+  const setAdminNavigation = isAdmin => {
+    const adminNavButton = document.querySelector(
+      'header nav button[onclick="show(\'admin\')"]'
+    );
+
+    if (adminNavButton) {
+      adminNavButton.classList.toggle("hidden", !isAdmin);
+    }
+  };
+
+  // Start from a clean login screen.
+  setActivePage("account");
+
+  $("siteHeader")?.classList.add("hidden");
+  $("siteFooter")?.classList.add("hidden");
+
+  $("login")?.classList.remove("hidden");
+  $("dashboard")?.classList.add("hidden");
+
+  $("customerAuth")?.classList.remove("hidden");
+  $("customerRegister")?.classList.add("hidden");
+  $("customerVerify")?.classList.add("hidden");
+  $("customerProfile")?.classList.add("hidden");
+  $("adminLoginPanel")?.classList.add("hidden");
+
+  setAdminNavigation(false);
+
+  // Do not interrupt password recovery.
+  const recoveryInProgress =
+    new URLSearchParams(window.location.search).has("resetPassword") ||
+    window.location.hash.includes("type=recovery");
+
+  if (recoveryInProgress) {
+    return;
+  }
+
+  try {
+    const { data, error } = await sb.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    // No saved session: remain on the login screen.
+    if (!data?.session) {
+      return;
+    }
+
+    // Check whether the saved session belongs to an admin.
+    const { data: isAdmin, error: roleError } =
+      await sb.rpc("is_admin");
+
+    if (roleError) {
+      throw roleError;
+    }
+
+    if (isAdmin === true) {
+      // Restore the admin dashboard.
+      $("login")?.classList.add("hidden");
+      $("dashboard")?.classList.remove("hidden");
+
+      $("siteHeader")?.classList.remove("hidden");
+      $("siteFooter")?.classList.remove("hidden");
+
+      $("customerAuth")?.classList.add("hidden");
+      $("customerRegister")?.classList.add("hidden");
+      $("customerVerify")?.classList.add("hidden");
+      $("customerProfile")?.classList.add("hidden");
+      $("adminLoginPanel")?.classList.add("hidden");
+
+      setAdminNavigation(true);
+      setActivePage("admin");
+
+      await render();
+      return;
+    }
+
+    // Restore the customer profile.
+    await loadCustomerProfile();
+
+    if (
+      $("customerProfile") &&
+      !$("customerProfile").classList.contains("hidden")
+    ) {
+      $("siteHeader")?.classList.remove("hidden");
+      $("siteFooter")?.classList.remove("hidden");
+
+      $("dashboard")?.classList.add("hidden");
+
+      setAdminNavigation(false);
+      show("home");
+    } else {
+      // If the customer profile cannot be restored,
+      // return to the customer login screen.
+      await sb.auth.signOut();
+      showCustomerLogin();
+    }
+  } catch (error) {
+    console.error("Session restore error:", error);
+
+    $("dashboard")?.classList.add("hidden");
+    $("login")?.classList.remove("hidden");
+
+    showCustomerLogin();
+  }
 })();
+
 
 
 function showMainLogin() {
