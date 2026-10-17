@@ -3051,3 +3051,8 @@ header nav button.nav-active {
     font-size: 25px;
   }
 }
+
+/* Prevent screen flicker during session restoration */
+html.session-pending body {
+  visibility: hidden;
+}
