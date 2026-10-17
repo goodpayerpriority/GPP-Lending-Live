@@ -5439,6 +5439,10 @@ async function customerForgotPassword() {
     }
   };
 
+    const finishStartup = () => {
+    document.documentElement.classList.remove("session-pending");
+  };
+
   // Start from a clean login screen.
   setActivePage("account");
 
@@ -5474,8 +5478,9 @@ async function customerForgotPassword() {
 
     // No saved session: remain on the login screen.
     if (!data?.session) {
-      return;
-    }
+  finishStartup();
+  return;
+}
 
     // Check whether the saved session belongs to an admin.
     const { data: isAdmin, error: roleError } =
@@ -5503,7 +5508,8 @@ async function customerForgotPassword() {
       setActivePage("admin");
 
       await render();
-      return;
+finishStartup();
+return;
     }
 
     // Restore the customer profile.
@@ -5526,6 +5532,9 @@ async function customerForgotPassword() {
       await sb.auth.signOut();
       showCustomerLogin();
     }
+
+    finishStartup();
+    
   } catch (error) {
     console.error("Session restore error:", error);
 
@@ -5533,6 +5542,7 @@ async function customerForgotPassword() {
     $("login")?.classList.remove("hidden");
 
     showCustomerLogin();
+    finishStartup();
   }
 })();
 
