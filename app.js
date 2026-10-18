@@ -6568,3 +6568,289 @@ async function saveCustomerAccount(userId) {
   }
 }
 
+
+  
+/* =========================================
+   AUTO LOGOUT AFTER 30 MINUTES
+   WARNING + 5-MINUTE COUNTDOWN
+========================================= */
+
+(() => {
+  const INACTIVITY_LIMIT = 2 * 60 * 1000;
+  const WARNING_BEFORE_LOGOUT = 20 * 1000;
+  const WARNING_AFTER = INACTIVITY_LIMIT - WARNING_BEFORE_LOGOUT;
+
+  let inactivityTimer = null;
+  let countdownTimer = null;
+  let warningOverlay = null;
+  let warningShown = false;
+  let logoutInProgress = false;
+
+  const isPasswordRecoveryPage = () =>
+    new URLSearchParams(window.location.search).has("resetPassword") ||
+    window.location.hash.includes("type=recovery");
+
+  function clearTimers() {
+    if (inactivityTimer !== null) {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = null;
+    }
+
+    if (countdownTimer !== null) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }
+
+  function closeWarning() {
+    if (countdownTimer !== null) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+
+    warningOverlay?.remove();
+    warningOverlay = null;
+    warningShown = false;
+  }
+
+  async function logoutUser() {
+    if (logoutInProgress) return;
+
+    logoutInProgress = true;
+    clearTimers();
+    closeWarning();
+
+    try {
+      const { error } = await sb.auth.signOut();
+
+      if (error) {
+        console.error("Automatic logout failed:", error);
+        logoutInProgress = false;
+        resetInactivityTimer();
+        return;
+      }
+    } catch (error) {
+      console.error("Automatic logout error:", error);
+      logoutInProgress = false;
+      resetInactivityTimer();
+      return;
+    }
+
+    window.location.reload();
+  }
+
+  function showWarning() {
+    if (warningShown || isPasswordRecoveryPage()) return;
+
+    warningShown = true;
+
+    warningOverlay = document.createElement("div");
+    warningOverlay.id = "gppInactivityWarning";
+
+    warningOverlay.innerHTML = `
+      <div class="gpp-inactivity-card">
+        <div class="gpp-inactivity-icon">⏳</div>
+        <h2>Session Expiring Soon</h2>
+        <p>
+          You have been inactive for a while.
+          For your security, you will be logged out in:
+        </p>
+        <div id="gppInactivityCountdown">05:00</div>
+        <p class="gpp-inactivity-note">
+          Click below to continue your session.
+        </p>
+        <button type="button" id="gppStayLoggedIn">
+          Stay Logged In
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(warningOverlay);
+
+    const button = document.getElementById("gppStayLoggedIn");
+
+    button.addEventListener("click", () => {
+      resetInactivityTimer();
+    });
+
+    let remainingSeconds = WARNING_BEFORE_LOGOUT / 1000;
+
+    function updateCountdown() {
+      const countdown = document.getElementById(
+        "gppInactivityCountdown"
+      );
+
+      if (!countdown) return;
+
+      const minutes = Math.floor(remainingSeconds / 60);
+      const seconds = remainingSeconds % 60;
+
+      countdown.textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+
+      if (remainingSeconds <= 0) {
+        logoutUser();
+        return;
+      }
+
+      remainingSeconds--;
+    }
+
+    updateCountdown();
+
+if (!logoutInProgress && warningShown) {
+  countdownTimer = setInterval(updateCountdown, 1000);
+}
+
+  
+
+function resetInactivityTimer() {
+  if (isPasswordRecoveryPage() || logoutInProgress) return;
+
+  clearTimers();
+  closeWarning();
+
+  inactivityTimer = setTimeout(() => {
+    inactivityTimer = null;
+    showWarning();
+  }, WARNING_AFTER);
+}
+
+
+
+  // Glass-style warning popup
+  if (!document.getElementById("gppInactivityStyles")) {
+    const style = document.createElement("style");
+    style.id = "gppInactivityStyles";
+
+    style.textContent = `
+      #gppInactivityWarning {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(5, 12, 25, 0.58);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .gpp-inactivity-card {
+        width: 100%;
+        max-width: 410px;
+        padding: 32px 26px;
+        text-align: center;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+
+      .gpp-inactivity-icon {
+        font-size: 38px;
+        margin-bottom: 12px;
+      }
+
+      .gpp-inactivity-card h2 {
+        margin: 0 0 12px;
+        font-size: 23px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .gpp-inactivity-card p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      #gppInactivityCountdown {
+        margin: 20px 0;
+        font-size: 46px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: 3px;
+        font-variant-numeric: tabular-nums;
+        color: #fff;
+      }
+
+      .gpp-inactivity-card .gpp-inactivity-note {
+        margin-bottom: 20px;
+      }
+
+      #gppStayLoggedIn {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #10213b;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.2s ease;
+      }
+
+      #gppStayLoggedIn:hover {
+        background: #fff;
+        transform: translateY(-1px);
+      }
+
+      @media (max-width: 480px) {
+        .gpp-inactivity-card {
+          padding: 28px 20px;
+        }
+
+        .gpp-inactivity-card h2 {
+          font-size: 21px;
+        }
+
+        #gppInactivityCountdown {
+          font-size: 40px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  // Reset the inactivity timer when the user interacts with the page.
+  [
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "scroll",
+    "touchstart",
+    "click"
+  ].forEach(eventName => {
+    window.addEventListener(eventName, resetInactivityTimer, {
+      passive: true
+    });
+  });
+
+  // Start the timer when a user session is available.
+  sb.auth.onAuthStateChange((event, session) => {
+    if (!session || isPasswordRecoveryPage()) {
+      clearTimers();
+      closeWarning();
+      return;
+    }
+
+    if (
+      event === "SIGNED_IN" ||
+      event === "INITIAL_SESSION" ||
+      event === "TOKEN_REFRESHED"
+    ) {
+      resetInactivityTimer();
+    }
+  });
+})();
+}
+
