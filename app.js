@@ -6569,15 +6569,15 @@ async function saveCustomerAccount(userId) {
 }
 
 
+
 /* =========================================
-   AUTO LOGOUT AFTER INACTIVITY
-   GLASS WARNING + COUNTDOWN
+   GPP LENDING — AUTOMATIC SESSION TIMEOUT
+   Total inactivity: 3 minutes
+   Warning countdown: 20 seconds
 ========================================= */
 
 (() => {
-  // TEST SETTINGS:
-  // 2 minutes total inactivity, with a 20-second warning.
-  const INACTIVITY_LIMIT = 2 * 60 * 1000;
+  const INACTIVITY_LIMIT = 3 * 60 * 1000;
   const WARNING_BEFORE_LOGOUT = 20 * 1000;
   const WARNING_AFTER =
     INACTIVITY_LIMIT - WARNING_BEFORE_LOGOUT;
@@ -6644,14 +6644,12 @@ async function saveCustomerAccount(userId) {
     window.location.reload();
   }
 
+  /* =========================================
+     BLUE GLASS WARNING POPUP
+  ========================================= */
+
   function showWarning() {
-    if (
-      warningShown ||
-      logoutInProgress ||
-      isPasswordRecoveryPage()
-    ) {
-      return;
-    }
+    if (warningShown || isPasswordRecoveryPage()) return;
 
     warningShown = true;
 
@@ -6660,14 +6658,18 @@ async function saveCustomerAccount(userId) {
 
     warningOverlay.innerHTML = `
       <div class="gpp-inactivity-card">
-        <div class="gpp-inactivity-icon">⏳</div>
+        <div class="gpp-inactivity-accent"></div>
 
         <h2>Session Expiring Soon</h2>
 
-        <p>
-          You have been inactive for a while.
-          For your security, you will be logged out in:
+        <p class="gpp-inactivity-description">
+          Your session is about to expire due to inactivity.
+          Stay logged in to continue using your account.
         </p>
+
+        <div class="gpp-inactivity-label">
+          Automatic logout in
+        </div>
 
         <div id="gppInactivityCountdown">00:20</div>
 
@@ -6689,9 +6691,7 @@ async function saveCustomerAccount(userId) {
       resetInactivityTimer();
     });
 
-    let remainingSeconds = Math.ceil(
-      WARNING_BEFORE_LOGOUT / 1000
-    );
+    let remainingSeconds = WARNING_BEFORE_LOGOUT / 1000;
 
     function updateCountdown() {
       const countdown = document.getElementById(
@@ -6709,11 +6709,8 @@ async function saveCustomerAccount(userId) {
         String(seconds).padStart(2, "0");
 
       if (remainingSeconds <= 0) {
-        if (countdownTimer !== null) {
-          clearInterval(countdownTimer);
-          countdownTimer = null;
-        }
-
+        clearInterval(countdownTimer);
+        countdownTimer = null;
         logoutUser();
         return;
       }
@@ -6722,19 +6719,15 @@ async function saveCustomerAccount(userId) {
     }
 
     updateCountdown();
-
-    if (warningShown && !logoutInProgress) {
-      countdownTimer = setInterval(updateCountdown, 1000);
-    }
+    countdownTimer = setInterval(updateCountdown, 1000);
   }
 
+  /* =========================================
+     RESET INACTIVITY TIMER
+  ========================================= */
+
   function resetInactivityTimer() {
-    if (
-      isPasswordRecoveryPage() ||
-      logoutInProgress
-    ) {
-      return;
-    }
+    if (isPasswordRecoveryPage() || logoutInProgress) return;
 
     clearTimers();
     closeWarning();
@@ -6745,7 +6738,10 @@ async function saveCustomerAccount(userId) {
     }, WARNING_AFTER);
   }
 
-  // Glass-style warning popup
+  /* =========================================
+     BLUE GLASS POPUP STYLES
+  ========================================= */
+
   if (!document.getElementById("gppInactivityStyles")) {
     const style = document.createElement("style");
     style.id = "gppInactivityStyles";
@@ -6758,88 +6754,168 @@ async function saveCustomerAccount(userId) {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px;
-        background: rgba(5, 12, 25, 0.58);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        padding: 16px;
+        background: rgba(3, 12, 30, 0.48);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        animation: gppOverlayIn 0.25s ease-out;
       }
 
       .gpp-inactivity-card {
+        position: relative;
+        overflow: hidden;
         box-sizing: border-box;
         width: 100%;
-        max-width: 410px;
-        padding: 32px 26px;
+        max-width: 340px;
+        padding: 25px 23px 23px;
         text-align: center;
-        color: #fff;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
+        color: #ffffff;
+        background:
+          linear-gradient(
+            145deg,
+            rgba(32, 116, 220, 0.38),
+            rgba(7, 34, 79, 0.62)
+          );
+        border: 1px solid rgba(173, 213, 255, 0.42);
+        border-radius: 21px;
+        box-shadow:
+          0 18px 50px rgba(0, 0, 0, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        animation: gppCardIn 0.3s ease-out;
       }
 
-      .gpp-inactivity-icon {
-        font-size: 38px;
-        margin-bottom: 12px;
+      .gpp-inactivity-accent {
+        width: 42px;
+        height: 4px;
+        margin: 0 auto 17px;
+        border-radius: 20px;
+        background: linear-gradient(
+          90deg,
+          #60a5fa,
+          #bfdbfe
+        );
+        box-shadow: 0 0 15px rgba(96, 165, 250, 0.55);
       }
 
       .gpp-inactivity-card h2 {
-        margin: 0 0 12px;
-        font-size: 23px;
-        font-weight: 700;
-        color: #fff;
+        margin: 0 0 10px;
+        color: #ffffff;
+        font-size: 21px;
+        font-weight: 750;
+        line-height: 1.3;
+        letter-spacing: -0.4px;
       }
 
-      .gpp-inactivity-card p {
-        font-size: 14px;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.85);
+      .gpp-inactivity-description {
+        margin: 0 auto 19px;
+        max-width: 270px;
+        color: rgba(239, 246, 255, 0.88);
+        font-size: 12.5px;
+        line-height: 1.65;
+      }
+
+      .gpp-inactivity-label {
+        color: rgba(219, 234, 254, 0.85);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
       }
 
       #gppInactivityCountdown {
-        margin: 20px 0;
-        font-size: 46px;
+        margin: 7px 0 12px;
+        color: #ffffff;
+        font-size: 39px;
         line-height: 1.2;
         font-weight: 800;
-        letter-spacing: 3px;
+        letter-spacing: 2px;
         font-variant-numeric: tabular-nums;
-        color: #fff;
+        text-shadow: 0 0 20px rgba(147, 197, 253, 0.3);
       }
 
       .gpp-inactivity-card .gpp-inactivity-note {
-        margin-bottom: 20px;
+        margin: 0 0 17px;
+        color: rgba(219, 234, 254, 0.82);
+        font-size: 12px;
+        line-height: 1.5;
       }
 
       #gppStayLoggedIn {
+        display: block;
+        box-sizing: border-box;
         width: 100%;
-        padding: 14px 18px;
-        border: 1px solid rgba(255, 255, 255, 0.45);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.92);
-        color: #10213b;
-        font-size: 15px;
-        font-weight: 700;
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 11px;
+        background: linear-gradient(
+          135deg,
+          #ffffff,
+          #dbeafe
+        );
+        color: #12346b;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 750;
         cursor: pointer;
-        transition: transform 0.2s ease, background 0.2s ease;
+        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.15);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
       }
 
       #gppStayLoggedIn:hover {
-        background: #fff;
         transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        background: #ffffff;
+      }
+
+      #gppStayLoggedIn:active {
+        transform: scale(0.98);
+      }
+
+      @keyframes gppOverlayIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes gppCardIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
       }
 
       @media (max-width: 480px) {
         .gpp-inactivity-card {
-          padding: 28px 20px;
+          max-width: 320px;
+          padding: 23px 19px 20px;
+          border-radius: 19px;
         }
 
         .gpp-inactivity-card h2 {
-          font-size: 21px;
+          font-size: 20px;
         }
 
         #gppInactivityCountdown {
-          font-size: 40px;
+          font-size: 36px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #gppInactivityWarning,
+        .gpp-inactivity-card {
+          animation: none;
+        }
+
+        #gppStayLoggedIn {
+          transition: none;
         }
       }
     `;
@@ -6847,7 +6923,10 @@ async function saveCustomerAccount(userId) {
     document.head.appendChild(style);
   }
 
-  // Reset inactivity timer when the user interacts with the page.
+  /* =========================================
+     USER ACTIVITY LISTENERS
+  ========================================= */
+
   [
     "mousemove",
     "mousedown",
@@ -6861,7 +6940,10 @@ async function saveCustomerAccount(userId) {
     });
   });
 
-  // Start timer when an authenticated session is available.
+  /* =========================================
+     START TIMER FOR ACTIVE AUTH SESSION
+  ========================================= */
+
   sb.auth.onAuthStateChange((event, session) => {
     if (!session || isPasswordRecoveryPage()) {
       clearTimers();
