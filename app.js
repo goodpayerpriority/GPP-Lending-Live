@@ -6566,6 +6566,8 @@ async function saveCustomerAccount(userId) {
     message.textContent =
       error.message || "Unable to save customer details.";
   }
+}
+
 
   
 /* =========================================
@@ -6698,24 +6700,25 @@ async function saveCustomerAccount(userId) {
 
     updateCountdown();
 
-    countdownTimer = setInterval(updateCountdown, 1000);
-  }
+if (!logoutInProgress && warningShown) {
+  countdownTimer = setInterval(updateCountdown, 1000);
+}
 
-  function resetInactivityTimer() {
-    if (isPasswordRecoveryPage() || logoutInProgress) return;
+  
 
-    clearTimers();
-    closeWarning();
+function resetInactivityTimer() {
+  if (isPasswordRecoveryPage() || logoutInProgress) return;
 
-    inactivityTimer = setTimeout(() => {
-      inactivityTimer = null;
-      showWarning();
+  clearTimers();
+  closeWarning();
 
-      countdownTimer = setTimeout(() => {
-        logoutUser();
-      }, WARNING_BEFORE_LOGOUT);
-    }, WARNING_AFTER);
-  }
+  inactivityTimer = setTimeout(() => {
+    inactivityTimer = null;
+    showWarning();
+  }, WARNING_AFTER);
+}
+
+
 
   // Glass-style warning popup
   if (!document.getElementById("gppInactivityStyles")) {
