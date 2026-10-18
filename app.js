@@ -6569,11 +6569,12 @@ async function saveCustomerAccount(userId) {
 }
 
 
+
 /* =========================================
    GPP LENDING — AUTO LOGOUT
-   3 minutes total inactivity
-   20-second warning
-   Only for authenticated customer/admin areas
+   Total inactivity: 3 minutes
+   Warning: 20 seconds
+   Customer and Admin authenticated areas only
 ========================================= */
 
 (() => {
@@ -6588,39 +6589,11 @@ async function saveCustomerAccount(userId) {
   let warningShown = false;
   let logoutInProgress = false;
   let activeSession = false;
+  let authInitialized = false;
 
   const isPasswordRecoveryPage = () =>
     new URLSearchParams(window.location.search).has("resetPassword") ||
     window.location.hash.includes("type=recovery");
-
-  /*
-   * Detect whether the authenticated area is visible.
-   * Main login panels alone do not qualify.
-   */
-  function isAuthenticatedAreaVisible() {
-    const customerProfile = document.getElementById("customerProfile");
-    const adminDashboard = document.getElementById("dashboard");
-
-    const customerAreaVisible =
-      customerProfile &&
-      !customerProfile.classList.contains("hidden") &&
-      customerProfile.offsetParent !== null;
-
-    const adminAreaVisible =
-      adminDashboard &&
-      !adminDashboard.classList.contains("hidden") &&
-      adminDashboard.offsetParent !== null;
-
-    return Boolean(customerAreaVisible || adminAreaVisible);
-  }
-
-  function canRunInactivityTimer() {
-    return (
-      activeSession &&
-      !isPasswordRecoveryPage() &&
-      isAuthenticatedAreaVisible()
-    );
-  }
 
   function clearTimers() {
     if (inactivityTimer !== null) {
@@ -6648,8 +6621,62 @@ async function saveCustomerAccount(userId) {
     warningShown = false;
   }
 
+  /*
+   * The account page is #account.
+   * The customer area is #customerProfile.
+   * The admin dashboard is #dashboard.
+   *
+   * We do not use offsetParent because page visibility
+   * can be controlled by parent sections and CSS.
+   */
+  function isElementVisible(element) {
+    if (!element || element.classList.contains("hidden")) {
+      return false;
+    }
+
+    let current = element;
+
+    while (current && current !== document.body) {
+      if (
+        current.classList.contains("hidden") ||
+        current.classList.contains("page") &&
+        !current.classList.contains("active")
+      ) {
+        return false;
+      }
+
+      current = current.parentElement;
+    }
+
+    return true;
+  }
+
+  function isAuthenticatedAreaVisible() {
+    const customerProfile = document.getElementById("customerProfile");
+    const dashboard = document.getElementById("dashboard");
+
+    return (
+      isElementVisible(customerProfile) ||
+      isElementVisible(dashboard)
+    );
+  }
+
+  function canRunInactivityTimer() {
+    return (
+      authInitialized &&
+      activeSession &&
+      !logoutInProgress &&
+      !isPasswordRecoveryPage() &&
+      isAuthenticatedAreaVisible()
+    );
+  }
+
   async function logoutUser() {
-    if (logoutInProgress || !canRunInactivityTimer()) return;
+    if (!canRunInactivityTimer()) {
+      clearTimers();
+      closeWarning();
+      return;
+    }
 
     logoutInProgress = true;
     clearTimers();
@@ -6676,15 +6703,11 @@ async function saveCustomerAccount(userId) {
   }
 
   function showWarning() {
-    if (
-      warningShown ||
-      !canRunInactivityTimer()
-    ) {
+    if (warningShown || !canRunInactivityTimer()) {
       return;
     }
 
     warningShown = true;
-
     warningOverlay = document.createElement("div");
     warningOverlay.id = "gppInactivityWarning";
 
@@ -6717,8 +6740,7 @@ async function saveCustomerAccount(userId) {
 
     document.body.appendChild(warningOverlay);
 
-    document
-      .getElementById("gppStayLoggedIn")
+    document.getElementById("gppStayLoggedIn")
       .addEventListener("click", resetInactivityTimer);
 
     let remainingSeconds = WARNING_BEFORE_LOGOUT / 1000;
@@ -6753,7 +6775,7 @@ async function saveCustomerAccount(userId) {
   }
 
   function resetInactivityTimer() {
-    if (!canRunInactivityTimer() || logoutInProgress) {
+    if (!canRunInactivityTimer()) {
       clearTimers();
       closeWarning();
       return;
@@ -6800,7 +6822,7 @@ async function saveCustomerAccount(userId) {
         max-width: 340px;
         padding: 25px 23px 23px;
         text-align: center;
-        color: #ffffff;
+        color: #fff;
         background: linear-gradient(
           145deg,
           rgba(32, 116, 220, 0.38),
@@ -6827,11 +6849,10 @@ async function saveCustomerAccount(userId) {
 
       .gpp-inactivity-card h2 {
         margin: 0 0 10px;
-        color: #ffffff;
+        color: #fff;
         font-size: 21px;
         font-weight: 750;
         line-height: 1.3;
-        letter-spacing: -0.4px;
       }
 
       .gpp-inactivity-description {
@@ -6852,13 +6873,12 @@ async function saveCustomerAccount(userId) {
 
       #gppInactivityCountdown {
         margin: 7px 0 12px;
-        color: #ffffff;
+        color: #fff;
         font-size: 39px;
         line-height: 1.2;
         font-weight: 800;
         letter-spacing: 2px;
         font-variant-numeric: tabular-nums;
-        text-shadow: 0 0 20px rgba(147, 197, 253, 0.3);
       }
 
       .gpp-inactivity-card .gpp-inactivity-note {
@@ -6875,7 +6895,7 @@ async function saveCustomerAccount(userId) {
         padding: 12px 16px;
         border: 1px solid rgba(255, 255, 255, 0.55);
         border-radius: 11px;
-        background: linear-gradient(135deg, #ffffff, #dbeafe);
+        background: linear-gradient(135deg, #fff, #dbeafe);
         color: #12346b;
         font-family: inherit;
         font-size: 13px;
@@ -6888,7 +6908,7 @@ async function saveCustomerAccount(userId) {
       #gppStayLoggedIn:hover {
         transform: translateY(-1px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        background: #ffffff;
+        background: #fff;
       }
 
       #gppStayLoggedIn:active {
@@ -6915,7 +6935,6 @@ async function saveCustomerAccount(userId) {
         .gpp-inactivity-card {
           max-width: 320px;
           padding: 23px 19px 20px;
-          border-radius: 19px;
         }
 
         .gpp-inactivity-card h2 {
@@ -6960,10 +6979,11 @@ async function saveCustomerAccount(userId) {
   });
 
   /* =========================================
-     SUPABASE SESSION HANDLING
+     SUPABASE SESSION
   ========================================= */
 
   sb.auth.onAuthStateChange((event, session) => {
+    authInitialized = true;
     activeSession = Boolean(session);
 
     if (!session || isPasswordRecoveryPage()) {
@@ -6972,10 +6992,6 @@ async function saveCustomerAccount(userId) {
       return;
     }
 
-    /*
-     * Do not start the timer on the login screen.
-     * Start only when the authenticated area is visible.
-     */
     if (isAuthenticatedAreaVisible()) {
       resetInactivityTimer();
     } else {
@@ -6985,13 +7001,31 @@ async function saveCustomerAccount(userId) {
   });
 
   /*
-   * Recheck after page elements and authentication UI update.
+   * Recheck after login/dashboard UI changes.
+   * A short interval allows the existing app to finish
+   * showing its authenticated panel before starting.
    */
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      if (canRunInactivityTimer()) {
+  const gppSessionCheck = setInterval(() => {
+    if (!authInitialized || !activeSession) return;
+
+    if (isPasswordRecoveryPage()) {
+      clearTimers();
+      closeWarning();
+      return;
+    }
+
+    if (isAuthenticatedAreaVisible()) {
+      if (inactivityTimer === null && !warningShown) {
         resetInactivityTimer();
       }
+    } else {
+      clearTimers();
+      closeWarning();
     }
+  }, 1000);
+
+  window.addEventListener("beforeunload", () => {
+    clearInterval(gppSessionCheck);
+    clearTimers();
   });
 })();
