@@ -6566,4 +6566,100 @@ async function saveCustomerAccount(userId) {
     message.textContent =
       error.message || "Unable to save customer details.";
   }
+
+  /* =========================================
+   AUTO LOGOUT AFTER 1 HOUR OF INACTIVITY
+========================================= */
+
+(() => {
+  const INACTIVITY_LIMIT = 60 * 1000; // TEST: 1 minute
+  let inactivityTimer = null;
+
+  const isPasswordRecoveryPage = () =>
+    new URLSearchParams(window.location.search).has("resetPassword") ||
+    window.location.hash.includes("type=recovery");
+
+  function clearInactivityTimer() {
+    if (inactivityTimer !== null) {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = null;
+    }
+  }
+
+  function resetInactivityTimer() {
+    // Do not interrupt password recovery.
+    if (isPasswordRecoveryPage()) return;
+
+    // Only run the timer for an authenticated session.
+    if (inactivityTimer === null) return;
+
+    clearTimeout(inactivityTimer);
+
+    inactivityTimer = setTimeout(async () => {
+      inactivityTimer = null;
+
+      try {
+        const { error } = await sb.auth.signOut();
+
+        if (error) {
+          console.error("Automatic logout failed:", error);
+        }
+      } catch (error) {
+        console.error("Automatic logout error:", error);
+      } finally {
+        // Return to the normal login screen.
+        window.location.reload();
+      }
+    }, INACTIVITY_LIMIT);
+  }
+
+  function startInactivityTimer() {
+    if (isPasswordRecoveryPage()) return;
+
+    clearInactivityTimer();
+    inactivityTimer = setTimeout(async () => {
+      inactivityTimer = null;
+
+      try {
+        const { error } = await sb.auth.signOut();
+
+        if (error) {
+          console.error("Automatic logout failed:", error);
+        }
+      } catch (error) {
+        console.error("Automatic logout error:", error);
+      } finally {
+        window.location.reload();
+      }
+    }, INACTIVITY_LIMIT);
+  }
+
+  // Reset the timer whenever the user is active.
+  [
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "scroll",
+    "touchstart",
+    "click"
+  ].forEach(eventName => {
+    window.addEventListener(eventName, resetInactivityTimer, {
+      passive: true
+    });
+  });
+
+  // Start the timer for signed-in users, including after refresh.
+  sb.auth.onAuthStateChange((event, session) => {
+    if (!session || isPasswordRecoveryPage()) {
+      clearInactivityTimer();
+      return;
+    }
+
+    if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+      startInactivityTimer();
+    } else if (inactivityTimer === null) {
+      startInactivityTimer();
+    }
+  });
+})();
 }
