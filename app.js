@@ -6569,16 +6569,18 @@ async function saveCustomerAccount(userId) {
 }
 
 
-  
 /* =========================================
-   AUTO LOGOUT AFTER 30 MINUTES
-   WARNING + 5-MINUTE COUNTDOWN
+   AUTO LOGOUT AFTER INACTIVITY
+   GLASS WARNING + COUNTDOWN
 ========================================= */
 
 (() => {
+  // TEST SETTINGS:
+  // 2 minutes total inactivity, with a 20-second warning.
   const INACTIVITY_LIMIT = 2 * 60 * 1000;
   const WARNING_BEFORE_LOGOUT = 20 * 1000;
-  const WARNING_AFTER = INACTIVITY_LIMIT - WARNING_BEFORE_LOGOUT;
+  const WARNING_AFTER =
+    INACTIVITY_LIMIT - WARNING_BEFORE_LOGOUT;
 
   let inactivityTimer = null;
   let countdownTimer = null;
@@ -6608,8 +6610,11 @@ async function saveCustomerAccount(userId) {
       countdownTimer = null;
     }
 
-    warningOverlay?.remove();
-    warningOverlay = null;
+    if (warningOverlay) {
+      warningOverlay.remove();
+      warningOverlay = null;
+    }
+
     warningShown = false;
   }
 
@@ -6640,7 +6645,13 @@ async function saveCustomerAccount(userId) {
   }
 
   function showWarning() {
-    if (warningShown || isPasswordRecoveryPage()) return;
+    if (
+      warningShown ||
+      logoutInProgress ||
+      isPasswordRecoveryPage()
+    ) {
+      return;
+    }
 
     warningShown = true;
 
@@ -6650,15 +6661,20 @@ async function saveCustomerAccount(userId) {
     warningOverlay.innerHTML = `
       <div class="gpp-inactivity-card">
         <div class="gpp-inactivity-icon">⏳</div>
+
         <h2>Session Expiring Soon</h2>
+
         <p>
           You have been inactive for a while.
           For your security, you will be logged out in:
         </p>
-        <div id="gppInactivityCountdown">05:00</div>
+
+        <div id="gppInactivityCountdown">00:20</div>
+
         <p class="gpp-inactivity-note">
           Click below to continue your session.
         </p>
+
         <button type="button" id="gppStayLoggedIn">
           Stay Logged In
         </button>
@@ -6673,14 +6689,16 @@ async function saveCustomerAccount(userId) {
       resetInactivityTimer();
     });
 
-    let remainingSeconds = WARNING_BEFORE_LOGOUT / 1000;
+    let remainingSeconds = Math.ceil(
+      WARNING_BEFORE_LOGOUT / 1000
+    );
 
     function updateCountdown() {
       const countdown = document.getElementById(
         "gppInactivityCountdown"
       );
 
-      if (!countdown) return;
+      if (!countdown || !warningShown) return;
 
       const minutes = Math.floor(remainingSeconds / 60);
       const seconds = remainingSeconds % 60;
@@ -6691,6 +6709,11 @@ async function saveCustomerAccount(userId) {
         String(seconds).padStart(2, "0");
 
       if (remainingSeconds <= 0) {
+        if (countdownTimer !== null) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+        }
+
         logoutUser();
         return;
       }
@@ -6700,25 +6723,27 @@ async function saveCustomerAccount(userId) {
 
     updateCountdown();
 
-if (!logoutInProgress && warningShown) {
-  countdownTimer = setInterval(updateCountdown, 1000);
-}
+    if (warningShown && !logoutInProgress) {
+      countdownTimer = setInterval(updateCountdown, 1000);
+    }
+  }
 
-  
+  function resetInactivityTimer() {
+    if (
+      isPasswordRecoveryPage() ||
+      logoutInProgress
+    ) {
+      return;
+    }
 
-function resetInactivityTimer() {
-  if (isPasswordRecoveryPage() || logoutInProgress) return;
+    clearTimers();
+    closeWarning();
 
-  clearTimers();
-  closeWarning();
-
-  inactivityTimer = setTimeout(() => {
-    inactivityTimer = null;
-    showWarning();
-  }, WARNING_AFTER);
-}
-
-
+    inactivityTimer = setTimeout(() => {
+      inactivityTimer = null;
+      showWarning();
+    }, WARNING_AFTER);
+  }
 
   // Glass-style warning popup
   if (!document.getElementById("gppInactivityStyles")) {
@@ -6740,6 +6765,7 @@ function resetInactivityTimer() {
       }
 
       .gpp-inactivity-card {
+        box-sizing: border-box;
         width: 100%;
         max-width: 410px;
         padding: 32px 26px;
@@ -6821,7 +6847,7 @@ function resetInactivityTimer() {
     document.head.appendChild(style);
   }
 
-  // Reset the inactivity timer when the user interacts with the page.
+  // Reset inactivity timer when the user interacts with the page.
   [
     "mousemove",
     "mousedown",
@@ -6835,7 +6861,7 @@ function resetInactivityTimer() {
     });
   });
 
-  // Start the timer when a user session is available.
+  // Start timer when an authenticated session is available.
   sb.auth.onAuthStateChange((event, session) => {
     if (!session || isPasswordRecoveryPage()) {
       clearTimers();
@@ -6852,5 +6878,3 @@ function resetInactivityTimer() {
     }
   });
 })();
-}
-
