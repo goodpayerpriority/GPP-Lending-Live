@@ -6569,11 +6569,11 @@ async function saveCustomerAccount(userId) {
 }
 
 
-
 /* =========================================
-   GPP LENDING — AUTOMATIC SESSION TIMEOUT
-   Total inactivity: 3 minutes
-   Warning countdown: 20 seconds
+   GPP LENDING — AUTO LOGOUT
+   3 minutes total inactivity
+   20-second warning
+   Only for authenticated customer/admin areas
 ========================================= */
 
 (() => {
@@ -6587,10 +6587,40 @@ async function saveCustomerAccount(userId) {
   let warningOverlay = null;
   let warningShown = false;
   let logoutInProgress = false;
+  let activeSession = false;
 
   const isPasswordRecoveryPage = () =>
     new URLSearchParams(window.location.search).has("resetPassword") ||
     window.location.hash.includes("type=recovery");
+
+  /*
+   * Detect whether the authenticated area is visible.
+   * Main login panels alone do not qualify.
+   */
+  function isAuthenticatedAreaVisible() {
+    const customerProfile = document.getElementById("customerProfile");
+    const adminDashboard = document.getElementById("dashboard");
+
+    const customerAreaVisible =
+      customerProfile &&
+      !customerProfile.classList.contains("hidden") &&
+      customerProfile.offsetParent !== null;
+
+    const adminAreaVisible =
+      adminDashboard &&
+      !adminDashboard.classList.contains("hidden") &&
+      adminDashboard.offsetParent !== null;
+
+    return Boolean(customerAreaVisible || adminAreaVisible);
+  }
+
+  function canRunInactivityTimer() {
+    return (
+      activeSession &&
+      !isPasswordRecoveryPage() &&
+      isAuthenticatedAreaVisible()
+    );
+  }
 
   function clearTimers() {
     if (inactivityTimer !== null) {
@@ -6619,7 +6649,7 @@ async function saveCustomerAccount(userId) {
   }
 
   async function logoutUser() {
-    if (logoutInProgress) return;
+    if (logoutInProgress || !canRunInactivityTimer()) return;
 
     logoutInProgress = true;
     clearTimers();
@@ -6641,15 +6671,17 @@ async function saveCustomerAccount(userId) {
       return;
     }
 
+    activeSession = false;
     window.location.reload();
   }
 
-  /* =========================================
-     BLUE GLASS WARNING POPUP
-  ========================================= */
-
   function showWarning() {
-    if (warningShown || isPasswordRecoveryPage()) return;
+    if (
+      warningShown ||
+      !canRunInactivityTimer()
+    ) {
+      return;
+    }
 
     warningShown = true;
 
@@ -6685,11 +6717,9 @@ async function saveCustomerAccount(userId) {
 
     document.body.appendChild(warningOverlay);
 
-    const button = document.getElementById("gppStayLoggedIn");
-
-    button.addEventListener("click", () => {
-      resetInactivityTimer();
-    });
+    document
+      .getElementById("gppStayLoggedIn")
+      .addEventListener("click", resetInactivityTimer);
 
     let remainingSeconds = WARNING_BEFORE_LOGOUT / 1000;
 
@@ -6722,24 +6752,27 @@ async function saveCustomerAccount(userId) {
     countdownTimer = setInterval(updateCountdown, 1000);
   }
 
-  /* =========================================
-     RESET INACTIVITY TIMER
-  ========================================= */
-
   function resetInactivityTimer() {
-    if (isPasswordRecoveryPage() || logoutInProgress) return;
+    if (!canRunInactivityTimer() || logoutInProgress) {
+      clearTimers();
+      closeWarning();
+      return;
+    }
 
     clearTimers();
     closeWarning();
 
     inactivityTimer = setTimeout(() => {
       inactivityTimer = null;
-      showWarning();
+
+      if (canRunInactivityTimer()) {
+        showWarning();
+      }
     }, WARNING_AFTER);
   }
 
   /* =========================================
-     BLUE GLASS POPUP STYLES
+     BLUE GLASS POPUP DESIGN
   ========================================= */
 
   if (!document.getElementById("gppInactivityStyles")) {
@@ -6762,20 +6795,17 @@ async function saveCustomerAccount(userId) {
       }
 
       .gpp-inactivity-card {
-        position: relative;
-        overflow: hidden;
         box-sizing: border-box;
         width: 100%;
         max-width: 340px;
         padding: 25px 23px 23px;
         text-align: center;
         color: #ffffff;
-        background:
-          linear-gradient(
-            145deg,
-            rgba(32, 116, 220, 0.38),
-            rgba(7, 34, 79, 0.62)
-          );
+        background: linear-gradient(
+          145deg,
+          rgba(32, 116, 220, 0.38),
+          rgba(7, 34, 79, 0.62)
+        );
         border: 1px solid rgba(173, 213, 255, 0.42);
         border-radius: 21px;
         box-shadow:
@@ -6791,11 +6821,7 @@ async function saveCustomerAccount(userId) {
         height: 4px;
         margin: 0 auto 17px;
         border-radius: 20px;
-        background: linear-gradient(
-          90deg,
-          #60a5fa,
-          #bfdbfe
-        );
+        background: linear-gradient(90deg, #60a5fa, #bfdbfe);
         box-shadow: 0 0 15px rgba(96, 165, 250, 0.55);
       }
 
@@ -6849,21 +6875,14 @@ async function saveCustomerAccount(userId) {
         padding: 12px 16px;
         border: 1px solid rgba(255, 255, 255, 0.55);
         border-radius: 11px;
-        background: linear-gradient(
-          135deg,
-          #ffffff,
-          #dbeafe
-        );
+        background: linear-gradient(135deg, #ffffff, #dbeafe);
         color: #12346b;
         font-family: inherit;
         font-size: 13px;
         font-weight: 750;
         cursor: pointer;
         box-shadow: 0 5px 16px rgba(0, 0, 0, 0.15);
-        transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease,
-          background 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
 
       #gppStayLoggedIn:hover {
@@ -6924,7 +6943,7 @@ async function saveCustomerAccount(userId) {
   }
 
   /* =========================================
-     USER ACTIVITY LISTENERS
+     USER ACTIVITY
   ========================================= */
 
   [
@@ -6941,22 +6960,38 @@ async function saveCustomerAccount(userId) {
   });
 
   /* =========================================
-     START TIMER FOR ACTIVE AUTH SESSION
+     SUPABASE SESSION HANDLING
   ========================================= */
 
   sb.auth.onAuthStateChange((event, session) => {
+    activeSession = Boolean(session);
+
     if (!session || isPasswordRecoveryPage()) {
       clearTimers();
       closeWarning();
       return;
     }
 
-    if (
-      event === "SIGNED_IN" ||
-      event === "INITIAL_SESSION" ||
-      event === "TOKEN_REFRESHED"
-    ) {
+    /*
+     * Do not start the timer on the login screen.
+     * Start only when the authenticated area is visible.
+     */
+    if (isAuthenticatedAreaVisible()) {
       resetInactivityTimer();
+    } else {
+      clearTimers();
+      closeWarning();
+    }
+  });
+
+  /*
+   * Recheck after page elements and authentication UI update.
+   */
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      if (canRunInactivityTimer()) {
+        resetInactivityTimer();
+      }
     }
   });
 })();
