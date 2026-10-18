@@ -6569,41 +6569,34 @@ async function saveCustomerAccount(userId) {
 }
 
 
-
 /* =========================================
-   GPP LENDING — AUTO LOGOUT
-   Total inactivity: 3 minutes
-   Warning: 20 seconds
-   Customer and Admin authenticated areas only
+   GPP LENDING — FINAL AUTO LOGOUT
+   3 minutes total inactivity
+   20-second warning
+   Customer and Admin dashboards only
 ========================================= */
 
 (() => {
-  const INACTIVITY_LIMIT = 3 * 60 * 1000;
-  const WARNING_BEFORE_LOGOUT = 20 * 1000;
-  const WARNING_AFTER =
-    INACTIVITY_LIMIT - WARNING_BEFORE_LOGOUT;
+  const TOTAL_INACTIVITY = 3 * 60 * 1000;
+  const WARNING_TIME = 20 * 1000;
+  const WARNING_DELAY = TOTAL_INACTIVITY - WARNING_TIME;
 
   let inactivityTimer = null;
   let countdownTimer = null;
   let warningOverlay = null;
   let warningShown = false;
   let logoutInProgress = false;
-  let activeSession = false;
-  let authInitialized = false;
+  let sessionActive = false;
+  let sessionCheckStarted = false;
 
-  const isPasswordRecoveryPage = () =>
-    new URLSearchParams(window.location.search).has("resetPassword") ||
-    window.location.hash.includes("type=recovery");
+  const isRecoveryPage = () =>
+    new URLSearchParams(location.search).has("resetPassword") ||
+    location.hash.includes("type=recovery");
 
-  function clearTimers() {
+  function clearInactivityTimer() {
     if (inactivityTimer !== null) {
       clearTimeout(inactivityTimer);
       inactivityTimer = null;
-    }
-
-    if (countdownTimer !== null) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
     }
   }
 
@@ -6621,26 +6614,24 @@ async function saveCustomerAccount(userId) {
     warningShown = false;
   }
 
-  /*
-   * The account page is #account.
-   * The customer area is #customerProfile.
-   * The admin dashboard is #dashboard.
-   *
-   * We do not use offsetParent because page visibility
-   * can be controlled by parent sections and CSS.
-   */
-  function isElementVisible(element) {
-    if (!element || element.classList.contains("hidden")) {
-      return false;
-    }
+  function clearAllTimers() {
+    clearInactivityTimer();
+    closeWarning();
+  }
+
+  function isActuallyVisible(element) {
+    if (!element) return false;
 
     let current = element;
 
     while (current && current !== document.body) {
+      if (current.classList.contains("hidden")) return false;
+
+      const style = window.getComputedStyle(current);
+
       if (
-        current.classList.contains("hidden") ||
-        current.classList.contains("page") &&
-        !current.classList.contains("active")
+        style.display === "none" ||
+        style.visibility === "hidden"
       ) {
         return false;
       }
@@ -6651,70 +6642,53 @@ async function saveCustomerAccount(userId) {
     return true;
   }
 
-  function isAuthenticatedAreaVisible() {
-    const customerProfile = document.getElementById("customerProfile");
-    const dashboard = document.getElementById("dashboard");
-
-    return (
-      isElementVisible(customerProfile) ||
-      isElementVisible(dashboard)
+  function isCustomerDashboard() {
+    return isActuallyVisible(
+      document.getElementById("customerProfile")
     );
   }
 
-  function canRunInactivityTimer() {
+  function isAdminDashboard() {
+    return isActuallyVisible(
+      document.getElementById("dashboard")
+    );
+  }
+
+  function canRunTimer() {
     return (
-      authInitialized &&
-      activeSession &&
+      sessionActive &&
       !logoutInProgress &&
-      !isPasswordRecoveryPage() &&
-      isAuthenticatedAreaVisible()
+      !isRecoveryPage() &&
+      (isCustomerDashboard() || isAdminDashboard())
     );
   }
 
-  async function logoutUser() {
-    if (!canRunInactivityTimer()) {
-      clearTimers();
-      closeWarning();
-      return;
-    }
-
-    logoutInProgress = true;
-    clearTimers();
+  function resetInactivityTimer() {
+    clearInactivityTimer();
     closeWarning();
 
-    try {
-      const { error } = await sb.auth.signOut();
+    if (!canRunTimer()) return;
 
-      if (error) {
-        console.error("Automatic logout failed:", error);
-        logoutInProgress = false;
-        resetInactivityTimer();
-        return;
+    inactivityTimer = setTimeout(() => {
+      inactivityTimer = null;
+
+      if (canRunTimer()) {
+        showWarning();
       }
-    } catch (error) {
-      console.error("Automatic logout error:", error);
-      logoutInProgress = false;
-      resetInactivityTimer();
-      return;
-    }
-
-    activeSession = false;
-    window.location.reload();
+    }, WARNING_DELAY);
   }
 
   function showWarning() {
-    if (warningShown || !canRunInactivityTimer()) {
-      return;
-    }
+    if (warningShown || !canRunTimer()) return;
 
     warningShown = true;
+
     warningOverlay = document.createElement("div");
     warningOverlay.id = "gppInactivityWarning";
 
     warningOverlay.innerHTML = `
       <div class="gpp-inactivity-card">
         <div class="gpp-inactivity-accent"></div>
-
         <h2>Session Expiring Soon</h2>
 
         <p class="gpp-inactivity-description">
@@ -6743,7 +6717,7 @@ async function saveCustomerAccount(userId) {
     document.getElementById("gppStayLoggedIn")
       .addEventListener("click", resetInactivityTimer);
 
-    let remainingSeconds = WARNING_BEFORE_LOGOUT / 1000;
+    let endTime = Date.now() + WARNING_TIME;
 
     function updateCountdown() {
       const countdown = document.getElementById(
@@ -6752,50 +6726,52 @@ async function saveCustomerAccount(userId) {
 
       if (!countdown || !warningShown) return;
 
-      const minutes = Math.floor(remainingSeconds / 60);
-      const seconds = remainingSeconds % 60;
+      const remaining = Math.max(0, endTime - Date.now());
+      const seconds = Math.ceil(remaining / 1000);
 
       countdown.textContent =
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(seconds).padStart(2, "0");
+        "00:" + String(seconds).padStart(2, "0");
 
-      if (remainingSeconds <= 0) {
+      if (remaining <= 0) {
         clearInterval(countdownTimer);
         countdownTimer = null;
-        logoutUser();
-        return;
+        automaticLogout();
       }
-
-      remainingSeconds--;
     }
 
     updateCountdown();
-    countdownTimer = setInterval(updateCountdown, 1000);
+    countdownTimer = setInterval(updateCountdown, 250);
   }
 
-  function resetInactivityTimer() {
-    if (!canRunInactivityTimer()) {
-      clearTimers();
-      closeWarning();
+  async function automaticLogout() {
+    if (logoutInProgress || !canRunTimer()) {
+      clearAllTimers();
       return;
     }
 
-    clearTimers();
-    closeWarning();
+    logoutInProgress = true;
+    clearAllTimers();
 
-    inactivityTimer = setTimeout(() => {
-      inactivityTimer = null;
+    try {
+      const { error } = await sb.auth.signOut();
 
-      if (canRunInactivityTimer()) {
-        showWarning();
+      if (error) {
+        console.error("Automatic logout failed:", error);
+        logoutInProgress = false;
+        resetInactivityTimer();
+        return;
       }
-    }, WARNING_AFTER);
+
+      sessionActive = false;
+      location.reload();
+    } catch (error) {
+      console.error("Automatic logout error:", error);
+      logoutInProgress = false;
+      resetInactivityTimer();
+    }
   }
 
-  /* =========================================
-     BLUE GLASS POPUP DESIGN
-  ========================================= */
+  /* BLUE GLASS POPUP */
 
   if (!document.getElementById("gppInactivityStyles")) {
     const style = document.createElement("style");
@@ -6810,10 +6786,10 @@ async function saveCustomerAccount(userId) {
         align-items: center;
         justify-content: center;
         padding: 16px;
-        background: rgba(3, 12, 30, 0.48);
+        background: rgba(3, 12, 30, .50);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
-        animation: gppOverlayIn 0.25s ease-out;
+        animation: gppOverlayIn .25s ease-out;
       }
 
       .gpp-inactivity-card {
@@ -6825,17 +6801,17 @@ async function saveCustomerAccount(userId) {
         color: #fff;
         background: linear-gradient(
           145deg,
-          rgba(32, 116, 220, 0.38),
-          rgba(7, 34, 79, 0.62)
+          rgba(32, 116, 220, .48),
+          rgba(7, 34, 79, .78)
         );
-        border: 1px solid rgba(173, 213, 255, 0.42);
+        border: 1px solid rgba(173, 213, 255, .48);
         border-radius: 21px;
         box-shadow:
-          0 18px 50px rgba(0, 0, 0, 0.28),
-          inset 0 1px 0 rgba(255, 255, 255, 0.18);
+          0 18px 50px rgba(0, 0, 0, .28),
+          inset 0 1px 0 rgba(255, 255, 255, .18);
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
-        animation: gppCardIn 0.3s ease-out;
+        animation: gppCardIn .3s ease-out;
       }
 
       .gpp-inactivity-accent {
@@ -6844,7 +6820,6 @@ async function saveCustomerAccount(userId) {
         margin: 0 auto 17px;
         border-radius: 20px;
         background: linear-gradient(90deg, #60a5fa, #bfdbfe);
-        box-shadow: 0 0 15px rgba(96, 165, 250, 0.55);
       }
 
       .gpp-inactivity-card h2 {
@@ -6858,16 +6833,16 @@ async function saveCustomerAccount(userId) {
       .gpp-inactivity-description {
         margin: 0 auto 19px;
         max-width: 270px;
-        color: rgba(239, 246, 255, 0.88);
+        color: #eaf3ff;
         font-size: 12.5px;
         line-height: 1.65;
       }
 
       .gpp-inactivity-label {
-        color: rgba(219, 234, 254, 0.85);
+        color: #dbeafe;
         font-size: 11px;
         font-weight: 600;
-        letter-spacing: 0.7px;
+        letter-spacing: .7px;
         text-transform: uppercase;
       }
 
@@ -6881,19 +6856,18 @@ async function saveCustomerAccount(userId) {
         font-variant-numeric: tabular-nums;
       }
 
-      .gpp-inactivity-card .gpp-inactivity-note {
+      .gpp-inactivity-note {
         margin: 0 0 17px;
-        color: rgba(219, 234, 254, 0.82);
+        color: #dbeafe;
         font-size: 12px;
         line-height: 1.5;
       }
 
       #gppStayLoggedIn {
-        display: block;
-        box-sizing: border-box;
         width: 100%;
+        box-sizing: border-box;
         padding: 12px 16px;
-        border: 1px solid rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(255, 255, 255, .55);
         border-radius: 11px;
         background: linear-gradient(135deg, #fff, #dbeafe);
         color: #12346b;
@@ -6901,18 +6875,15 @@ async function saveCustomerAccount(userId) {
         font-size: 13px;
         font-weight: 750;
         cursor: pointer;
-        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.15);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform .2s ease;
       }
 
       #gppStayLoggedIn:hover {
         transform: translateY(-1px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        background: #fff;
       }
 
       #gppStayLoggedIn:active {
-        transform: scale(0.98);
+        transform: scale(.98);
       }
 
       @keyframes gppOverlayIn {
@@ -6923,7 +6894,7 @@ async function saveCustomerAccount(userId) {
       @keyframes gppCardIn {
         from {
           opacity: 0;
-          transform: translateY(10px) scale(0.97);
+          transform: translateY(10px) scale(.97);
         }
         to {
           opacity: 1;
@@ -6951,19 +6922,13 @@ async function saveCustomerAccount(userId) {
         .gpp-inactivity-card {
           animation: none;
         }
-
-        #gppStayLoggedIn {
-          transition: none;
-        }
       }
     `;
 
     document.head.appendChild(style);
   }
 
-  /* =========================================
-     USER ACTIVITY
-  ========================================= */
+  /* USER ACTIVITY */
 
   [
     "mousemove",
@@ -6973,59 +6938,82 @@ async function saveCustomerAccount(userId) {
     "touchstart",
     "click"
   ].forEach(eventName => {
-    window.addEventListener(eventName, resetInactivityTimer, {
-      passive: true
-    });
+    window.addEventListener(eventName, () => {
+      if (canRunTimer()) {
+        resetInactivityTimer();
+      }
+    }, { passive: true });
   });
 
-  /* =========================================
-     SUPABASE SESSION
-  ========================================= */
+  /* INITIAL SESSION CHECK */
+
+  async function checkSession() {
+    try {
+      const { data, error } = await sb.auth.getSession();
+
+      if (error) throw error;
+
+      sessionActive = Boolean(data.session);
+
+      if (canRunTimer()) {
+        if (inactivityTimer === null && !warningShown) {
+          resetInactivityTimer();
+        }
+      } else {
+        clearAllTimers();
+      }
+    } catch (error) {
+      console.error("Unable to check session:", error);
+      sessionActive = false;
+      clearAllTimers();
+    }
+  }
 
   sb.auth.onAuthStateChange((event, session) => {
-    authInitialized = true;
-    activeSession = Boolean(session);
+    sessionActive = Boolean(session);
 
-    if (!session || isPasswordRecoveryPage()) {
-      clearTimers();
-      closeWarning();
+    if (!session || isRecoveryPage()) {
+      clearAllTimers();
       return;
     }
 
-    if (isAuthenticatedAreaVisible()) {
-      resetInactivityTimer();
-    } else {
-      clearTimers();
-      closeWarning();
-    }
+    /*
+     * Let the existing login function update the dashboard,
+     * then check whether the authenticated area is visible.
+     */
+    setTimeout(() => {
+      if (canRunTimer()) {
+        resetInactivityTimer();
+      }
+    }, 0);
   });
 
+  checkSession();
+
   /*
-   * Recheck after login/dashboard UI changes.
-   * A short interval allows the existing app to finish
-   * showing its authenticated panel before starting.
+   * Detect when login functions reveal the dashboard.
+   * The timer starts only when a session and dashboard exist.
    */
-  const gppSessionCheck = setInterval(() => {
-    if (!authInitialized || !activeSession) return;
-
-    if (isPasswordRecoveryPage()) {
-      clearTimers();
-      closeWarning();
-      return;
-    }
-
-    if (isAuthenticatedAreaVisible()) {
+  const dashboardObserver = new MutationObserver(() => {
+    if (canRunTimer()) {
       if (inactivityTimer === null && !warningShown) {
         resetInactivityTimer();
       }
-    } else {
-      clearTimers();
-      closeWarning();
+    } else if (!warningShown) {
+      clearInactivityTimer();
     }
-  }, 1000);
+  });
+
+  dashboardObserver.observe(document.body, {
+    attributes: true,
+    childList: true,
+    subtree: true,
+    attributeFilter: ["class", "style"]
+  });
 
   window.addEventListener("beforeunload", () => {
-    clearInterval(gppSessionCheck);
-    clearTimers();
+    clearAllTimers();
+    dashboardObserver.disconnect();
   });
 })();
+
