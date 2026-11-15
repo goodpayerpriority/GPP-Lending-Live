@@ -2778,6 +2778,43 @@ async function activateLoan(id) {
   await renderClients();
 }
 
+function getCurrentLoanPenalty(application, referenceDate = new Date()) {
+  if (!application.loan_end_date) return 0;
+
+  const dueDate = new Date(
+    `${application.loan_end_date}T00:00:00`
+  );
+
+  const today = new Date(referenceDate);
+  today.setHours(0, 0, 0, 0);
+
+  if (Number.isNaN(dueDate.getTime())) return 0;
+
+  const delayedDays = Math.max(
+    0,
+    Math.floor((today - dueDate) / 86400000)
+  );
+
+  return delayedDays * 50;
+}
+
+
+function getCurrentLoanBalance(application, referenceDate = new Date()) {
+  const originalTotalDue = Number(
+    application.total_payment ??
+    application.total_amount_to_pay ??
+    application.total_due ??
+    0
+  );
+
+  const amountPaid = Number(application.amount_paid || 0);
+  const penalty = getCurrentLoanPenalty(application, referenceDate);
+
+  return Math.max(
+    originalTotalDue + penalty - amountPaid,
+    0
+  );
+}
 
 /* =========================================
    LOAD ACTIVE CLIENTS
@@ -2860,37 +2897,18 @@ async function renderClients() {
   );
 
   const totalDueAmount = activeClientRows.reduce(
-    (sum, application) => {
-      // Fully paid loans should not add to outstanding due.
-      if (
-        String(application.payment_status || "").toLowerCase() === "paid" ||
-        String(application.loan_status || "").toLowerCase() === "paid"
-      ) {
-        return sum;
-      }
+  (sum, application) => {
+    if (
+      String(application.payment_status || "").toLowerCase() === "paid" ||
+      String(application.loan_status || "").toLowerCase() === "paid"
+    ) {
+      return sum;
+    }
 
-      const dueStatus = getCalculatedDueStatus(application);
-
-      let penalty = 0;
-
-      if (dueStatus.startsWith("Delayed")) {
-        const match = dueStatus.match(/(\d+)/);
-        const delayedDays = match ? Number(match[1]) : 0;
-        penalty = delayedDays * 50;
-      }
-
-      const remainingBalance = Number(
-        application.remaining_balance ??
-        application.total_due ??
-        application.total_payment ??
-        application.total_amount_to_pay ??
-        0
-      );
-
-      return sum + Math.max(0, remainingBalance + penalty);
-    },
-    0
-  );
+    return sum + getCurrentLoanBalance(application);
+  },
+  0
+);
 
   const totalLoanElement = $("activeTotalLoanAmount");
   const totalDueElement = $("activeTotalDue");
@@ -2915,26 +2933,7 @@ async function renderClients() {
               application
             );
 
-          let penalty = 0;
-
-if (dueStatus.startsWith("Delayed")) {
-  const match =
-    dueStatus.match(/(\d+)/);
-
-  const delayedDays =
-    match
-      ? Number(match[1])
-      : 0;
-
-  penalty = delayedDays * 50;
-}
-
-const totalDue =
-  Number(
-    application.total_due ??
-    application.total_payment ??
-    0
-  ) + penalty;
+          const totalDue = getCurrentLoanBalance(application);
 
 
           return `
@@ -3316,34 +3315,28 @@ if (paymentDateInput === null) return;
 const paymentDate =
   paymentDateInput.trim();
 
-let penalty = 0;
+const originalTotalDue = Number(
+  application.total_payment ||
+  application.total_amount_to_pay ||
+  application.total_due ||
+  0
+);
 
-if (application.loan_end_date) {
+const paymentDateObject = new Date(
+  `${paymentDate}T00:00:00`
+);
 
-  const due =
-    new Date(`${application.loan_end_date}T00:00:00`);
-
-  const paid =
-    new Date(`${paymentDate}T00:00:00`);
-
-  const delayedDays =
-    Math.max(
-      0,
-      Math.floor((paid - due) / 86400000)
-    );
-
-  penalty = delayedDays * 50;
+if (Number.isNaN(paymentDateObject.getTime())) {
+  alert("Invalid payment date. Please use YYYY-MM-DD.");
+  return;
 }
 
-const originalTotalDue =
-  Number(
-    application.total_payment ||
-    application.total_amount_to_pay ||
-    0
-  );
+const penalty = getCurrentLoanPenalty(
+  application,
+  paymentDateObject
+);
 
-const totalDue =
-  originalTotalDue + penalty;
+const totalDue = originalTotalDue + penalty;
   
   const alreadyPaid =
     Number(application.amount_paid || 0);
