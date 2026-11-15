@@ -3192,6 +3192,13 @@ async function renderLoanHistory() {
           >
             Re-loan
           </button>
+<button
+  type="button"
+  class="secondary-button"
+  onclick="restoreLoanToActive('${escapeJsString(application.id)}')"
+>
+  ↩ Restore to Active
+</button>
 
 <button
     type="button"
@@ -3408,6 +3415,85 @@ const newBalance =
   await renderClients();
 }
 
+/* =========================================
+   RESTORE PAID LOAN TO ACTIVE
+========================================= */
+
+async function restoreLoanToActive(id) {
+  try {
+    const confirmed = confirm(
+      "Are you sure you want to restore this loan to Active?\n\n" +
+      "This will reset its payment records and restore the original total amount due."
+    );
+
+    if (!confirmed) return;
+
+    // Get the original loan record
+    const { data: application, error: fetchError } = await sb
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    if (!application) {
+      alert("Loan record not found.");
+      return;
+    }
+
+    // Get original total payable amount
+    const originalTotal = Number(
+      application.total_payment ||
+      application.total_amount_to_pay ||
+      0
+    );
+
+    if (originalTotal <= 0) {
+      alert("Unable to restore: original total amount is invalid.");
+      return;
+    }
+
+    // Restore loan and reset payment records
+    const { error: updateError } = await sb
+      .from("applications")
+      .update({
+        loan_status: "Active",
+        payment_status: "Unpaid",
+        amount_paid: 0,
+        penalty_amount: 0,
+        remaining_balance: originalTotal,
+        paid_at: null,
+        payment_date: null,
+        payment_method: null,
+        payment_reference: null,
+        due_status: getCalculatedDueStatus(
+          application.loan_end_date
+        )
+      })
+      .eq("id", id);
+
+    if (updateError) throw updateError;
+
+    alert(
+      "Loan successfully restored to Active!\n\n" +
+      "Original Total Due: ₱" +
+      originalTotal.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
+    );
+
+    // Refresh existing displays
+    await render();
+    await renderClients();
+    await renderLoanHistory();
+
+  } catch (error) {
+    console.error("Restore Loan Error:", error);
+    alert("Unable to restore loan. Please try again.");
+  }
+}
 
 function getPaymentTimingStatus(
   dueDateValue,
