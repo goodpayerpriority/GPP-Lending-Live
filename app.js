@@ -3228,16 +3228,13 @@ async function renderLoanHistory() {
 
 async function restoreLoanToActive(id) {
   try {
-    const { data: application, error: fetchError } =
-      await sb
-        .from("applications")
-        .select("*")
-        .eq("id", id)
-        .single();
+    const { data: application, error: fetchError } = await sb
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (fetchError) throw fetchError;
-
-    const alreadyPaid = Number(application.amount_paid || 0);
 
     const originalTotalDue = Number(
       application.total_payment ||
@@ -3247,23 +3244,19 @@ async function restoreLoanToActive(id) {
     );
 
     const penalty = Number(application.penalty_amount || 0);
-    const remainingBalance = Math.max(
-      originalTotalDue + penalty - alreadyPaid,
-      0
-    );
+    const restoredBalance = originalTotalDue + penalty;
 
-    if (remainingBalance <= 0) {
-      alert("This loan is already fully paid. There is no remaining balance to restore.");
+    if (restoredBalance <= 0) {
+      alert("Unable to determine the original loan balance.");
       return;
     }
 
     const confirmed = confirm(
-      `Restore this loan to Active?\n\n` +
+      `Restore this mistakenly marked Paid loan?\n\n` +
       `Borrower: ${application.full_name || "N/A"}\n` +
-      `Original Total Due: ${formatMoney(originalTotalDue)}\n` +
-      `Amount Already Paid: ${formatMoney(alreadyPaid)}\n` +
-      `Remaining Balance: ${formatMoney(remainingBalance)}\n\n` +
-      `Existing payment records will be preserved.`
+      `Amount Already Paid: ₱0.00\n` +
+      `Remaining Balance: ${formatMoney(restoredBalance)}\n\n` +
+      `This will reset the recorded payment to zero and return the loan to Active.`
     );
 
     if (!confirmed) return;
@@ -3272,8 +3265,9 @@ async function restoreLoanToActive(id) {
       .from("applications")
       .update({
         loan_status: "Active",
-        payment_status: alreadyPaid > 0 ? "Partially Paid" : "Unpaid",
-        remaining_balance: remainingBalance,
+        payment_status: "Unpaid",
+        amount_paid: 0,
+        remaining_balance: restoredBalance,
         paid_at: null
       })
       .eq("id", id);
