@@ -3192,6 +3192,14 @@ async function renderLoanHistory() {
           >
             Re-loan
           </button>
+          
+<button
+  type="button"
+  class="secondary-button"
+  onclick="restoreLoanToActive('${escapeJsString(application.id)}')"
+>
+  ↩ Restore to Active
+</button>
 
 <button
     type="button"
@@ -3212,6 +3220,76 @@ async function renderLoanHistory() {
       </td>
     </tr>
   `;
+}
+
+/* =========================================
+   RESTORE LOAN TO ACTIVE
+========================================= */
+
+async function restoreLoanToActive(id) {
+  try {
+    const { data: application, error: fetchError } =
+      await sb
+        .from("applications")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (fetchError) throw fetchError;
+
+    const alreadyPaid = Number(application.amount_paid || 0);
+
+    const originalTotalDue = Number(
+      application.total_payment ||
+      application.total_amount_to_pay ||
+      application.total_due ||
+      0
+    );
+
+    const penalty = Number(application.penalty_amount || 0);
+    const remainingBalance = Math.max(
+      originalTotalDue + penalty - alreadyPaid,
+      0
+    );
+
+    if (remainingBalance <= 0) {
+      alert("This loan is already fully paid. There is no remaining balance to restore.");
+      return;
+    }
+
+    const confirmed = confirm(
+      `Restore this loan to Active?\n\n` +
+      `Borrower: ${application.full_name || "N/A"}\n` +
+      `Original Total Due: ${formatMoney(originalTotalDue)}\n` +
+      `Amount Already Paid: ${formatMoney(alreadyPaid)}\n` +
+      `Remaining Balance: ${formatMoney(remainingBalance)}\n\n` +
+      `Existing payment records will be preserved.`
+    );
+
+    if (!confirmed) return;
+
+    const { error: updateError } = await sb
+      .from("applications")
+      .update({
+        loan_status: "Active",
+        payment_status: alreadyPaid > 0 ? "Partially Paid" : "Unpaid",
+        remaining_balance: remainingBalance,
+        paid_at: null
+      })
+      .eq("id", id);
+
+    if (updateError) throw updateError;
+
+    alert("Loan successfully restored to Active!");
+
+    await render();
+    await renderClients();
+    await renderLoanHistory();
+
+  } catch (error) {
+    console.error("Restore loan error:", error);
+    alert(error.message || "Unable to restore this loan.");
+  }
 }
 
 /* =========================================
