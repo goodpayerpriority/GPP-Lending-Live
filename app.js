@@ -1597,33 +1597,48 @@ async function track() {
 
 
     const loanStatus =
-      application.loan_status ||
-      "";
+  application.loan_status ||
+  "";
 
+const amountPaid =
+  Number(application.amount_paid || 0);
 
-    const paymentStatus =
-      application.payment_status ||
-      "";
+const baseTotalPayment =
+  Number(
+    application.total_payment ||
+    application.total_amount_to_pay ||
+    application.total_due ||
+    0
+  );
 
+// Calculate the current penalty using the due date.
+const currentPenalty =
+  getCurrentLoanPenalty(application);
 
-    const dueStatus =
-      application.due_status ||
-      application.delay_status ||
-      "";
+const totalPayment =
+  baseTotalPayment + currentPenalty;
 
-
-    const requestedAmount =
-      Number(
-        application.requested_amount
+// Calculate the latest due status.
+const dueStatus =
+  application.loan_status === "Active"
+    ? getCalculatedDueStatus(application)
+    : (
+        application.due_status ||
+        application.delay_status ||
+        ""
       );
 
-
-    const totalPayment =
-      Number(
-        application.total_payment ||
-        application.total_amount_to_pay
+// Display the actual amount already paid.
+const paymentStatus =
+  application.payment_status === "Partially Paid"
+    ? `Partially Paid (${formatMoney(amountPaid)} paid)`
+    : (
+        application.payment_status ||
+        ""
       );
 
+const requestedAmount =
+  Number(application.requested_amount);
 
     let statusDetails =
       "";
@@ -1658,9 +1673,7 @@ async function track() {
           <b>Payment Status:</b><br>
 
           <strong>
-            ${escapeHtml(
-              paymentStatus
-            )}
+            ${escapeHtml(paymentStatus)}
           </strong>
 
         </p>
@@ -1668,7 +1681,32 @@ async function track() {
       `;
     }
 
+if (
+  application.loan_status === "Active" &&
+  application.payment_status !== "Paid"
+) {
 
+  const remainingBalance =
+    Math.max(
+      totalPayment - amountPaid,
+      0
+    );
+
+  statusDetails += `
+
+    <p>
+
+      <b>Remaining Balance:</b><br>
+
+      <strong>
+        ${formatMoney(remainingBalance)}
+      </strong>
+
+    </p>
+
+  `;
+}
+    
     if (dueStatus) {
 
       statusDetails += `
